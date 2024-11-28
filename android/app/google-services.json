@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "150950766105",
+    "project_id": "dating-app-7a6f7",
+    "storage_bucket": "dating-app-7a6f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150950766105:android:7d85e904a64c68a7a0ec88",
+        "android_client_info": {
+          "package_name": "ntsprint.datingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCad3m_bjhmib0HuCegBUX9Xx5el5ryqW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
