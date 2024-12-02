@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 
 const Button = ({
   title,
@@ -17,10 +17,13 @@ const Button = ({
   borderWidth = 0,
   borderColor = 'transparent',
   borderRadius = 0,
-  fontSize = 16,
-  fontWeight = 'bold',
+  fontSize = 14,
+  fontWeight = '400',
   fontFamily = 'System',
   textAlign = 'center',
+  icon = null,
+  iconPosition = 'left',
+  iconSpacing = 10,
 }) => {
   return (
     <TouchableOpacity
@@ -43,20 +46,28 @@ const Button = ({
       ]}
       onPress={onPress}
     >
-      <Text
-        style={[
-          styles.buttonText,
-          {
-            color: textColor,
-            fontSize,
-            fontFamily,
-            fontWeight,
-            textAlign,
-          },
-        ]}
-      >
-        {title}
-      </Text>
+      <View style={styles.content}>
+        {icon && iconPosition === 'left' && (
+          <View style={{ marginRight: iconSpacing }}>{icon}</View>
+        )}
+        <Text
+          style={[
+            styles.buttonText,
+            {
+              color: textColor,
+              fontSize,
+              fontFamily,
+              fontWeight,
+              textAlign,
+            },
+          ]}
+        >
+          {title}
+        </Text>
+        {icon && iconPosition === 'right' && (
+          <View style={{ marginLeft: iconSpacing }}>{icon}</View>
+        )}
+      </View>
     </TouchableOpacity>
   );
 };
@@ -69,6 +80,11 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

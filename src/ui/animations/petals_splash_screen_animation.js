@@ -9,7 +9,7 @@ import Petal4 from '../../assets/splash_screen_flower/petals/petal_4.svg';
 import Petal5 from '../../assets/splash_screen_flower/petals/petal_5.svg';
 import Petal6 from '../../assets/splash_screen_flower/petals/petal_6.svg';
 
-const PetalAnimation = () => {
+const PetalsSplashScreenAnimation = () => {
   const petalAnimations = Array(6)
     .fill(0)
     .map(() => ({
@@ -22,7 +22,7 @@ const PetalAnimation = () => {
   const petalInitialPositions = [
     { x: -150, y: -150 },
     { x: 137, y: -160 },
-    { x: 110, y: 0 },
+    { x: 140, y: 0 },
     { x: 60, y: 90 },
     { x: -127, y: 50 },
     { x: -117, y: -50 },
@@ -51,12 +51,12 @@ const PetalAnimation = () => {
           const animatePetal = () => {
             Animated.parallel([
               Animated.timing(animation.translateX, {
-                toValue: petalInitialPositions[index].x + Math.random() * 50 - 40,
+                toValue: petalInitialPositions[index].x + Math.random() * 30 - 20,
                 duration: 2000 + Math.random() * 1000,
                 useNativeDriver: true,
               }),
               Animated.timing(animation.translateY, {
-                toValue: petalInitialPositions[index].y + Math.random() * 50 - 40,
+                toValue: petalInitialPositions[index].y + Math.random() * 30 - 20,
                 duration: 2000 + Math.random() * 1000,
                 useNativeDriver: true,
               }),
@@ -117,4 +117,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PetalAnimation;
+export default PetalsSplashScreenAnimation;
