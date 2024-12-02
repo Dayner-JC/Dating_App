@@ -26,6 +26,7 @@ const LoginScreen = () => {
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
+      // eslint-disable-next-line react-native/no-inline-styles
       contentContainerStyle={{ flexGrow: 1 }}
       scrollEnabled={true}
     >
@@ -72,6 +73,7 @@ const LoginScreen = () => {
           width={'100%'}
           height={55}
           fontFamily="RobotoRegular"
+          onPress={() => navigation.navigate('Main')}
         />
 
         <View style={styles.or_container}>
