@@ -50,7 +50,10 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>GreatMangoDemo.ttf</string>
-		<string>RobotoRegular.ttf</string>
+		<string>Inter_300.ttf</string>
+		<string>Roboto_400.ttf</string>
+		<string>Roboto_500.ttf</string>
+		<string>Roboto_700.ttf</string>
 	</array>
 </dict>
 </plist>

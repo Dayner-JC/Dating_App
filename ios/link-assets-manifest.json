@@ -6,8 +6,20 @@
       "sha1": "da6e7a8c16dde9e0a02182404cb29ae56f4ac89c"
     },
     {
-      "path": "src/assets/fonts/RobotoRegular.ttf",
+      "path": "src/assets/fonts/Inter_300.ttf",
+      "sha1": "6b041e6fc61656b930d8ef638a0b9d6a0ac8e084"
+    },
+    {
+      "path": "src/assets/fonts/Roboto_400.ttf",
       "sha1": "ce57fc6c6705cb20661ac325fac5d4598b6efbca"
+    },
+    {
+      "path": "src/assets/fonts/Roboto_500.ttf",
+      "sha1": "0ee6b0bd5ff6fe30e4ef720a08e38656dc60985f"
+    },
+    {
+      "path": "src/assets/fonts/Roboto_700.ttf",
+      "sha1": "1e8baa650d943f2b78f1b77dbfe3ba1fb590e21a"
     }
   ]
 }

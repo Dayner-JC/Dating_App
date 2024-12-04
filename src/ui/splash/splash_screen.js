@@ -29,16 +29,19 @@ const SplashScreen = () => {
       <DivisorAnimation />
       <ButtonAnimation
       title={'Create an account'}
+      fontFamily="Roboto_500"
+      fontSize = {16}
       backgroundColor="#D97904"
       borderRadius={100}
       width={'95%'}
       height={55}
       marginTop={20}
-      fontFamily="RobotoRegular"
       onPress={() => navigation.navigate('RegisterScreen')}
       />
       <ButtonAnimation
       title={'Log in'}
+      fontFamily="Roboto_500"
+      fontSize = {16}
       backgroundColor="transparent"
       borderWidth={1}
       borderColor="#747474"
@@ -46,7 +49,6 @@ const SplashScreen = () => {
       width="95%"
       height={55}
       marginTop={20}
-      fontFamily="RobotoRegular"
       onPress={() => navigation.navigate('LoginScreen')}
       />
     </View>

@@ -5,7 +5,7 @@ import HomeFragment from '../main/fragments/home_fragment';
 import FavoritesFragment from '../main/fragments/favorites_fragment';
 import MessagesFragment from '../main/fragments/messages_fragment';
 import ProfileFragment from '../main/fragments/profile_fragment';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, StatusBar } from 'react-native';
 import HomeIcon from '../../assets/icons/home.svg';
 import FavoritesIcon from '../../assets/icons/matches.svg';
 import MessagesIcon from '../../assets/icons/chat.svg';
@@ -19,6 +19,9 @@ const Tab = createBottomTabNavigator();
 
 function Main() {
   return (
+    <>
+      <StatusBar
+        backgroundColor="#0A0F0D"/>
     <Tab.Navigator
       screenOptions={{
         headerShown: true,
@@ -34,7 +37,7 @@ function Main() {
           tabBarIcon: ({ focused }) => (
             <HomeIcon
               fill={focused ? '#D9D2B0' : 'transparent'}
-              stroke={focused ? '#17261F' : 'white'}
+              stroke={focused ? '#0A0F0D' : 'white'}
             />
           ),
           header: () => <HomeAppBar />,
@@ -47,7 +50,7 @@ function Main() {
           tabBarIcon: ({ focused }) => (
             <FavoritesIcon
               fill={focused ? '#D9D2B0' : 'transparent'}
-              stroke={focused ? '#17261F' : 'white'}
+              stroke={focused ? '#0A0F0D' : 'white'}
             />
           ),
           header: () => <FavoritesAppBar />,
@@ -60,7 +63,7 @@ function Main() {
           tabBarIcon: ({ focused }) => (
             <MessagesIcon
               fill={focused ? '#D9D2B0' : 'transparent'}
-              stroke={focused ? '#17261F' : 'white'}
+              stroke={focused ? '#0A0F0D' : 'white'}
             />
           ),
           header: () => <MessagesAppBar />,
@@ -79,15 +82,17 @@ function Main() {
         }}
       />
     </Tab.Navigator>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#17261F',
-    height: '10%',
+    backgroundColor: '#0A0F0D',
+    height: 80,
     justifyContent: 'center',
     alignItems: 'center',
+    borderColor: '#0A0F0D',
   },
   tabBarLabel: {
     display: 'none',

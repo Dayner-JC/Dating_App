@@ -27,7 +27,7 @@ const SubtitleTextAnimation = ({ onTermsPress, onPrivacyPress, onCookiesPress })
         .{'\n'}Check how we use your data in our{' '}
         <Text style={styles.link} onPress={onPrivacyPress}>
           Privacy Policy
-        </Text>{' '}
+        </Text>{'\n'}
         and{' '}
         <Text style={styles.link} onPress={onCookiesPress}>
           Cookies Policy
@@ -40,18 +40,16 @@ const SubtitleTextAnimation = ({ onTermsPress, onPrivacyPress, onCookiesPress })
 
 const styles = StyleSheet.create({
   title: {
-    fontFamily: 'RobotoRegular',
+    fontFamily: 'Roboto_400',
     color: '#D9D2B0',
     textAlign: 'center',
     marginHorizontal: 20,
     marginTop: 20,
-    fontWeight: '400',
-    fontSize: 12,
-    letterSpacing: 2,
+    fontSize: 14,
   },
   link: {
     color: '#E6A000',
-    fontWeight: 'bold',
+    fontFamily: 'Roboto_400',
   },
 });
 

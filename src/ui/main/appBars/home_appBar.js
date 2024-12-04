@@ -28,7 +28,7 @@ const HomeAppBar = () => {
 const styles = StyleSheet.create({
   appBar: {
     height: 72,
-    backgroundColor: '#17261F',
+    backgroundColor: '#0A0F0D',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,

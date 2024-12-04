@@ -68,11 +68,12 @@ const LoginScreen = () => {
 
         <Button
           title="Sign In"
+          fontSize = {16}
+          fontFamily="Roboto_500"
           backgroundColor="#D97904"
           borderRadius={100}
           width={'100%'}
           height={55}
-          fontFamily="RobotoRegular"
           onPress={() => navigation.navigate('Main')}
         />
 
@@ -84,6 +85,8 @@ const LoginScreen = () => {
 
         <Button
           title="Sign in with Facebook"
+          fontSize={14}
+          fontFamily="Roboto_400"
           backgroundColor="transparent"
           textColor="#D9D2B0"
           borderWidth={1}
@@ -91,11 +94,12 @@ const LoginScreen = () => {
           borderRadius={100}
           width="100%"
           height={55}
-          fontFamily="RobotoRegular"
           icon={<FacebookIcon width={20} height={20}/>}
         />
         <Button
           title="Sign in with Google"
+          fontSize={14}
+          fontFamily="Roboto_400"
           backgroundColor="transparent"
           textColor="#D9D2B0"
           borderWidth={1}
@@ -104,11 +108,12 @@ const LoginScreen = () => {
           width="100%"
           height={55}
           marginTop={15}
-          fontFamily="RobotoRegular"
           icon={<GoogleIcon width={20} height={20}/>}
         />
         <Button
           title="Sign in with Apple"
+          fontFamily="Roboto_400"
+          fontSize={14}
           backgroundColor="transparent"
           textColor="#D9D2B0"
           borderWidth={1}
@@ -117,7 +122,6 @@ const LoginScreen = () => {
           width="100%"
           height={55}
           marginTop={15}
-          fontFamily="RobotoRegular"
           icon={<AppleIcon width={20} height={20}/>}
         />
         <Text style={styles.footer_text} onPress={() => navigation.navigate('RegisterScreen')}>
@@ -151,10 +155,9 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   subtitle_text: {
-    fontFamily: 'Roboto',
+    fontFamily: 'Roboto_400',
     color: '#D9D2B0',
     fontSize: 14,
-    fontWeight: '400',
     marginBottom: 50,
   },
   input_container: {
@@ -162,10 +165,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   phone_number_text: {
-    fontFamily: 'Roboto',
+    fontFamily: 'Roboto_500',
     color: '#D9D2B0',
     fontSize: 12,
-    fontWeight: '900',
     marginBottom: 5,
   },
   phone_input_container: {
@@ -213,21 +215,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#2A372D',
   },
   or_text: {
+    fontFamily: 'Roboto_300',
     color: '#D9D2B0',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 12,
     textAlign: 'center',
     margin: 10,
   },
   footer_text: {
+    fontFamily: 'Roboto_400',
+    fontSize: 14,
     color: '#D9D2B0',
     textAlign: 'center',
     marginTop: 40,
     width: '100%',
   },
   sign_up_text: {
+    fontFamily: 'Roboto_500',
+    fontSize: 14,
     color: '#D97904',
-    fontWeight: '500',
     textDecorationLine: 'underline',
   },
 });

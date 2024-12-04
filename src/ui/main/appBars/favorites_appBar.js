@@ -11,7 +11,7 @@ const FavoritesAppBar = () => {
 const styles = StyleSheet.create({
   appBar: {
     height: 72,
-    backgroundColor: '#17261F',
+    backgroundColor: '#0A0F0D',
     justifyContent: 'center',
     paddingHorizontal: 16,
     flexDirection: 'row',
