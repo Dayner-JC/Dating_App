@@ -46,12 +46,21 @@ android {
      lintOptions {
         disable 'DollarInIdentifier'
     }
+    tasks.whenTaskAdded { task ->
+        if (task.name == "generateDebugLintReportModel") {
+            task.mustRunAfter("copyReactNativeVectorIconFonts")
+        }
+        if (task.name == "lintAnalyzeDebug") {
+            task.mustRunAfter("copyReactNativeVectorIconFonts")
+        }
+    }
 }
 
 dependencies {
     implementation("com.facebook.react:react-android")
     implementation platform("com.google.firebase:firebase-bom:33.6.0")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.facebook.android:facebook-login:latest.release")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

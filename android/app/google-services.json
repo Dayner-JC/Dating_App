@@ -12,7 +12,20 @@
           "package_name": "ntsprint.datingapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "150950766105-94bhu7540jgie6s9a03i32kt9ibpcgd1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ntsprint.datingapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "150950766105-640geco1bsb5sagp1vh0hfvvpofejir2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCad3m_bjhmib0HuCegBUX9Xx5el5ryqW8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "150950766105-640geco1bsb5sagp1vh0hfvvpofejir2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

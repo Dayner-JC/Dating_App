@@ -24,13 +24,16 @@ const Button = ({
   icon = null,
   iconPosition = 'left',
   iconSpacing = 10,
+  disabled = false,
+  disabledBackgroundColor = '',
+  disabledTextColor = '',
 }) => {
   return (
     <TouchableOpacity
       style={[
         styles.button,
         {
-          backgroundColor,
+          backgroundColor: disabled ? disabledBackgroundColor : backgroundColor,
           width,
           height,
           marginTop,
@@ -44,7 +47,8 @@ const Button = ({
           borderRadius,
         },
       ]}
-      onPress={onPress}
+      onPress={!disabled ? onPress : null}
+      activeOpacity={disabled ? 1 : 0.7}
     >
       <View style={styles.content}>
         {icon && iconPosition === 'left' && (
@@ -54,7 +58,7 @@ const Button = ({
           style={[
             styles.buttonText,
             {
-              color: textColor,
+              color: disabled ? disabledTextColor : textColor,
               fontSize,
               fontFamily,
               fontWeight,

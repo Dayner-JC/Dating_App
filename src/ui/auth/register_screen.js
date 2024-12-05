@@ -14,13 +14,22 @@ const RegisterScreen = () => {
   const navigation = useNavigation();
 
   const [countryCode, setCountryCode] = useState('US');
-  // eslint-disable-next-line no-unused-vars
   const [callingCode, setCallingCode] = useState('+1');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
 
   const onSelect = (country) => {
     setCountryCode(country.cca2);
     setCallingCode(`+${country.callingCode}`);
+  };
+
+  const handlePhoneNumberChange = (text) => {
+    const filteredText = text.replace(/[^0-9]/g, '');
+    if (filteredText.length >= 8 && filteredText.length <= 10) {
+      setPhoneNumber(filteredText);
+    } else if (filteredText.length < 8) {
+      setPhoneNumber(filteredText);
+    }
   };
 
   return (
@@ -38,8 +47,18 @@ const RegisterScreen = () => {
 
         <View style={styles.input_container}>
           <Text style={styles.phone_number_text}>Phone Number</Text>
-          <View style={styles.phone_input_container}>
-            <View style={styles.country_picker}>
+          <View
+              style={[
+                styles.phone_input_container,
+                isFocused ? styles.focused_border : styles.default_border,
+              ]}
+            >
+              <View
+                style={[
+                  styles.country_picker,
+                  { borderEndColor: isFocused ? '#D97904' : '#D9D2B0' },
+                ]}
+              >
               <CountryPicker
                   countryCode={countryCode}
                   withFlag
@@ -60,7 +79,9 @@ const RegisterScreen = () => {
               placeholderTextColor="#D9D2B03D"
               keyboardType="phone-pad"
               value={phoneNumber}
-              onChangeText={setPhoneNumber}
+              onChangeText={handlePhoneNumberChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
             />
           </View>
         </View>
@@ -70,9 +91,13 @@ const RegisterScreen = () => {
           fontSize = {16}
           fontFamily="Roboto_500"
           backgroundColor="#D97904"
+          disabledBackgroundColor = "#8b580f"
+          disabledTextColor = "#a2a8a5"
           borderRadius={100}
           width={'100%'}
           height={55}
+          onPress={() => navigation.navigate('Main')}
+          disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
         />
 
         <View style={styles.or_container}>
@@ -176,6 +201,12 @@ const styles = StyleSheet.create({
     borderColor: '#D9D2B0',
     borderRadius: 5,
     height: 60,
+  },
+  default_border: {
+    borderColor: '#D9D2B0',
+  },
+  focused_border: {
+    borderColor: '#D97904',
   },
   country_picker: {
     flexDirection: 'row',
