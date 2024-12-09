@@ -15,7 +15,7 @@ import {
   validateGoogleLogin,
   validateFacebookLogin,
   validateAppleLogin,
-} from './validation/login_validation';
+} from '../../infrastructure/auth/login/login_validation';
 
 const LoginScreen = () => {
   const navigation = useNavigation();

@@ -18,6 +18,10 @@ const messages = [
   { id: '7', name: 'Cody', age: 31, message: 'Yeah!', time: '5d' },
   { id: '8', name: 'Arlene', age: 28, message: 'hahaha', time: 'Last week' },
   { id: '9', name: 'Kyle', age: 35, message: 'Hi', time: 'Last month' },
+  { id: '10', name: 'Leslie', age: 30, message: 'You: Nice', time: '3d' },
+  { id: '11', name: 'Cody', age: 31, message: 'Yeah!', time: '5d' },
+  { id: '12', name: 'Arlene', age: 28, message: 'hahaha', time: 'Last week' },
+  { id: '13', name: 'Kyle', age: 35, message: 'Hi', time: 'Last month' },
 ];
 
 export default function MessagesFragment() {
@@ -44,6 +48,7 @@ export default function MessagesFragment() {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

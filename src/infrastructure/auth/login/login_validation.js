@@ -4,7 +4,7 @@ import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import axios from 'axios';
 
-const BASE_URL = 'https://tu-backend-api.com/auth';
+const BASE_URL = 'https://api.com/auth';
 
 export const validatePhoneLogin = async (phoneNumber, verificationCode) => {
   try {
