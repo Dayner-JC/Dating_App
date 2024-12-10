@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { validateAndSendAccount } from './infrastructure/auth/register/account_validation';
+import { validateAndSendAccount } from './infrastructure/auth/validation/account_validation';
 
 const CreateAccountForm = () => {
   const [name, setName] = useState('');
@@ -35,7 +35,7 @@ const CreateAccountForm = () => {
 
     if (result.success) {
       Alert.alert('Success', 'Your account has been created successfully!');
-      setUploadedPhotoURL(result.data.photoURL); // Guarda la URL de la imagen subida
+      setUploadedPhotoURL(result.data.photoURL);
     } else {
       const { errors } = result;
       if (errors.name) {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ChevronDownIcon from '../../assets/icons/chevron-down.svg';
 import CountryPicker from 'react-native-country-picker-modal';
@@ -9,6 +9,7 @@ import GoogleIcon from '../../assets/icons/google.svg';
 import FacebookIcon from '../../assets/icons/facebook.svg';
 import AppleIcon from '../../assets/icons/apple.svg';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import auth from '@react-native-firebase/auth';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -31,6 +32,26 @@ const RegisterScreen = () => {
       setPhoneNumber(filteredText);
     }
   };
+
+  const handlePhoneRegister = async () => {
+    if (!phoneNumber || phoneNumber.length < 8 || phoneNumber.length > 10) {
+      Alert.alert('Error', 'Invalid phone number.');
+      return;
+    }
+
+    try {
+      const confirmation = await auth().signInWithPhoneNumber(`${callingCode}${phoneNumber}`);
+
+      navigation.navigate('VerificationScreen', {
+        phoneNumber: `${callingCode}${phoneNumber}`,
+        verificationId: confirmation.verificationId,
+      });
+    } catch (error) {
+      console.error('Phone registration error:', error);
+      Alert.alert('Error', 'Failed to send verification code.');
+    }
+  };
+
 
   return (
     <KeyboardAwareScrollView
@@ -96,7 +117,7 @@ const RegisterScreen = () => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={() => navigation.navigate('Main')}
+          onPress={handlePhoneRegister}
           disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
         />
 

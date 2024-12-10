@@ -15,7 +15,7 @@ import {
   validateGoogleLogin,
   validateFacebookLogin,
   validateAppleLogin,
-} from '../../infrastructure/auth/login/login_validation';
+} from '../../infrastructure/auth/validation/login_validation';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -158,9 +158,8 @@ const LoginScreen = () => {
             borderRadius={100}
             width={'100%'}
             height={55}
-            onPress={() => navigation.navigate('Main')}
-           // onPress={handlePhoneLogin}
-           // disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
+            onPress={handlePhoneLogin}
+            disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
           />
 
           <View style={styles.or_container}>

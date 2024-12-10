@@ -1,8 +1,10 @@
+import auth from '@react-native-firebase/auth';
+
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*\d)[A-Za-z\d!@#$%^&*]{8,}$/;
 
-const BACKEND_URL = 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/create-profile';
+const BACKEND_URL = 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/profile/create';
 
 /**
  * Validates user account data.
@@ -35,12 +37,19 @@ export const validateAndSendAccount = async (data) => {
   }
 
   try {
+
+    const user = auth().currentUser;
+    if (!user) {
+      throw new Error('User is not authenticated');
+    }
+
+    const uid = user.uid;
     const response = await fetch(BACKEND_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, email, password , photo}),
+      body: JSON.stringify({uid, name, email, password , photo}),
     });
 
     if (!response.ok) {

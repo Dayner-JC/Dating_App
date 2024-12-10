@@ -5,6 +5,8 @@ import SplashScreen from '../splash/splash_screen';
 import RegisterScreen from '../auth/register_screen';
 import LoginScreen from '../auth/login_screen';
 import Main from '../main/main';
+import VerificationScreen from '../auth/verify_code_screen';
+import CreateAccountForm from '../../test';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +18,8 @@ const Navigator = () => {
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
+        <Stack.Screen name="CompleteProfile" component={CreateAccountForm} />
       </Stack.Navigator>
     </NavigationContainer>
   );
