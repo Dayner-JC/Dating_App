@@ -10,6 +10,7 @@ import FacebookIcon from '../../assets/icons/facebook.svg';
 import AppleIcon from '../../assets/icons/apple.svg';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import auth from '@react-native-firebase/auth';
+import { registerWithGoogle } from '../../infrastructure/auth/register/register_google';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -51,7 +52,6 @@ const RegisterScreen = () => {
       Alert.alert('Error', 'Failed to send verification code.');
     }
   };
-
 
   return (
     <KeyboardAwareScrollView
@@ -153,6 +153,7 @@ const RegisterScreen = () => {
           height={55}
           marginTop={15}
           icon={<GoogleIcon width={20} height={20}/>}
+          onPress={() => registerWithGoogle(navigation)}
         />
         <Button
           title="Sign up with Apple"
