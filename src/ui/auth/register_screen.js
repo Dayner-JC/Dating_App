@@ -9,12 +9,11 @@ import GoogleIcon from '../../assets/icons/google.svg';
 import FacebookIcon from '../../assets/icons/facebook.svg';
 import AppleIcon from '../../assets/icons/apple.svg';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import auth from '@react-native-firebase/auth';
+import { handlePhoneRegister } from '../../infrastructure/auth/register/register_phone';
 import { registerWithGoogle } from '../../infrastructure/auth/register/register_google';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
-
   const [countryCode, setCountryCode] = useState('US');
   const [callingCode, setCallingCode] = useState('+1');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -34,22 +33,14 @@ const RegisterScreen = () => {
     }
   };
 
-  const handlePhoneRegister = async () => {
-    if (!phoneNumber || phoneNumber.length < 8 || phoneNumber.length > 10) {
-      Alert.alert('Error', 'Invalid phone number.');
-      return;
-    }
-
-    try {
-      const confirmation = await auth().signInWithPhoneNumber(`${callingCode}${phoneNumber}`);
-
-      navigation.navigate('VerificationScreen', {
-        phoneNumber: `${callingCode}${phoneNumber}`,
-        verificationId: confirmation.verificationId,
+  const handleRegister = async () => {
+    const verificationId = await handlePhoneRegister(callingCode, phoneNumber);
+    if (verificationId) {
+      navigation.navigate('VerifyCodeScreen', {
+        phoneNumber,
+        callingCode,
+        verificationId,
       });
-    } catch (error) {
-      console.error('Phone registration error:', error);
-      Alert.alert('Error', 'Failed to send verification code.');
     }
   };
 
@@ -117,7 +108,7 @@ const RegisterScreen = () => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={handlePhoneRegister}
+          onPress={handleRegister}
           disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
         />
 

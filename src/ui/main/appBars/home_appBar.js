@@ -13,12 +13,10 @@ const HomeAppBar = () => {
         <IconButton
           icon={<NotificationsIcon/>}
           onPress={() => {}}
-          style={styles.notificationButton}
         />
         <IconButton
           icon={<FilterIcon/>}
           onPress={() => {}}
-          style={styles.filterButton}
         />
       </View>
     </View>
