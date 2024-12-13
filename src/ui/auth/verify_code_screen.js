@@ -276,10 +276,10 @@ const styles = StyleSheet.create({
     color: '#D97904',
   },
   inputError: {
-    borderColor: 'red',
+    borderColor: '#FF626E',
   },
   errorText: {
-    color: 'red',
+    color: '#FF626E',
     textAlign: 'center',
   },
   resendButtonText: {
