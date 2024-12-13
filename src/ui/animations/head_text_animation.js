@@ -19,7 +19,7 @@ const HeadTextAnimation = () => {
 
   return (
     <Animated.View style={{ opacity }}>
-      <Text style={styles.title}>Designed to have fun and find love.</Text>
+      <Text style={styles.title}>Designed to{'\n'}have fun and{'\n'}find love.</Text>
     </Animated.View>
   );
 };
@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
       lineHeight: 57,
       fontSize: 48,
       letterSpacing: 2,
-      marginStart: 20,
       marginBottom: 20,
     },
   });

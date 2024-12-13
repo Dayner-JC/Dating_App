@@ -1,4 +1,3 @@
-// AnimatedDivisor.js
 import React, { useEffect, useState } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 
@@ -31,7 +30,7 @@ const DivisorAnimation = () => {
 const styles = StyleSheet.create({
   divisor: {
     height: 2,
-    width: '90%',
+    width: '100%',
     backgroundColor: '#D9D2B01A',
     marginTop: 15,
   },

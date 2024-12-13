@@ -4,13 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import ChevronDownIcon from '../../assets/icons/chevron-down.svg';
 import CountryPicker from 'react-native-country-picker-modal';
 import Button from '../components/button';
-import PetalsRegisterScreenAnimation from '../animations/petals_register_screen_animation';
 import GoogleIcon from '../../assets/icons/google.svg';
 import FacebookIcon from '../../assets/icons/facebook.svg';
 import AppleIcon from '../../assets/icons/apple.svg';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { handlePhoneRegister } from '../../infrastructure/auth/register/register_phone';
 import { registerWithGoogle } from '../../infrastructure/auth/register/register_google';
+import Petal1 from '../../assets/splash_screen_flower/petals/petal_12.svg';
+import Petal2 from '../../assets/splash_screen_flower/petals/petal_8.svg';
+import Petal3 from '../../assets/splash_screen_flower/petals/petal_13.svg';
+import Petal4 from '../../assets/splash_screen_flower/petals/petal_14.svg';
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -51,8 +54,9 @@ const RegisterScreen = () => {
       scrollEnabled={true}
     >
     <View style={styles.container}>
-      <PetalsRegisterScreenAnimation />
-
+      <View style={styles.top_petals}>
+        <Petal1 style={styles.petal1}/>
+      </View>
       <View style={styles.content}>
         <Text style={styles.title_text}>Sign up</Text>
         <Text style={styles.subtitle_text}>Enter your phone number to create your account.</Text>
@@ -165,6 +169,15 @@ const RegisterScreen = () => {
           <Text style={styles.sign_up_text}>Sign in</Text>
         </Text>
       </View>
+      <View style={styles.bottom_petals_container}>
+        <View>
+          <Petal2 style={styles.petal2}/>
+        </View>
+        <View style={styles.bottom_petal_3_4_container}>
+          <Petal3/>
+          <Petal4/>
+        </View>
+      </View>
     </View>
     </KeyboardAwareScrollView>
   );
@@ -177,6 +190,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    paddingVertical: 20,
+  },
+  top_petals:{
+    width: '100%',
+    alignItems: 'flex-start',
+    paddingStart: 20,
+  },
+  petal1: {
+    marginBottom: 40,
+  },
+  bottom_petals_container: {
+    flexDirection: 'row',
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  bottom_petal_3_4_container: {
+    flexDirection: 'row',
+    marginTop: 50,
+  },
+  petal2: {
+    justifyContent: 'flex-end',
+    marginTop: 30,
   },
   content: {
     width: '85%',

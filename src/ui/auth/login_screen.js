@@ -5,11 +5,15 @@ import { useNavigation } from '@react-navigation/native';
 import ChevronDownIcon from '../../assets/icons/chevron-down.svg';
 import CountryPicker from 'react-native-country-picker-modal';
 import Button from '../components/button';
-import PetalsLoginScreenAnimation from '../animations/petals_login_screen_animation';
 import GoogleIcon from '../../assets/icons/google.svg';
 import FacebookIcon from '../../assets/icons/facebook.svg';
 import AppleIcon from '../../assets/icons/apple.svg';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Petal1 from '../../assets/splash_screen_flower/petals/petal_7.svg';
+import Petal2 from '../../assets/splash_screen_flower/petals/petal_8.svg';
+import Petal3 from '../../assets/splash_screen_flower/petals/petal_9.svg';
+import Petal4 from '../../assets/splash_screen_flower/petals/petal_10.svg';
+import Petal5 from '../../assets/splash_screen_flower/petals/petal_11.svg';
 import {
   validatePhoneLogin,
   validateGoogleLogin,
@@ -100,8 +104,10 @@ const LoginScreen = () => {
       scrollEnabled={true}
     >
       <View style={styles.container}>
-        <PetalsLoginScreenAnimation />
-
+      <View style={styles.top_petals}>
+        <Petal1 style={styles.petal1}/>
+        <Petal2/>
+      </View>
         <View style={styles.content}>
           <Text style={styles.title_text}>Sign in</Text>
           <Text style={styles.subtitle_text}>Welcome back!</Text>
@@ -220,6 +226,15 @@ const LoginScreen = () => {
             <Text style={styles.sign_up_text}>Sign Up</Text>
           </Text>
         </View>
+        <View style={styles.bottom_petals_container}>
+          <View>
+            <Petal3/>
+            <Petal4 style={styles.petal4}/>
+          </View>
+          <View>
+            <Petal5 style={styles.petal5}/>
+          </View>
+      </View>
       </View>
     </KeyboardAwareScrollView>
   );
@@ -232,6 +247,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    paddingVertical: 20,
+  },
+  top_petals:{
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingEnd: 20,
+  },
+  petal1: {
+    marginBottom: 20,
+    marginRight: 20,
+  },
+  bottom_petals_container: {
+    flexDirection: 'row',
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  petal4: {
+    marginTop: 0,
+    marginLeft: 50,
+  },
+  petal5: {
+    marginTop: 30,
   },
   content: {
     width: '85%',
