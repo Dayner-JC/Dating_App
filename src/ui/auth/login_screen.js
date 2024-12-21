@@ -106,7 +106,6 @@ const LoginScreen = () => {
       <View style={styles.container}>
       <View style={styles.top_petals}>
         <Petal1 style={styles.petal1}/>
-        <Petal2/>
       </View>
         <View style={styles.content}>
           <Text style={styles.title_text}>Sign in</Text>
@@ -128,114 +127,106 @@ const LoginScreen = () => {
                   withFlag
                   withCallingCode
                   withFilter
+                  withCallingCodeButton
                   onSelect={onSelect}
                   theme={{
-                    backgroundColor: '#17261F',
-                    onBackgroundTextColor: '#FFFFFF',
+                      backgroundColor: '#17261F',
+                      onBackgroundTextColor: '#FFFFFF',
                   }}
-                />
-                <ChevronDownIcon
-                  width={15}
-                  height={15}
-                  fill="#FFFFFF"
-                  style={styles.icon}
-                />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="000 000 0000"
-                placeholderTextColor="#D9D2B03D"
-                keyboardType="phone-pad"
-                value={phoneNumber}
-                onChangeText={handlePhoneNumberChange}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
               />
+              <ChevronDownIcon width={15} height={15} fill="#FFFFFF" style={styles.icon} />
             </View>
+            <TextInput
+              style={styles.input}
+              placeholder="000 000 0000"
+              placeholderTextColor="#D9D2B03D"
+              keyboardType="phone-pad"
+              value={phoneNumber}
+              onChangeText={handlePhoneNumberChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
           </View>
-
-          <Button
-            title="Sign In"
-            fontSize={16}
-            fontFamily="Roboto_500"
-            backgroundColor="#D97904"
-            disabledBackgroundColor = "#8b580f"
-            disabledTextColor = "#a2a8a5"
-            borderRadius={100}
-            width={'100%'}
-            height={55}
-            onPress={handlePhoneLogin}
-            disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
-          />
-
-          <View style={styles.or_container}>
-            <View style={styles.line} />
-            <Text style={styles.or_text}>or</Text>
-            <View style={styles.line} />
-          </View>
-
-          <Button
-            title="Sign in with Facebook"
-            fontSize={14}
-            fontFamily="Roboto_400"
-            backgroundColor="transparent"
-            textColor="#D9D2B0"
-            borderWidth={1}
-            borderColor="#747474"
-            borderRadius={100}
-            width="100%"
-            height={55}
-            icon={<FacebookIcon width={20} height={20} />}
-           // onPress={handleFacebookLogin}
-          />
-          <Button
-            title="Sign in with Google"
-            fontSize={14}
-            fontFamily="Roboto_400"
-            backgroundColor="transparent"
-            textColor="#D9D2B0"
-            borderWidth={1}
-            borderColor="#747474"
-            borderRadius={100}
-            width="100%"
-            height={55}
-            marginTop={15}
-            icon={<GoogleIcon width={20} height={20} />}
-           // onPress={handleGoogleLogin}
-          />
-          <Button
-            title="Sign in with Apple"
-            fontSize={14}
-            fontFamily="Roboto_400"
-            backgroundColor="transparent"
-            textColor="#D9D2B0"
-            borderWidth={1}
-            borderColor="#747474"
-            borderRadius={100}
-            width="100%"
-            height={55}
-            marginTop={15}
-            icon={<AppleIcon width={20} height={20} />}
-           // onPress={handleAppleLogin}
-          />
-          <Text
-            style={styles.footer_text}
-            onPress={() => navigation.navigate('RegisterScreen')}
-          >
-            Don't have an account?{' '}
-            <Text style={styles.sign_up_text}>Sign Up</Text>
-          </Text>
         </View>
-        <View style={styles.bottom_petals_container}>
-          <View>
-            <Petal3/>
-            <Petal4 style={styles.petal4}/>
-          </View>
-          <View>
-            <Petal5 style={styles.petal5}/>
-          </View>
+
+        <Button
+          title="Sign in"
+          fontSize = {16}
+          fontFamily="Roboto_500"
+          backgroundColor="#D97904"
+          disabledBackgroundColor = "#8b580f"
+          disabledTextColor = "#a2a8a5"
+          borderRadius={100}
+          width={'100%'}
+          height={55}
+          onPress={() => navigation.navigate('Main')}
+          disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
+        />
+
+        <View style={styles.or_container}>
+          <View style={styles.line} />
+          <Text style={styles.or_text}>or</Text>
+          <View style={styles.line} />
+        </View>
+
+        <Button
+          title="Sign in with Facebook"
+          fontSize={14}
+          fontFamily="Roboto_400"
+          backgroundColor="transparent"
+          textColor="#D9D2B0"
+          borderWidth={1}
+          borderColor="#747474"
+          borderRadius={100}
+          width="100%"
+          height={55}
+          icon={<FacebookIcon width={20} height={20}/>}
+          onPress={()=>{}}
+        />
+        <Button
+          title="Sign in with Google"
+          fontSize={14}
+          fontFamily="Roboto_400"
+          backgroundColor="transparent"
+          textColor="#D9D2B0"
+          borderWidth={1}
+          borderColor="#747474"
+          borderRadius={100}
+          width="100%"
+          height={55}
+          marginTop={15}
+          icon={<GoogleIcon width={20} height={20}/>}
+          onPress={() => {}}
+        />
+        <Button
+          title="Sign in with Apple"
+          fontSize={14}
+          fontFamily="Roboto_400"
+          backgroundColor="transparent"
+          textColor="#D9D2B0"
+          borderWidth={1}
+          borderColor="#747474"
+          borderRadius={100}
+          width="100%"
+          height={55}
+          marginTop={15}
+          icon={<AppleIcon width={20} height={20}/>}
+        />
+        <Text style={styles.footer_text} onPress={() => navigation.navigate('RegisterScreen')}>
+        Don't have an account?{'  '}
+          <Text style={styles.sign_up_text}>Sign up</Text>
+        </Text>
       </View>
+      <View style={styles.bottom_petals_container}>
+        <View>
+          <Petal2 style={styles.petal2}/>
+        </View>
+        <View style={styles.bottom_petal_3_4_container}>
+          <Petal3/>
+          <Petal4/>
+        </View>
       </View>
+    </View>
     </KeyboardAwareScrollView>
   );
 };
@@ -323,6 +314,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 5,
     borderTopLeftRadius: 5,
     borderEndWidth: 1,
+    borderEndColor: '#D9D2B0',
     height: '100%',
     paddingEnd: 10,
     paddingStart: 10,

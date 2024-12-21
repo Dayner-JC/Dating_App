@@ -5,6 +5,8 @@ const Button = ({
   title,
   onPress,
   backgroundColor = '#17d61F',
+  selectedBackgroundColor = '',
+  isSelected = false,
   textColor = '#fff',
   width = '100%',
   height = 50,
@@ -33,7 +35,11 @@ const Button = ({
       style={[
         styles.button,
         {
-          backgroundColor: disabled ? disabledBackgroundColor : backgroundColor,
+          backgroundColor: disabled
+            ? disabledBackgroundColor
+            : isSelected
+            ? selectedBackgroundColor
+            : backgroundColor,
           width,
           height,
           marginTop,
