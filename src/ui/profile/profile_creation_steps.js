@@ -11,6 +11,8 @@ import Step5 from './steps/step_5';
 import Step6 from './steps/step_6';
 import Step7 from './steps/step_7';
 import Step8 from './steps/step_8';
+import Step9 from './steps/step_9';
+import Step10 from './steps/step_10';
 
 const ProfileCreationSteps = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -24,6 +26,8 @@ const ProfileCreationSteps = () => {
     { component: Step6 },
     { component: Step7 },
     { component: Step8 },
+    { component: Step9 },
+    { component: Step10 },
   ];
 
   const goNext = () => {
