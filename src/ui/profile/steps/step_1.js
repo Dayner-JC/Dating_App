@@ -5,7 +5,7 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const Step1 = ({ onNext }) => {
+const Step1 = ({ onNext, onChangeData }) => {
   const [name, setName] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
@@ -16,6 +16,7 @@ const Step1 = ({ onNext }) => {
 
   const handleContinue = () => {
     if (validateName(name)) {
+      onChangeData('name', name);
       onNext();
     }
   };

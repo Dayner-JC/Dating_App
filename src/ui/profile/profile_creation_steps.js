@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { View, StyleSheet, StatusBar, Alert  } from 'react-native';
 import IconButton from '../components/icon_button';
 import ArrowIcon from '../../assets/icons/arrow-left.svg';
 import * as Progress from 'react-native-progress';
+import { validateAndSendAccount } from '../../infrastructure/auth/validation/account_validation';
 import Step1 from './steps/step_1';
 import Step2 from './steps/step_2';
 import Step3 from './steps/step_3';
@@ -16,6 +17,18 @@ import Step10 from './steps/step_10';
 
 const ProfileCreationSteps = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [formData, setFormData] = useState({
+    name: null,
+    birthday: null,
+    gender: null,
+    preference: null,
+    height: null,
+    intentions: null,
+    location: null,
+    about: null,
+    interests: null,
+    photos: null,
+  });
 
   const steps = [
     { component: Step1 },
@@ -30,9 +43,19 @@ const ProfileCreationSteps = () => {
     { component: Step10 },
   ];
 
-  const goNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+  const goNext = async () => {
+    if (currentStep === steps.length - 1) {
+      const response = await validateAndSendAccount(formData);
+
+      if (response.success) {
+        Alert.alert('Success', 'Your account has been created!');
+      } else {
+        Alert.alert('Error', `There were issues: ${Object.values(response.errors).join(', ')}`);
+      }
+    } else {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
@@ -42,6 +65,13 @@ const ProfileCreationSteps = () => {
     }
   };
 
+  const handleChangeData = (step, value) => {
+    setFormData(prevData => ({
+      ...prevData,
+      [step]: value,
+    }));
+  };
+
   const StepComponent = steps[currentStep].component;
 
   return (
@@ -49,7 +79,7 @@ const ProfileCreationSteps = () => {
       <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
         {currentStep > 0 && (
-          <IconButton icon={<ArrowIcon/>} onPress={goBack} />
+          <IconButton icon={<ArrowIcon />} onPress={goBack} />
         )}
       </View>
 
@@ -64,9 +94,9 @@ const ProfileCreationSteps = () => {
       />
 
       <View style={styles.content}>
-        <StepComponent onNext={goNext} />
+        <StepComponent onNext={goNext} onChangeData={handleChangeData} />
       </View>
-      </View>
+    </View>
   );
 };
 

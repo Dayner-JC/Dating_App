@@ -5,7 +5,7 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const Step8 = ({ onNext }) => {
+const Step8 = ({ onNext, onChangeData }) => {
   const [userInfo, setUserInfo] = useState('');
   const [inputFocus, setInputFocus] = useState(false);
 
@@ -14,6 +14,7 @@ const Step8 = ({ onNext }) => {
 
   const handleChangeText = (text) => {
     setUserInfo(text);
+    onChangeData('about', text);
   };
 
   const handleFocus = () => {

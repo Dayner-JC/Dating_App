@@ -1,9 +1,5 @@
 import auth from '@react-native-firebase/auth';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*\d)[A-Za-z\d!@#$%^&*]{8,}$/;
-
 const BACKEND_URL = 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/profile/create';
 
 /**
@@ -12,32 +8,24 @@ const BACKEND_URL = 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/
  * @returns {Promise<Object>}
  */
 export const validateAndSendAccount = async (data) => {
-  const { name, email, password, confirmPassword, photo } = data;
+  const {name,
+        birthday,
+        gender,
+        preference,
+        height,
+        intentions,
+        location,
+        about,
+        interests,
+        photos,
+      } = data;
   const errors = {};
-
-  if (!name || name.length < 2) {
-    errors.name = 'The name must be at least 2 characters long.';
-  }
-
-  if (!email || !emailRegex.test(email)) {
-    errors.email = 'The email format is invalid.';
-  }
-
-  if (!password || !passwordRegex.test(password)) {
-    errors.password =
-      'The password must be at least 8 characters long, include a number, and a special character.';
-  }
-
-  if (password !== confirmPassword) {
-    errors.confirmPassword = 'Passwords do not match.';
-  }
 
   if (Object.keys(errors).length > 0) {
     return { success: false, errors };
   }
 
   try {
-
     const user = auth().currentUser;
     if (!user) {
       throw new Error('User is not authenticated');
@@ -49,7 +37,19 @@ export const validateAndSendAccount = async (data) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({uid, name, email, password , photo}),
+      body: JSON.stringify({
+        uid,
+        name,
+        birthday,
+        gender,
+        preference,
+        height,
+        intentions,
+        location,
+        about,
+        interests,
+        photos,
+      }),
     });
 
     if (!response.ok) {

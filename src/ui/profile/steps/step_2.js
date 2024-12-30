@@ -5,7 +5,7 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const Step2 = ({ onNext }) => {
+const Step2 = ({ onNext, onChangeData }) => {
   const codeLength = 8;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -31,7 +31,6 @@ const Step2 = ({ onNext }) => {
     const monthNumber = parseInt(month, 10);
     const dayNumber = parseInt(day, 10);
     const yearNumber = parseInt(year, 10);
-
     if (
       isNaN(monthNumber) || isNaN(dayNumber) || isNaN(yearNumber) ||
       monthNumber < 1 || monthNumber > 12 ||
@@ -50,10 +49,22 @@ const Step2 = ({ onNext }) => {
   };
 
   useEffect(() => {
-    const [month, day, year] = codeArray;
+    const month = codeArray.slice(0, 2).join('');
+    const day = codeArray.slice(2, 4).join('');
+    const year = codeArray.slice(4).join('');
     const isValid = validateDate(month, day, year);
     setIsButtonDisabled(!isValid);
   }, [codeArray]);
+
+  const handleContinue = () => {
+    const month = codeArray.slice(0, 2).join('');
+    const day = codeArray.slice(2, 4).join('');
+    const year = codeArray.slice(4).join('');
+    const dateOfBirth = `${month}/${day}/${year}`;
+
+    onChangeData('birthday', dateOfBirth);
+    onNext();
+  };
 
   return (
     <View style={styles.container}>
@@ -78,7 +89,6 @@ const Step2 = ({ onNext }) => {
             />
           ))}
           <View style={styles.groupSpacing} />
-
           {codeArray.slice(2, 4).map((_, index) => (
             <TextInput
               value={codeArray[index + 2]}
@@ -96,7 +106,6 @@ const Step2 = ({ onNext }) => {
             />
           ))}
           <View style={styles.groupSpacing} />
-
           {codeArray.slice(4).map((_, index) => (
             <TextInput
               value={codeArray[index + 4]}
@@ -124,19 +133,19 @@ const Step2 = ({ onNext }) => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={onNext}
-         // disabled={isButtonDisabled}
+          onPress={handleContinue}
+          disabled={isButtonDisabled}
         />
       </View>
       <View style={styles.petalsContainer}>
-                <View style={styles.singlePetal}>
-                  <Petal1 style={styles.petal1} />
-                </View>
-                <View style={styles.doublePetals}>
-                  <Petal2 style={styles.petal2} />
-                  <Petal3 style={styles.petal3} />
-                </View>
-            </View>
+        <View style={styles.singlePetal}>
+          <Petal1 style={styles.petal1} />
+        </View>
+        <View style={styles.doublePetals}>
+          <Petal2 style={styles.petal2} />
+          <Petal3 style={styles.petal3} />
+        </View>
+      </View>
     </View>
   );
 };

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import Button from '../../components/button';
 
-const Step9 = ({ onNext }) => {
+const Step9 = ({ onNext, onChangeData }) => {
   const [selectedItems, setSelectedItems] = useState([]);
 
   const sections = [
@@ -60,6 +60,11 @@ const Step9 = ({ onNext }) => {
     });
   };
 
+  const handleNext = () => {
+    onChangeData('interests', selectedItems);
+    onNext();
+  };
+
   return (
     <View style={styles.container}>
         <View style={styles.content}>
@@ -100,7 +105,7 @@ const Step9 = ({ onNext }) => {
 
       <Button
         title="Continue"
-        onPress={() => onNext(selectedItems)}
+        onPress={handleNext}
         fontFamily="Roboto_500"
         backgroundColor="#D97904"
         disabledBackgroundColor = "#8b580f"

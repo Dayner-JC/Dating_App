@@ -8,7 +8,7 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
 
-const Step10 = ({ onNext }) => {
+const Step10 = ({ onNext, onChangeData }) => {
   const [photos, setPhotos] = useState([null, null, null, null, null, null]);
 
   const handleSelectPhoto = (index) => {
@@ -35,6 +35,11 @@ const Step10 = ({ onNext }) => {
     const newPhotos = [...photos];
     newPhotos[index] = null;
     setPhotos(newPhotos);
+  };
+
+  const handleContinue = () => {
+    onChangeData('photos', photos);
+    onNext();
   };
 
   return (
@@ -74,7 +79,7 @@ const Step10 = ({ onNext }) => {
           ))}
         </View>
         <Button
-          title="Continue"
+          title="Complete"
           fontSize={16}
           fontFamily="Roboto_500"
           backgroundColor="#D97904"
@@ -83,7 +88,7 @@ const Step10 = ({ onNext }) => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={() => onNext(photos)}
+          onPress={handleContinue}
           disabled={photos.filter(Boolean).length < 1}
         />
       </View>

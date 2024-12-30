@@ -10,7 +10,7 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const Step5 = ({ onNext }) => {
+const Step5 = ({ onNext, onChangeData }) => {
   const [unit, setUnit] = useState('cm');
   const [selectedHeight, setSelectedHeight] = useState(160);
   const listRef = useRef(null);
@@ -49,6 +49,7 @@ const Step5 = ({ onNext }) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / 40);
     setSelectedHeight(currentHeights[index]);
+    onChangeData('height', currentHeights[index]);
   };
 
   const renderItem = ({ item, index }) => {

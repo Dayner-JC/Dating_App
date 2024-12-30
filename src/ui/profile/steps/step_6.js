@@ -5,7 +5,7 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const Step6 = ({ onNext }) => {
+const Step6 = ({ onNext, onChangeData }) => {
   const [selectedGender, setSelectedGender] = useState(null);
 
   const intentions = [
@@ -18,6 +18,7 @@ const Step6 = ({ onNext }) => {
 
   const handleGenderSelect = (id) => {
     setSelectedGender(id);
+    onChangeData('intentions', id);
   };
 
   return (

@@ -37,7 +37,7 @@ export const registerWithGoogle = async (navigation) => {
       throw new Error('Error registering user in the backend.');
     }
 
-    navigation.navigate('CompleteProfile');
+    navigation.navigate('CreateProfileScreen');
   } catch (error) {
     Alert.alert('Error', error);
   }

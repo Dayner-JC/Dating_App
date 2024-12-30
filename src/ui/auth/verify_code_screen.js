@@ -102,7 +102,7 @@ const VerifyCodeScreen = ({ route }) => {
       const data = await response.json();
 
       if (data.success) {
-        navigation.navigate('CompleteProfile');
+        navigation.navigate('CreateProfileScreen');
       } else {
         Alert.alert('Error', 'Failed to complete phone login.');
       }
