@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, StatusBar, Alert  } from 'react-native';
 import IconButton from '../components/icon_button';
 import ArrowIcon from '../../assets/icons/arrow-left.svg';
+import { useNavigation } from '@react-navigation/native';
 import * as Progress from 'react-native-progress';
 import { validateAndSendAccount } from '../../infrastructure/auth/validation/account_validation';
 import Step1 from './steps/step_1';
@@ -16,6 +17,7 @@ import Step9 from './steps/step_9';
 import Step10 from './steps/step_10';
 
 const ProfileCreationSteps = () => {
+  const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     name: null,
@@ -48,7 +50,7 @@ const ProfileCreationSteps = () => {
       const response = await validateAndSendAccount(formData);
 
       if (response.success) {
-        Alert.alert('Success', 'Your account has been created!');
+        navigation.navigate('Main');
       } else {
         Alert.alert('Error', `There were issues: ${Object.values(response.errors).join(', ')}`);
       }
