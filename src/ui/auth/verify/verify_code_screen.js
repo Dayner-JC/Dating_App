@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert } from 'react-native';
-import Button from '../components/button';
-import VerifyCodeAppBar from '../main/appBars/verify_code_appBar';
-import Background from '../../assets/backgrounds/verifi_code_background.svg';
+import Button from '../../components/button';
+import VerifyCodeAppBar from '../../main/appBars/verify_code_appBar';
+import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
-import { handlePhoneRegister } from '../../infrastructure/auth/register/register_phone';
+import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
 
 const VerifyCodeScreen = ({ route }) => {
   const codeLength = 6;

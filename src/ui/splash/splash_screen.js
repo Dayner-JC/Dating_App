@@ -39,7 +39,7 @@ const SplashScreen = () => {
           borderRadius={100}
           height={55}
           marginTop={20}
-          onPress={() => navigation.navigate('RegisterScreen')}
+          onPress={() => navigation.navigate('RegisterPhoneScreen')}
         />
         <ButtonAnimation
           title={'Log in'}
@@ -51,7 +51,7 @@ const SplashScreen = () => {
           borderRadius={100}
           height={55}
           marginTop={20}
-          onPress={() => navigation.navigate('LoginScreen')}
+          onPress={() => navigation.navigate('LoginPhoneScreen')}
         />
         </View>
       </ScrollView>

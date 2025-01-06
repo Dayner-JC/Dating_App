@@ -11,7 +11,7 @@ const VerifyCodeAppBar = () => {
     <View style={styles.appBar}>
         <IconButton
           icon={<ArrowIcon/>}
-          onPress={() => navigation.navigate('RegisterScreen')}
+          onPress={() => navigation.navigate('LoginPhoneScreen')}
         />
         <View style={styles.box} />
     </View>
