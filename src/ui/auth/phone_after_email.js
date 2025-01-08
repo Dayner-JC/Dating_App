@@ -12,12 +12,13 @@ import Petal3 from '../../assets/splash_screen_flower/petals/petal_9.svg';
 import Petal4 from '../../assets/splash_screen_flower/petals/petal_10.svg';
 import { handlePhoneRegister } from '../../infrastructure/auth/register/register_phone';
 
-const PhoneAfterEmail = () => {
+const PhoneAfterEmail = ({route}) => {
     const navigation = useNavigation();
     const [countryCode, setCountryCode] = useState('US');
     const [callingCode, setCallingCode] = useState('+1');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isFocused, setIsFocused] = useState(false);
+    const { email, password } = route.params;
 
     const onSelect = (country) => {
       setCountryCode(country.cca2);
@@ -40,6 +41,8 @@ const PhoneAfterEmail = () => {
           phoneNumber,
           callingCode,
           verificationId,
+          email,
+          password,
         });
       }
     };

@@ -16,7 +16,7 @@ const VerifyCodeScreen = ({ route }) => {
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const inputsRef = useRef([]);
   const navigation = useNavigation();
-  const { phoneNumber, callingCode, verificationId } = route.params;
+  const { phoneNumber, callingCode, verificationId, email, password } = route.params;
   const isButtonDisabled = !codeArray.every((char) => char !== '');
 
   useEffect(() => {
@@ -85,6 +85,24 @@ const VerifyCodeScreen = ({ route }) => {
       const userCredential = await auth().signInWithCredential(credential);
       const firebaseIdToken = await userCredential.user.getIdToken();
 
+      if (email && password) {
+        await auth()
+          .createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            console.log('User registered with email and password');
+          })
+          .catch((error) => {
+            console.error('Error registering user:', error);
+            Alert.alert('Error', error.message);
+          });
+      }
+
+      const requestBody = {
+        idToken: firebaseIdToken,
+        phoneNumber,
+        email,
+      };
+
       const response = await fetch(
         'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone',
         {
@@ -92,10 +110,7 @@ const VerifyCodeScreen = ({ route }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            idToken: firebaseIdToken,
-            phoneNumber,
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
 

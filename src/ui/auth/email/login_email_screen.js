@@ -41,7 +41,6 @@ const LoginEmailScreen = () => {
     }
   };
 
-
   const handleGoogleLogin = async () => {
     try {
       const result = await validateGoogleLogin();

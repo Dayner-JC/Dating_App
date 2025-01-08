@@ -34,7 +34,7 @@ const RegisterEmailScreen = () => {
         if (step === 1 && isEmailValid) {
             setStep(2);
           } else if (step === 2 ) {
-           navigation.navigate('PhoneAfterEmail');
+           navigation.navigate('PhoneAfterEmail', {email, password});
         }
     };
 
