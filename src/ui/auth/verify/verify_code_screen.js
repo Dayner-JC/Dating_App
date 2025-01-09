@@ -84,12 +84,14 @@ const VerifyCodeScreen = ({ route }) => {
     try {
       const credential = auth.PhoneAuthProvider.credential(verificationId, verificationCode);
       const userCredential = await auth().signInWithCredential(credential);
+      const { uid } = userCredential.user;
       const firebaseIdToken = await userCredential.user.getIdToken();
       const completePhoneNumber = `${callingCode}${phoneNumber}`;
 
       const requestBody = {
         firebaseIdToken,
         completePhoneNumber,
+        uid,
         email: email || null,
       };
 
@@ -139,6 +141,7 @@ const VerifyCodeScreen = ({ route }) => {
         const data = await response.json();
 
         if (data.success) {
+          console.log(data);
           navigation.navigate('Main');
         } else {
           Alert.alert('Error', 'User does not exist or invalid credentials.');
