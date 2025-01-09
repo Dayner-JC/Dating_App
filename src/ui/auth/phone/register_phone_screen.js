@@ -46,6 +46,7 @@ const RegisterPhoneScreen = () => {
         phoneNumber,
         callingCode,
         verificationId,
+        login: false,
       });
     }
   };

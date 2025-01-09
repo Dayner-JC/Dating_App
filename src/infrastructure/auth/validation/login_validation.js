@@ -12,7 +12,7 @@ export const validatePhoneLogin = async (phoneNumber, verificationCode) => {
     const userCredential = await confirmation.confirm(verificationCode);
     const firebaseIdToken = await userCredential.user.getIdToken();
 
-    const response = await axios.post(`${BASE_URL}/login`, {
+    const response = await axios.post(`${BASE_URL}/login/phone`, {
       idToken: firebaseIdToken,
       method: 'phone',
     });

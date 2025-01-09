@@ -14,8 +14,8 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_9.svg';
 import Petal4 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import EmailIcon from '../../../assets/icons/email.svg';
+import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
 import {
-  validatePhoneLogin,
   validateGoogleLogin,
   validateFacebookLogin,
   validateAppleLogin,
@@ -40,21 +40,17 @@ const LoginPhoneScreen = () => {
   };
 
   const handlePhoneLogin = async () => {
-    if (!phoneNumber || phoneNumber.length < 8 || phoneNumber.length > 10) {
-      Alert.alert('Error', 'Invalid phone number.');
-      return;
-    }
-
-    const verificationCode = '123456';
     try {
-      const result = await validatePhoneLogin(phoneNumber, verificationCode);
-      if (result?.success) {
-        navigation.navigate('Main');
-      } else {
-        Alert.alert('Login Failed', 'Invalid login credentials.');
-      }
+      const verificationId = await handlePhoneRegister(callingCode, phoneNumber);
+      navigation.navigate('VerifyCodeScreen', {
+        phoneNumber,
+        callingCode,
+        verificationId,
+        login: true,
+      });
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong during phone login.');
+      console.error('Phone Login Error:', error);
+      Alert.alert('Error', 'Failed to send verification code.');
     }
   };
 
@@ -159,7 +155,7 @@ const LoginPhoneScreen = () => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={() => navigation.navigate('Main')}
+          onPress={handlePhoneLogin}
           disabled={phoneNumber.length < 8 || phoneNumber.length > 10}
         />
 

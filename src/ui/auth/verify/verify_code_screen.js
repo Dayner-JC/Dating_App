@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
@@ -16,7 +17,7 @@ const VerifyCodeScreen = ({ route }) => {
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const inputsRef = useRef([]);
   const navigation = useNavigation();
-  const { phoneNumber, callingCode, verificationId, email, password } = route.params;
+  const { phoneNumber, callingCode, verificationId, login, email, password } = route.params;
   const isButtonDisabled = !codeArray.every((char) => char !== '');
 
   useEffect(() => {
@@ -84,42 +85,64 @@ const VerifyCodeScreen = ({ route }) => {
       const credential = auth.PhoneAuthProvider.credential(verificationId, verificationCode);
       const userCredential = await auth().signInWithCredential(credential);
       const firebaseIdToken = await userCredential.user.getIdToken();
-
-      if (email && password) {
-        await auth()
-          .createUserWithEmailAndPassword(email, password)
-          .then(() => {
-            console.log('User registered with email and password');
-          })
-          .catch((error) => {
-            console.error('Error registering user:', error);
-            Alert.alert('Error', error.message);
-          });
-      }
+      const completePhoneNumber = `${callingCode}${phoneNumber}`;
 
       const requestBody = {
-        idToken: firebaseIdToken,
-        phoneNumber,
-        email,
+        firebaseIdToken,
+        completePhoneNumber,
+        email: email || null,
       };
 
-      const response = await fetch(
-        'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
+      if (!login) {
+        const response = await fetch(
+          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (email && password) {
+            await auth()
+              .createUserWithEmailAndPassword(email, password)
+              .then(() => {
+                console.log('User registered with email and password.');
+              })
+              .catch((error) => {
+                console.error('Error registering user:', error);
+                Alert.alert('Error', error.message);
+                return;
+              });
+          }
+          navigation.navigate('CreateProfileScreen');
+        } else {
+          Alert.alert('Error', 'Failed to complete phone registration.');
         }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        navigation.navigate('CreateProfileScreen');
       } else {
-        Alert.alert('Error', 'Failed to complete phone login.');
+        const response = await fetch(
+          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          navigation.navigate('Main');
+        } else {
+          Alert.alert('Error', 'User does not exist or invalid credentials.');
+        }
       }
     } catch (error) {
       console.error('Verification Error:', error);
