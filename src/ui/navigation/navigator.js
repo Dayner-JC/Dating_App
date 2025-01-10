@@ -13,6 +13,16 @@ import RegisterEmailScreen from '../auth/email/register_email_screen';
 import PhoneAfterEmail from '../auth/phone_after_email';
 import VerifyCodeEmailScreen from '../auth/verify/verify_code_email_screen';
 import NewPasswordScreen from '../auth/new_password_screen';
+import EditName from '../profile/edit/edit_name';
+import EditBirthday from '../profile/edit/edit_birthday';
+import EditGender from '../profile/edit/edit_gender';
+import EditPreferences from '../profile/edit/edit_preference';
+import EditHeight from '../profile/edit/edit_height';
+import EditIntentions from '../profile/edit/edit_intentions';
+import EditLocation from '../profile/edit/edit_location';
+import EditAbout from '../profile/edit/edit_about';
+import EditInterests from '../profile/edit/edit_interests';
+import EditPhotos from '../profile/edit/edit_photos';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -31,6 +41,16 @@ const Navigator = () => {
         <Stack.Screen name="NewPasswordScreen" component={NewPasswordScreen} />
         <Stack.Screen name="CreateProfileScreen" component={CreateProfileScreen} />
         <Stack.Screen name="ProfileCreationSteps" component={ProfileCreationSteps} />
+        <Stack.Screen name="EditName" component={EditName} />
+        <Stack.Screen name="EditBirthday" component={EditBirthday} />
+        <Stack.Screen name="EditGender" component={EditGender} />
+        <Stack.Screen name="EditPreferences" component={EditPreferences} />
+        <Stack.Screen name="EditHeight" component={EditHeight} />
+        <Stack.Screen name="EditIntentions" component={EditIntentions} />
+        <Stack.Screen name="EditLocation" component={EditLocation} />
+        <Stack.Screen name="EditAbout" component={EditAbout} />
+        <Stack.Screen name="EditInterests" component={EditInterests} />
+        <Stack.Screen name="EditPhotos" component={EditPhotos} />
       </Stack.Navigator>
     </NavigationContainer>
   );

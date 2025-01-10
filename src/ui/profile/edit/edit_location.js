@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Button from '../../components/button';
+import IconButton from '../../components/icon_button';
+import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const Step7 = ({ onNext, onChangeData }) => {
+const EditLocation = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [mapRegion, setMapRegion] = useState({
     latitude: 37.7749,
@@ -20,14 +22,17 @@ const Step7 = ({ onNext, onChangeData }) => {
     console.log(`[handleMapPress] Map pressed at Latitude=${latitude}, Longitude=${longitude}`);
 
     setSelectedLocation({ latitude, longitude });
-    onChangeData('location', { latitude, longitude });
   };
 
   return (
     <View style={styles.container}>
+        <StatusBar backgroundColor="#17261F" />
+      <View style={styles.appBar}>
+         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+      </View>
       <View style={styles.content}>
-        <Text style={styles.title}>Location</Text>
-        <Text style={styles.subtitle}>Select your location on the map!</Text>
+        <Text style={styles.title}>Edit Location</Text>
+        <Text style={styles.subtitle}>Share your location to meet nearby people!</Text>
         <View style={styles.map_container}>
           <MapView
             style={styles.map}
@@ -44,14 +49,8 @@ const Step7 = ({ onNext, onChangeData }) => {
           </MapView>
         </View>
         <Button
-          title="Continue"
-          onPress={() => {
-            if (selectedLocation) {
-              onNext({
-                location: selectedLocation,
-              });
-            }
-          }}
+          title="Save changes"
+          onPress={() => {}}
           backgroundColor="#D97904"
           disabledBackgroundColor="#8b580f"
           disabledTextColor = "#a2a8a5"
@@ -59,6 +58,19 @@ const Step7 = ({ onNext, onChangeData }) => {
           width="100%"
           height={55}
           disabled={!selectedLocation}
+        />
+        <Button
+          title="Cancel"
+          fontFamily="Roboto_500"
+          fontSize={16}
+          backgroundColor="transparent"
+          borderWidth={1}
+          borderColor="#747474"
+          textColor="#D9D2B0"
+          borderRadius={100}
+          height={55}
+          marginTop={10}
+          onPress={() => {}}
         />
       </View>
       <View style={styles.petalsContainer}>
@@ -75,11 +87,19 @@ const Step7 = ({ onNext, onChangeData }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        width: '100%',
-      },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#17261F',
+  },
+  appBar: {
+    height: 60,
+    justifyContent: 'center',
+    backgroundColor: '#17261F',
+    width: '100%',
+    paddingStart: 10,
+  },
   content: {
     flex: 1,
     width: '85%',
@@ -88,6 +108,7 @@ const styles = StyleSheet.create({
     marginVertical: 35,
     height: 276,
     width: '100%',
+    borderRadius: 4,
   },
   title: {
     fontFamily: 'GreatMangoDemo',
@@ -105,7 +126,6 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-    borderRadius: 20,
     height: 60,
   },
   petalsContainer: {
@@ -136,4 +156,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Step7;
+export default EditLocation;

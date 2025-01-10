@@ -1,11 +1,13 @@
 import {React, useState, useRef, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, StatusBar } from 'react-native';
 import Button from '../../components/button';
+import IconButton from '../../components/icon_button';
+import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const Step2 = ({ onNext, onChangeData }) => {
+const EditBirthday = () => {
   const codeLength = 8;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -61,15 +63,16 @@ const Step2 = ({ onNext, onChangeData }) => {
     const day = codeArray.slice(2, 4).join('');
     const year = codeArray.slice(4).join('');
     const dateOfBirth = `${month}/${day}/${year}`;
-
-    onChangeData('birthday', dateOfBirth);
-    onNext();
   };
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#17261F" />
+      <View style={styles.appBar}>
+         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+      </View>
       <View style={styles.content}>
-        <Text style={styles.title}>Birthday</Text>
+        <Text style={styles.title}>Edit Birthday</Text>
         <Text style={styles.subtitle}>What’s your date of birth?</Text>
         <View style={styles.codeContainer}>
           {codeArray.slice(0, 2).map((_, index) => (
@@ -124,7 +127,7 @@ const Step2 = ({ onNext, onChangeData }) => {
           ))}
         </View>
         <Button
-          title="Continue"
+          title="Save changes"
           fontSize={16}
           fontFamily="Roboto_500"
           backgroundColor="#D97904"
@@ -135,6 +138,19 @@ const Step2 = ({ onNext, onChangeData }) => {
           height={55}
           onPress={handleContinue}
           disabled={isButtonDisabled}
+        />
+        <Button
+          title="Cancel"
+          fontFamily="Roboto_500"
+          fontSize={16}
+          backgroundColor="transparent"
+          borderWidth={1}
+          borderColor="#747474"
+          textColor="#D9D2B0"
+          borderRadius={100}
+          height={55}
+          marginTop={10}
+          onPress={() => {}}
         />
       </View>
       <View style={styles.petalsContainer}>
@@ -157,6 +173,13 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#17261F',
   },
+  appBar: {
+    height: 60,
+    justifyContent: 'center',
+    backgroundColor: '#17261F',
+    width: '100%',
+    paddingStart: 10,
+  },
   content: {
     width: '85%',
   },
@@ -176,7 +199,7 @@ const styles = StyleSheet.create({
   },
   codeContainer: {
     flexDirection: 'row',
-    marginVertical: 35,
+    marginVertical: 50,
     justifyContent: 'space-between',
   },
   input: {
@@ -184,7 +207,6 @@ const styles = StyleSheet.create({
     height: 44,
     borderBottomWidth: 1,
     borderColor: '#747474',
-    borderRadius: 5,
     color: '#D9D2B0',
     fontSize: 18,
     backgroundColor: '#17261F',
@@ -224,4 +246,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Step2;
+export default EditBirthday;
