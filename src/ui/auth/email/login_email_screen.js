@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Button from '../../components/button';
+import auth from '@react-native-firebase/auth';
 import GoogleIcon from '../../../assets/icons/google.svg';
 import FacebookIcon from '../../../assets/icons/facebook.svg';
 import AppleIcon from '../../../assets/icons/apple.svg';
@@ -33,13 +34,46 @@ const LoginEmailScreen = () => {
 
   const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (step === 1 && isEmailValid) {
       setStep(2);
-    } else if (step === 2 ) {
-      navigation.navigate('Main');
+    } else if (step === 2 && isPasswordValid) {
+      try {
+        const userCredential = await auth().signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        if (user) {
+          const idToken = await user.getIdToken();
+          const uid = user.uid;
+
+          console.log('Token obtained:', idToken);
+          console.log('UID obtained:', uid);
+
+          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: idToken, uid: uid }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            navigation.navigate('Main', { userData: data.user });
+          } else {
+            Alert('User not found');
+          }
+        } else {
+          Alert('Failed to obtain user');
+        }
+      } catch (error) {
+        console.error(error);
+        Alert('Failed to sign in');
+      }
     }
   };
+
 
   const handleGoogleLogin = async () => {
     try {
