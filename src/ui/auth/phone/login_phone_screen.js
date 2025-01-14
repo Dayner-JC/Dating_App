@@ -97,6 +97,7 @@ const LoginPhoneScreen = () => {
 
       if (response.ok && data.success) {
         console.log('Login successful: ', data);
+        navigation.navigate('Main');
       } else {
         Alert.alert('Error', data.message);
       }

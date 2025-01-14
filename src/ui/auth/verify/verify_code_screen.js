@@ -17,7 +17,7 @@ const VerifyCodeScreen = ({ route }) => {
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const inputsRef = useRef([]);
   const navigation = useNavigation();
-  const { phoneNumber, callingCode, verificationId, login, email, password } = route.params;
+  const { phoneNumber, callingCode, verificationId, login, email, password, uid } = route.params;
   const isButtonDisabled = !codeArray.every((char) => char !== '');
 
   useEffect(() => {
@@ -83,75 +83,128 @@ const VerifyCodeScreen = ({ route }) => {
 
     try {
       const credential = auth.PhoneAuthProvider.credential(verificationId, verificationCode);
-      const userCredential = await auth().signInWithCredential(credential);
-      const { uid } = userCredential.user;
-      const firebaseIdToken = await userCredential.user.getIdToken();
-      const completePhoneNumber = `${callingCode}${phoneNumber}`;
 
-      const requestBody = {
-        firebaseIdToken,
-        completePhoneNumber,
-        uid,
-        email: email || null,
-      };
+      const currentUser = auth().currentUser;
 
-      if (!login) {
-        const response = await fetch(
-          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
+      if (currentUser) {
+        try {
+          const phoneProvider = currentUser.providerData.find(
+            (provider) => provider.providerId === auth.PhoneAuthProvider.PROVIDER_ID
+          );
+
+          if (phoneProvider) {
+            console.log('Phone number already linked.');
+            const userCredential = await auth().signInWithCredential(credential);
+            const firebaseIdToken = await userCredential.user.getIdToken();
+            const completePhoneNumber = `${callingCode}${phoneNumber}`;
+
+            const requestBody = {
+              firebaseIdToken,
+              completePhoneNumber,
+              uid: userCredential.user.uid,
+              email: email || null,
+            };
+
+            const endpoint = login
+              ? 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone'
+              : 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone';
+
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              navigation.navigate(login ? 'Main' : 'CreateProfileScreen');
+            } else {
+              Alert.alert('Error', 'User does not exist or invalid credentials.');
+            }
+          } else {
+            await currentUser.linkWithCredential(credential);
+
+            const firebaseIdToken = await currentUser.getIdToken();
+            const completePhoneNumber = `${callingCode}${phoneNumber}`;
+
+            const requestBody = {
+              firebaseIdToken,
+              completePhoneNumber,
+              uid: currentUser.uid,
+              email,
+            };
+
+            const response = await fetch(
+              'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+              }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+              console.log('Phone registration completed.');
+              navigation.navigate('CreateProfileScreen');
+            } else {
+              Alert.alert('Error', 'Failed to complete phone registration.');
+            }
           }
-        );
-
-        const data = await response.json();
-
-        if (data.success) {
-          if (email && password) {
-            await auth()
-              .createUserWithEmailAndPassword(email, password)
-              .then(() => {
-                console.log('User registered with email and password.');
-              })
-              .catch((error) => {
-                console.error('Error registering user:', error);
-                Alert.alert('Error', error.message);
-                return;
-              });
-          }
-          navigation.navigate('CreateProfileScreen');
-        } else {
-          Alert.alert('Error', 'Failed to complete phone registration.');
+        } catch (error) {
+          console.error('Error linking phone number:', error);
+          Alert.alert('Error', 'Failed to link phone number.');
         }
       } else {
-        const response = await fetch(
-          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          }
-        );
+        // Si el usuario no está autenticado con correo y contraseña, proceder con login/registro solo con el número de teléfono
+        console.log('Registering or logging in with phone number only.');
+
+        const userCredential = await auth().signInWithCredential(credential);
+        const firebaseIdToken = await userCredential.user.getIdToken();
+        const completePhoneNumber = `${callingCode}${phoneNumber}`;
+
+        const requestBody = {
+          firebaseIdToken,
+          completePhoneNumber,
+          uid: userCredential.user.uid,
+          email: email || null,
+        };
+
+        const endpoint = login
+          ? 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone'
+          : 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone';
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
 
         const data = await response.json();
 
         if (data.success) {
           console.log(data);
-          navigation.navigate('Main');
+          navigation.navigate(login ? 'Main' : 'CreateProfileScreen');
         } else {
+          setIsCodeInvalid(true);
           Alert.alert('Error', 'User does not exist or invalid credentials.');
         }
       }
     } catch (error) {
       console.error('Verification Error:', error);
       setIsCodeInvalid(true);
+      Alert.alert('Error', 'An error occurred during verification.');
     }
   };
+
 
   return (
     <>

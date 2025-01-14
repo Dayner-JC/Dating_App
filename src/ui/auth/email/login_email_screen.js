@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
@@ -28,6 +29,7 @@ const LoginEmailScreen = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState(1);
+  const [uid, setUid] = useState(null);
 
   const isEmailValid = email.endsWith('@gmail.com') && /.+@gmail\.com/.test(email);
   const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password);
@@ -44,17 +46,14 @@ const LoginEmailScreen = () => {
 
         if (user) {
           const idToken = await user.getIdToken();
-          const uid = user.uid;
-
-          console.log('Token obtained:', idToken);
-          console.log('UID obtained:', uid);
+          setUid(user.uid);
 
           const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ token: idToken, uid: uid }),
+            body: JSON.stringify({ token: idToken, uid: uid, email: email }),
           });
 
           const data = await response.json();
@@ -62,18 +61,39 @@ const LoginEmailScreen = () => {
           if (data.success) {
             navigation.navigate('Main', { userData: data.user });
           } else {
-            Alert('User not found');
+            Alert.alert('Error','User not found');
           }
         } else {
-          Alert('Failed to obtain user');
+            Alert.alert('Error','Failed to obtain user');
         }
       } catch (error) {
         console.error(error);
-        Alert('Failed to sign in');
       }
     }
   };
 
+  const requestPasswordReset = async () => {
+    try {
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUid(data.uid);
+        Alert.alert('Success', 'The code was sent to your email.');
+        navigation.navigate('VerifyCodeEmailScreen', { uid: uid, email: email });
+      } else {
+        Alert.alert('Error', 'Could not send code.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
+  };
 
   const handleGoogleLogin = async () => {
     try {
@@ -186,7 +206,7 @@ const LoginEmailScreen = () => {
             )}
             <View style={styles.forgot_container}>
             {password.length > 0 && (
-                <Text style={styles.forgot_text} onPress={() => navigation.navigate('VerifyCodeEmailScreen')}>Forgot your password?</Text>
+                <Text style={styles.forgot_text} onPress={requestPasswordReset}>Forgot your password?</Text>
             )}
             </View>
 

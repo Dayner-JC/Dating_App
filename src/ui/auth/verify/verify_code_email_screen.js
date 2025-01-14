@@ -5,7 +5,8 @@ import VerifyCodeAppBar from '../../main/appBars/verify_code_appBar';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const VerifyCodeEmailScreen = (/*{ route }*/) => {
+const VerifyCodeEmailScreen = ({ route }) => {
+  const { uid, email } = route.params;
   const codeLength = 6;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -15,6 +16,10 @@ const VerifyCodeEmailScreen = (/*{ route }*/) => {
   const inputsRef = useRef([]);
   const navigation = useNavigation();
   const isButtonDisabled = !codeArray.every((char) => char !== '');
+
+  useEffect(() => {
+    console.log('UID recibido:', uid);
+  }, [uid]);
 
   useEffect(() => {
     let timer;
@@ -30,6 +35,29 @@ const VerifyCodeEmailScreen = (/*{ route }*/) => {
     setCodeArray(Array(codeLength).fill(''));
     setIsCodeInvalid(false);
     inputsRef.current[0]?.focus();
+  };
+
+  const verifyCode = async () => {
+    try {
+      const code = codeArray.join('');
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, code }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigation.navigate('NewPasswordScreen', { uid, email });
+      } else {
+        const errorMessage = data.message || 'Invalid code.';
+        console.log('Error', errorMessage);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
   };
 
   const handleCodeChange = (text, index) => {
@@ -135,7 +163,7 @@ const VerifyCodeEmailScreen = (/*{ route }*/) => {
               height={55}
               marginTop={40}
               disabled={isButtonDisabled}
-              onPress={()=>{navigation.navigate('NewPasswordScreen');}}
+              onPress={verifyCode}
             />
           ) : attempts < 3 ? (
             <TouchableOpacity onPress={handleResendCode}>

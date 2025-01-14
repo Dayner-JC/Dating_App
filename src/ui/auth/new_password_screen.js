@@ -1,24 +1,50 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import VerifyCodeAppBar from '../main/appBars/verify_code_appBar';
 import Button from '../components/button';
 import HideIcon from '../../assets/icons/hide.svg';
 import ShowIcon from '../../assets/icons/show.svg';
+import { useNavigation } from '@react-navigation/native';
 import Petal1 from '../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const NewPasswordScreen = () => {
+const NewPasswordScreen = ({ route }) => {
+  const { email } = route.params;
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isFocused, setIsFocused] = useState({ password: false, confirmPassword: false });
 
+    const navigation = useNavigation();
+
   const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password);
   const passwordsMatch = password === confirmPassword;
 
   const isButtonEnabled = isPasswordValid && passwordsMatch;
+
+  const updatePassword = async () => {
+    try {
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/new-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Success', 'Updated password!');
+        navigation.navigate('LoginEmailScreen');
+      } else {
+        console.log('Error', 'Password could not be updated. ' + data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -100,9 +126,7 @@ const NewPasswordScreen = () => {
           borderRadius={100}
           width="100%"
           height={55}
-          onPress={() => {
-            console.log('Password set successfully!');
-          }}
+          onPress={updatePassword}
           disabled={!isButtonEnabled}
         />
       </View>

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ChevronDownIcon from '../../assets/icons/chevron-down.svg';
 import CountryPicker from 'react-native-country-picker-modal';
 import Button from '../components/button';
 import IconButton from '../components/icon_button';
 import ArrowIcon from '../../assets/icons/arrow-left.svg';
+import auth from '@react-native-firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Petal2 from '../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../assets/splash_screen_flower/petals/petal_9.svg';
@@ -35,15 +36,26 @@ const PhoneAfterEmail = ({route}) => {
     };
 
     const handleRegister = async () => {
-      const verificationId = await handlePhoneRegister(callingCode, phoneNumber);
-      if (verificationId) {
-        navigation.navigate('VerifyCodeScreen', {
-          phoneNumber,
-          callingCode,
-          verificationId,
-          email,
-          password,
-        });
+      try {
+        const emailUserCredential = await auth().createUserWithEmailAndPassword(email, password);
+
+        const uid = emailUserCredential.user.uid;
+
+        const verificationId = await handlePhoneRegister(callingCode, phoneNumber);
+
+        if (verificationId) {
+          navigation.navigate('VerifyCodeScreen', {
+            phoneNumber,
+            callingCode,
+            verificationId,
+            uid,
+            email,
+            password,
+          });
+        }
+      } catch (error) {
+        console.error('Error during email registration:', error.message);
+        Alert.alert('Error', error.message);
       }
     };
 
