@@ -23,6 +23,9 @@ import EditLocation from '../profile/edit/edit_location';
 import EditAbout from '../profile/edit/edit_about';
 import EditInterests from '../profile/edit/edit_interests';
 import EditPhotos from '../profile/edit/edit_photos';
+import TwoFAEnableScreen from '../auth/2FA/2FA_enable_screen';
+import TwoFASmsScreen from '../auth/2FA/2FA_sms_screen';
+import TwoFAAuthenticatorScreen from '../auth/2FA/2FA_app_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -51,6 +54,9 @@ const Navigator = () => {
         <Stack.Screen name="EditAbout" component={EditAbout} />
         <Stack.Screen name="EditInterests" component={EditInterests} />
         <Stack.Screen name="EditPhotos" component={EditPhotos} />
+        <Stack.Screen name="TwoFAEnableScreen" component={TwoFAEnableScreen} />
+        <Stack.Screen name="TwoFASmsScreen" component={TwoFASmsScreen} />
+        <Stack.Screen name="TwoFAAuthenticatorScreen" component={TwoFAAuthenticatorScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

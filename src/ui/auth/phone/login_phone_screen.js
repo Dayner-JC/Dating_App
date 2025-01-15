@@ -291,33 +291,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     paddingVertical: 20,
   },
-  top_petals:{
-    width: '100%',
-    alignItems: 'flex-end',
-    paddingEnd: 20,
-  },
-  petal1: {
-    marginBottom: 20,
-    marginRight: 20,
-  },
-  bottom_petals_container: {
-    flexDirection: 'row',
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  petal4: {
-    marginTop: 0,
-    marginLeft: 50,
-  },
-  petal5: {
-    marginTop: 30,
-  },
-  content: {
-    width: '85%',
-    alignItems: 'flex-start',
-  },
   title_text: {
     fontFamily: 'GreatMangoDemo',
     color: '#D9D2B0',
@@ -411,6 +384,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#D97904',
     textDecorationLine: 'underline',
+  },
+  top_petals:{
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingEnd: 20,
+  },
+  petal1: {
+    marginBottom: 20,
+    marginRight: 20,
+  },
+  bottom_petals_container: {
+    flexDirection: 'row',
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  petal4: {
+    marginTop: 0,
+    marginLeft: 50,
+  },
+  petal5: {
+    marginTop: 30,
+  },
+  content: {
+    width: '85%',
+    alignItems: 'flex-start',
   },
 });
 
