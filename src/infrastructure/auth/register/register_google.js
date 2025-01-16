@@ -39,6 +39,6 @@ export const registerWithGoogle = async (navigation) => {
 
     navigation.navigate('CreateProfileScreen');
   } catch (error) {
-    Alert.alert('Error', error);
+    console.log('Error', "h: " + error);
   }
 };

@@ -46,14 +46,13 @@ const LoginEmailScreen = () => {
 
         if (user) {
           const idToken = await user.getIdToken();
-          setUid(user.uid);
 
           const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ token: idToken, uid: uid, email: email }),
+            body: JSON.stringify({ token: idToken, uid: user.uid, email: email }),
           });
 
           const data = await response.json();
@@ -85,7 +84,7 @@ const LoginEmailScreen = () => {
       if (response.ok) {
         setUid(data.uid);
         Alert.alert('Success', 'The code was sent to your email.');
-        navigation.navigate('VerifyCodeEmailScreen', { uid: uid, email: email });
+        navigation.navigate('VerifyCodeEmailScreen', { uid: data.uid, email: email });
       } else {
         Alert.alert('Error', 'Could not send code.');
       }

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
@@ -8,7 +7,7 @@ import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
 
-const VerifyCodeScreen = ({ route }) => {
+const VerifyCode2FaSmsScreen = ({ route }) => {
   const codeLength = 6;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -17,7 +16,7 @@ const VerifyCodeScreen = ({ route }) => {
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const inputsRef = useRef([]);
   const navigation = useNavigation();
-  const { phoneNumber, callingCode, verificationId, login, email, password, uid } = route.params;
+  const { userPhoneNumber, confirmationId } = route.params;
   const isButtonDisabled = !codeArray.every((char) => char !== '');
 
   useEffect(() => {
@@ -57,7 +56,7 @@ const VerifyCodeScreen = ({ route }) => {
       return;
     }
 
-    const newVerificationId = await handlePhoneRegister(callingCode, phoneNumber);
+    const newVerificationId = await handlePhoneRegister(userPhoneNumber);
     if (newVerificationId) {
       Alert.alert('Code Resent', 'A new verification code has been sent.');
       setAttempts((prev) => prev + 1);
@@ -76,134 +75,17 @@ const VerifyCodeScreen = ({ route }) => {
 
   const handleVerifyCode = async () => {
     const verificationCode = codeArray.join('');
-    if (verificationCode.length !== codeLength) {
-      Alert.alert('Invalid Code', 'Please enter the full verification code.');
-      return;
-    }
-
     try {
-      const credential = auth.PhoneAuthProvider.credential(verificationId, verificationCode);
+        const credential = auth.PhoneAuthProvider.credential(confirmationId, verificationCode);
+        await auth().signInWithCredential(credential);
 
-      const currentUser = auth().currentUser;
-
-      if (currentUser) {
-        try {
-          const phoneProvider = currentUser.providerData.find(
-            (provider) => provider.providerId === auth.PhoneAuthProvider.PROVIDER_ID
-          );
-
-          if (phoneProvider) {
-            console.log('Phone number already linked.');
-            const userCredential = await auth().signInWithCredential(credential);
-            const firebaseIdToken = await userCredential.user.getIdToken();
-            const completePhoneNumber = `${callingCode} ${phoneNumber}`;
-
-            const requestBody = {
-              firebaseIdToken,
-              completePhoneNumber,
-              uid: userCredential.user.uid,
-              email: email || null,
-            };
-
-            const endpoint = login
-              ? 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone'
-              : 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone';
-
-            const response = await fetch(endpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestBody),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              navigation.navigate(login ? 'Main' : 'CreateProfileScreen');
-            } else {
-              Alert.alert('Error', 'User does not exist or invalid credentials.');
-            }
-          } else {
-            await currentUser.linkWithCredential(credential);
-
-            const firebaseIdToken = await currentUser.getIdToken();
-            const completePhoneNumber = `${callingCode}${phoneNumber}`;
-
-            const requestBody = {
-              firebaseIdToken,
-              completePhoneNumber,
-              uid: currentUser.uid,
-              email,
-            };
-
-            const response = await fetch(
-              'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-              }
-            );
-
-            const data = await response.json();
-
-            if (data.success) {
-              console.log('Phone registration completed.');
-              navigation.navigate('CreateProfileScreen');
-            } else {
-              Alert.alert('Error', 'Failed to complete phone registration.');
-            }
-          }
-        } catch (error) {
-          console.error('Error linking phone number:', error);
-          Alert.alert('Error', 'Failed to link phone number.');
-        }
-      } else {
-        console.log('Registering or logging in with phone number only.');
-
-        const userCredential = await auth().signInWithCredential(credential);
-        const firebaseIdToken = await userCredential.user.getIdToken();
-        const completePhoneNumber = `${callingCode}${phoneNumber}`;
-
-        const requestBody = {
-          firebaseIdToken,
-          completePhoneNumber,
-          uid: userCredential.user.uid,
-          email: email || null,
-        };
-
-        const endpoint = login
-          ? 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone'
-          : 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone';
-
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          console.log(data);
-          navigation.navigate(login ? 'Main' : 'CreateProfileScreen');
-        } else {
-          setIsCodeInvalid(true);
-          Alert.alert('Error', 'User does not exist or invalid credentials.');
-        }
+        Alert.alert('Success', '2FA with SMS activated successfully!');
+        navigation.navigate('Main');
+      } catch (error) {
+        console.error('Verification failed:', error);
+        Alert.alert('Error', 'Invalid verification code.');
       }
-    } catch (error) {
-      console.error('Verification Error:', error);
-      setIsCodeInvalid(true);
-      Alert.alert('Error', 'An error occurred during verification.');
-    }
   };
-
 
   return (
     <>
@@ -385,4 +267,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VerifyCodeScreen;
+export default VerifyCode2FaSmsScreen;

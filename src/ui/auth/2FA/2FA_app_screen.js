@@ -16,7 +16,7 @@ const TwoFAAuthenticatorScreen = () => {
 
     const handleCopyToClipboard = () => {
       Clipboard.setString(authKey);
-      console.log('Código copiado:', authKey);
+      console.log('Code copied:', authKey);
     };
 
     return (

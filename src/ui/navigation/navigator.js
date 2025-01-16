@@ -26,6 +26,7 @@ import EditPhotos from '../profile/edit/edit_photos';
 import TwoFAEnableScreen from '../auth/2FA/2FA_enable_screen';
 import TwoFASmsScreen from '../auth/2FA/2FA_sms_screen';
 import TwoFAAuthenticatorScreen from '../auth/2FA/2FA_app_screen';
+import VerifyCode2FaSmsScreen from '../auth/verify/verify_code_2fa_sms_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -57,6 +58,7 @@ const Navigator = () => {
         <Stack.Screen name="TwoFAEnableScreen" component={TwoFAEnableScreen} />
         <Stack.Screen name="TwoFASmsScreen" component={TwoFASmsScreen} />
         <Stack.Screen name="TwoFAAuthenticatorScreen" component={TwoFAAuthenticatorScreen} />
+        <Stack.Screen name="VerifyCode2FaSmsScreen" component={VerifyCode2FaSmsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text,  StyleSheet, StatusBar } from 'react-native';
+import { View, Text,  StyleSheet, StatusBar, Alert } from 'react-native';
+import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Button from '../../components/button';
@@ -7,7 +8,34 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
-const TwoFASmsScreen = ({ navigation }) => {
+const TwoFASmsScreen = ({ route, navigation }) => {
+  const { userPhoneNumber } = route.params;
+
+  const match = userPhoneNumber.match(/^(\+\d{1,4}) (\d{6,15})$/);
+  const callingCode = match ? match[1] : null;
+  const phoneNumber = match ? match[2] : null;
+
+  if (!callingCode || !phoneNumber) {
+    Alert.alert('Error', 'Invalid phone number format.');
+    navigation.goBack();
+    return null;
+  }
+
+  const handleContinue = async () => {
+    console.log(callingCode, phoneNumber);
+    try {
+      const confirmation = await handlePhoneRegister(callingCode, phoneNumber);
+      if (confirmation) {
+        navigation.navigate('VerifyCode2FaSmsScreen', {
+          confirmationId: confirmation,
+          userPhoneNumber,
+        });
+      }
+    } catch (error) {
+      console.error('Error during SMS verification:', error);
+      Alert.alert('Error', 'Failed to send verification code.');
+    }
+  };
 
     return (
       <View style={styles.container}>
@@ -18,11 +46,11 @@ const TwoFASmsScreen = ({ navigation }) => {
           <View style={styles.content}>
         <Text style={styles.title}>Send Code</Text>
         <Text style={styles.subtitle}>
-        By continuing you will be sent an SMS with a verification code to the number +1 786 XXX XX67.
+        By continuing you will be sent an SMS with a verification code to the number {userPhoneNumber}.
         </Text>
         <Button
             title="Send Code"
-            onPress={() => {}}
+            onPress={handleContinue}
             backgroundColor="#D97904"
             borderRadius={100}
             width="100%"

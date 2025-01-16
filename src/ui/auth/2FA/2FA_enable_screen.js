@@ -1,86 +1,109 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
+import auth from '@react-native-firebase/auth';
+import IconButton from '../../components/icon_button';
+import ArrowIcon from '../../../assets/icons/arrow-left.svg';
+import Button from '../../components/button';
 import MessageIcon from '../../../assets/icons/message.svg';
 import BarCodeIcon from '../../../assets/icons/scan-barcode.svg';
 import MessageWhiteIcon from '../../../assets/icons/message-white.svg';
 import BarCodeWhiteIcon from '../../../assets/icons/scan-barcode-white.svg';
-import IconButton from '../../components/icon_button';
-import ArrowIcon from '../../../assets/icons/arrow-left.svg';
-import Button from '../../components/button';
-import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
 const TwoFAEnableScreen = ({ navigation }) => {
   const [selectedOption, setSelectedOption] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const isContinueDisabled = !selectedOption;
+  const handleContinue = async () => {
+    if (selectedOption === 'app') {
+      navigation.navigate('TwoFAAuthenticatorScreen');
+    } else if (selectedOption === 'sms') {
+      try {
+        setIsLoading(true);
+        const currentUser = auth().currentUser;
+        if (!currentUser) {
+          Alert.alert('Error', 'No authenticated user found.');
+          return;
+        }
+
+        const response = await fetch(
+          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/enable-sms',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: currentUser.uid }),
+          }
+        );
+
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || 'Failed to enable SMS 2FA.');
+        }
+
+        navigation.navigate('TwoFASmsScreen', {
+          userPhoneNumber: result.phoneNumber,
+        });
+      } catch (error) {
+        console.error('Error enabling SMS 2FA:', error);
+        Alert.alert('Error', error.message || 'Failed to enable SMS 2FA.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const isContinueDisabled = !selectedOption || isLoading;
 
   return (
     <View style={styles.container}>
-                <StatusBar backgroundColor="#17261F" />
+      <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
-        <View style={styles.content}>
-      <Text style={styles.title}>Enable Two-Factor Authentication</Text>
-      <Text style={styles.subtitle}>
-        Enhance your account security by adding a verification code alongside your password.
-      </Text>
-      <View style={styles.optionContainer}>
-      <Text style={styles.optionHeadText}>Select an authentication method:</Text>
-      <TouchableOpacity
-        style={[
-          styles.option,
-          selectedOption === 'app' && styles.selectedOption,
-        ]}
-        onPress={() => setSelectedOption('app')}
-      >
-          {selectedOption === 'app' ? (
-            <BarCodeWhiteIcon style={styles.optionIcon}/>
-          ) : (
-            <BarCodeIcon style={styles.optionIcon}/>
-          )}
-        <View style={styles.optionTextContainer}>
-          <Text style={styles.optionTitle}>Authentication App</Text>
-          <Text style={styles.optionSubtitle}>Use apps like Google Authenticator.</Text>
+      <View style={styles.content}>
+        <Text style={styles.title}>Enable Two-Factor Authentication</Text>
+        <Text style={styles.subtitle}>
+          Enhance your account security by adding a verification code alongside your password.
+        </Text>
+        <View style={styles.optionContainer}>
+          <Text style={styles.optionHeadText}>Select an authentication method:</Text>
+          <TouchableOpacity
+            style={[styles.option, selectedOption === 'app' && styles.selectedOption]}
+            onPress={() => setSelectedOption('app')}
+          >
+            {selectedOption === 'app' ? (
+              <BarCodeWhiteIcon style={styles.optionIcon} />
+            ) : (
+              <BarCodeIcon style={styles.optionIcon} />
+            )}
+            <View style={styles.optionTextContainer}>
+              <Text style={styles.optionTitle}>Authentication App</Text>
+              <Text style={styles.optionSubtitle}>Use apps like Google Authenticator.</Text>
+            </View>
+            <View style={[styles.circle, selectedOption === 'app' && styles.selectedCircle]} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.option, selectedOption === 'sms' && styles.selectedOption]}
+            onPress={() => setSelectedOption('sms')}
+          >
+            {selectedOption === 'sms' ? (
+              <MessageWhiteIcon style={styles.optionIcon} />
+            ) : (
+              <MessageIcon style={styles.optionIcon} />
+            )}
+            <View style={styles.optionTextContainer}>
+              <Text style={[styles.optionTitle, selectedOption === 'sms' && styles.optionTitleSelected]}>
+                SMS
+              </Text>
+              <Text style={[styles.optionSubtitle, selectedOption === 'sms' && styles.optionSubtitleSelected]}>
+                Receive a unique code on your phone.
+              </Text>
+            </View>
+            <View style={[styles.circle, selectedOption === 'sms' && styles.selectedCircle]} />
+          </TouchableOpacity>
         </View>
-        <View style={[
-          styles.circle,
-          selectedOption === 'app' && styles.selectedCircle,
-        ]} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.option,
-          selectedOption === 'sms' && styles.selectedOption,
-        ]}
-        onPress={() => setSelectedOption('sms')}
-      >
-          {selectedOption === 'sms' ? (
-            <MessageWhiteIcon style={styles.optionIcon}/>
-          ) : (
-            <MessageIcon  style={styles.optionIcon}/>
-          )}
-        <View style={styles.optionTextContainer}>
-          <Text style={[styles.optionTitle, selectedOption === 'sms' && styles.optionTitleSelected]}>SMS</Text>
-          <Text style={[styles.optionSubtitle, selectedOption === 'sms' && styles.optionSubtitleSelected]}>Receive a unique code on your phone.</Text>
-        </View>
-        <View style={[
-          styles.circle,
-          selectedOption === 'sms' && styles.selectedCircle,
-        ]} />
-      </TouchableOpacity>
-      </View>
-      <Button
+        <Button
           title="Continue"
-          onPress={() => {
-            if (selectedOption === 'app') {
-                navigation.navigate('TwoFAAuthenticatorScreen');
-              } else if (selectedOption === 'sms') {
-                navigation.navigate('TwoFASmsScreen');
-              }
-          }}
+          onPress={handleContinue}
           backgroundColor="#D97904"
           disabledBackgroundColor="#8b580f"
           disabledTextColor="#a2a8a5"
@@ -90,15 +113,6 @@ const TwoFAEnableScreen = ({ navigation }) => {
           disabled={isContinueDisabled}
         />
       </View>
-            <View style={styles.petalsContainer}>
-              <View style={styles.singlePetal}>
-                  <Petal1 style={styles.petal1} />
-              </View>
-              <View style={styles.doublePetals}>
-                  <Petal2 style={styles.petal2} />
-                  <Petal3 style={styles.petal3} />
-              </View>
-              </View>
     </View>
   );
 };
