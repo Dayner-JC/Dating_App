@@ -1,37 +1,63 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, StatusBar, Alert } from 'react-native';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Clipboard from '@react-native-clipboard/clipboard';
 import CopyIcon from '../../../assets/icons/copy.svg';
 import Button from '../../components/button';
-import QRCode from '../../../assets/qrcode.svg';
+import { fetch2FASetup } from '../../../infrastructure/auth/2fa/app_fetchAndverify';
 
-const TwoFAAuthenticatorScreen = () => {
-    const [authKey, setAuthKey] = useState(generateRandomKey());
+const TwoFAAuthenticatorScreen = ({ navigation, route }) => {
+  const { userId } = route.params;
+  const [authKey, setAuthKey] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
 
-    function generateRandomKey() {
-      return 'AOE3-B10N-0SD0-GJ35-0FD7';
-    }
+  useEffect(() => {
+    const setup2FA = async () => {
+      try {
+        const response = await fetch2FASetup(userId);
 
-    const handleCopyToClipboard = () => {
-      Clipboard.setString(authKey);
-      console.log('Code copied:', authKey);
+        let cleanedQrCodeUrl = response.qrCodeUrl.replace(/\s+/g, '');
+
+        setAuthKey(response.secret);
+        setQrCodeUrl(cleanedQrCodeUrl);
+      } catch (error) {
+        console.error('Error setting up 2FA:', error);
+        Alert.alert('Error', 'Failed to initiate 2FA setup.');
+      }
     };
+    setup2FA();
+  }, [userId]);
 
-    return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor="#17261F" />
+  const handleCopyToClipboard = () => {
+    Clipboard.setString(authKey);
+    Alert.alert('Copied', 'Authentication key copied to clipboard.');
+  };
+
+  const handleContinue = () => {
+    navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId });
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-        <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Connect with your app</Text>
         <Text style={styles.subtitle}>Use apps like Google Authenticator or Authy.</Text>
 
-        <View style={styles.qrContainer}>
-            <QRCode/>
-        </View>
+        {qrCodeUrl ? (
+          <View style={styles.qrContainer}>
+            <Image
+              source={{ uri: qrCodeUrl }}
+              style={styles.qr}
+            />
+          </View>
+        ) : (
+          <Text>Loading QR Code...</Text>
+        )}
 
         <Text style={styles.instructions}>1. Scan the QR Code with your authenticator app.</Text>
 
@@ -49,6 +75,7 @@ const TwoFAAuthenticatorScreen = () => {
             value={authKey}
             editable={false}
             selectTextOnFocus
+            numberOfLines={1}
           />
           <TouchableOpacity style={styles.copyButton} onPress={handleCopyToClipboard}>
             <CopyIcon width={24} height={24} />
@@ -59,17 +86,17 @@ const TwoFAAuthenticatorScreen = () => {
 
         <Button
           title="Continue"
-          onPress={() => {}}
+          onPress={handleContinue}
           backgroundColor="#D97904"
           borderRadius={100}
           width="100%"
           height={55}
           marginTop={100}
         />
-        </View>
       </View>
-    );
-  };
+    </View>
+  );
+};
 
   const styles = StyleSheet.create({
     container: {
@@ -105,6 +132,10 @@ const TwoFAAuthenticatorScreen = () => {
     qrContainer: {
       alignItems: 'center',
       marginTop: 40,
+    },
+    qr:{
+      height: 200,
+      width: 200,
     },
     or_container: {
         flexDirection: 'row',
@@ -157,8 +188,6 @@ const TwoFAAuthenticatorScreen = () => {
       borderLeftWidth: 1,
       borderColor: '#D9D2B0',
       backgroundColor: '#121D18',
-      justifyContent: 'center',
-      alignItems: 'center',
       borderTopRightRadius: 8,
       borderBottomRightRadius: 8,
     },

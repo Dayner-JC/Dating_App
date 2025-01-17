@@ -15,7 +15,18 @@ const TwoFAEnableScreen = ({ navigation }) => {
 
   const handleContinue = async () => {
     if (selectedOption === 'app') {
-      navigation.navigate('TwoFAAuthenticatorScreen');
+      setIsLoading(true);
+      const currentUser = auth().currentUser;
+      const userId = currentUser.uid;
+      if (!currentUser) {
+        Alert.alert('Error', 'No authenticated user found.');
+        return;
+      }
+      if (!userId) {
+        Alert.alert('Error', 'No userID.');
+        return;
+      }
+      navigation.navigate('TwoFAAuthenticatorScreen', {userId: userId});
     } else if (selectedOption === 'sms') {
       try {
         setIsLoading(true);
