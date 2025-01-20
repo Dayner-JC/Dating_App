@@ -55,10 +55,9 @@ const LoginEmailScreen = () => {
             body: JSON.stringify({ token: idToken, uid: user.uid, email: email }),
           });
 
-          const data = await response.json();
-
-          if (data.success) {
-            navigation.navigate('Main', { userData: data.user });
+          if (response.ok) {
+            console.log('uid enviado: ', user.uid);
+            navigation.navigate('VerifyCodeEmailLoginScreen', { userId: user.uid });
           } else {
             Alert.alert('Error','User not found');
           }

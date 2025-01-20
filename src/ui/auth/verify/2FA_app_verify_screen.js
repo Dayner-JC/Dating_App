@@ -1,35 +1,18 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Alert, StatusBar, TouchableOpacity } from 'react-native';
 import Button from '../../components/button';
 import VerifyCodeAppBar from '../../main/appBars/verify_code_appBar';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
-import { useNavigation } from '@react-navigation/native';
+import { verify2FAToken } from '../../../infrastructure/auth/2fa/app_fetchAndverify';
 
-const VerifyCodeEmailScreen = ({ route }) => {
-  const { uid, email } = route.params;
+const TwoFAAuthenticatorVerifyScreen = ({ route, navigation }) => {
+  const { userId, firstTime } = route.params;
   const codeLength = 6;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const [attempts, setAttempts] = useState(0);
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const inputsRef = useRef([]);
-  const navigation = useNavigation();
   const isButtonDisabled = !codeArray.every((char) => char !== '');
-
-  useEffect(() => {
-    console.log('UID recibido:', uid);
-  }, [uid]);
-
-  useEffect(() => {
-    let timer;
-    if (cooldown > 0) {
-      timer = setInterval(() => {
-        setCooldown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [cooldown]);
 
   const resetState = () => {
     setCodeArray(Array(codeLength).fill(''));
@@ -37,27 +20,20 @@ const VerifyCodeEmailScreen = ({ route }) => {
     inputsRef.current[0]?.focus();
   };
 
-  const verifyCode = async () => {
+  const handleVerify = async () => {
     try {
-      const code = codeArray.join('');
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, code }),
-      });
+      const token = codeArray.join('');
+      const response = await verify2FAToken(userId, token, firstTime);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        navigation.navigate('NewPasswordScreen', { uid, email });
-      } else {
-        const errorMessage = data.message || 'Invalid code.';
-        console.log('Error', errorMessage);
+      if (!response.ok) {
+        throw new Error(response.message || 'Failed to enable SMS 2FA.');
       }
+
+      navigation.navigate('Main');
     } catch (error) {
+      console.error('Error verifying 2FA token:', error);
       setIsCodeInvalid(true);
-      console.error(error);
-      Alert.alert('Error', 'An unexpected error occurred.');
+      Alert.alert('Error', error.message || 'Invalid or expired 2FA code.');
     }
   };
 
@@ -77,23 +53,6 @@ const VerifyCodeEmailScreen = ({ route }) => {
     setCodeArray(newCodeArray);
   };
 
-  const handleResendCode = async () => {
-    if (cooldown > 0 || attempts >= 3) {
-      return;
-    }
-
-      Alert.alert('Code Resent', 'A new verification code has been sent.');
-      setAttempts((prev) => prev + 1);
-
-      if (attempts === 0) {
-        setCooldown(30);
-      } else if (attempts === 1) {
-        setCooldown(60);
-      }
-
-      resetState();
-  };
-
   return (
     <>
       <StatusBar backgroundColor="#17261F" />
@@ -106,7 +65,7 @@ const VerifyCodeEmailScreen = ({ route }) => {
           <View style={styles.head}>
             <Text style={styles.title}>Verify Code</Text>
             <Text style={styles.subtitle}>
-            Enter the verification code that we just sent to your{'\n'}email.
+              Enter the verification code from your authentication app.
             </Text>
           </View>
           <View style={styles.codeContainer}>
@@ -132,26 +91,10 @@ const VerifyCodeEmailScreen = ({ route }) => {
             ))}
           </View>
           {isCodeInvalid ? (
-            <Text style={styles.errorText}>Unexpected code. Please Try Again</Text>
+            <TouchableOpacity onPress={resetState}>
+              <Text style={styles.tryAgainText}>Try Again</Text>
+            </TouchableOpacity>
           ) : (
-            attempts < 3 && (
-              <View style={styles.resendContainer}>
-                <Text style={styles.normalText}>Didn’t get a code? </Text>
-                {cooldown > 0 ? (
-                  <Text style={styles.cooldownText}>
-                    {`${Math.floor(cooldown / 60)}:${(cooldown % 60)
-                      .toString()
-                      .padStart(2, '0')}`}
-                  </Text>
-                ) : (
-                  <TouchableOpacity onPress={handleResendCode}>
-                    <Text style={styles.resendText}>Resend code</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )
-          )}
-          {!isCodeInvalid ? (
             <Button
               title="Verify"
               fontSize={16}
@@ -164,13 +107,9 @@ const VerifyCodeEmailScreen = ({ route }) => {
               height={55}
               marginTop={40}
               disabled={isButtonDisabled}
-              onPress={verifyCode}
+              onPress={handleVerify}
             />
-          ) : attempts < 3 ? (
-            <TouchableOpacity onPress={handleResendCode}>
-              <Text style={styles.resendButtonText}>Resend Code</Text>
-            </TouchableOpacity>
-          ) : null}
+          )}
         </View>
       </View>
     </>
@@ -225,48 +164,26 @@ const styles = StyleSheet.create({
   input: {
     width: 50,
     height: 58,
-    borderWidth: 1,
-    borderColor: '#747474',
-    borderRadius: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#747474',
     color: '#D9D2B0',
     fontSize: 24,
     backgroundColor: '#17261F',
     textAlign: 'center',
   },
   inputFocused: {
-    borderColor: '#D9D2B0',
-  },
-  resendContainer: {
-    flexDirection: 'row',
-    marginTop: 10,
-    justifyContent: 'center',
-  },
-  normalText: {
-    fontFamily: 'Roboto_400',
-    fontSize: 13,
-    color: '#D9D2B0',
-  },
-  resendText: {
-    fontFamily: 'Roboto_400',
-    fontSize: 13,
-    color: '#D97904',
-    textDecorationLine: 'underline',
-  },
-  cooldownText: {
-    fontFamily: 'Roboto_400',
-    fontSize: 13,
-    color: '#D97904',
+    borderBottomColor: '#D9D2B0',
   },
   inputError: {
-    borderColor: '#FF626E',
+    borderBottomColor: '#FF626E',
   },
   errorText: {
     color: '#FF626E',
     textAlign: 'center',
   },
-  resendButtonText: {
+  tryAgainText: {
     fontFamily: 'Roboto_400',
-    fontSize: 13,
+    fontSize: 16,
     color: '#D97904',
     textAlign: 'center',
     marginTop: 20,
@@ -274,4 +191,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VerifyCodeEmailScreen;
+export default TwoFAAuthenticatorVerifyScreen;

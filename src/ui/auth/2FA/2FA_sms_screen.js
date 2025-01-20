@@ -9,7 +9,7 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
 const TwoFASmsScreen = ({ route, navigation }) => {
-  const { userPhoneNumber } = route.params;
+  const { userPhoneNumber, userId } = route.params;
 
   const match = userPhoneNumber.match(/^(\+\d{1,4}) (\d{6,15})$/);
   const callingCode = match ? match[1] : null;
@@ -29,6 +29,7 @@ const TwoFASmsScreen = ({ route, navigation }) => {
         navigation.navigate('VerifyCode2FaSmsScreen', {
           confirmationId: confirmation,
           userPhoneNumber,
+          userId: userId,
         });
       }
     } catch (error) {

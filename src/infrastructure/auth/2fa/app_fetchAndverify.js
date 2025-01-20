@@ -16,13 +16,13 @@ export const fetch2FASetup = async (userId) => {
   return result;
 };
 
-export const verify2FAToken = async (userId, token) => {
+export const verify2FAToken = async (userId, token, firstTime) => {
   const response = await fetch(
     'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/app-verify',
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, token }),
+      body: JSON.stringify({ userId, token , firstTime}),
     }
   );
 
@@ -30,5 +30,5 @@ export const verify2FAToken = async (userId, token) => {
   if (!response.ok) {
     throw new Error(result.message || 'Failed to verify 2FA token.');
   }
-  return result;
+  return response;
 };

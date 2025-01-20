@@ -96,13 +96,41 @@ const LoginPhoneScreen = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        console.log('Login successful: ', data);
-        navigation.navigate('Main');
+        await check2FAStatus(uid);
       } else {
         Alert.alert('Error', data.message);
       }
     } catch (error) {
       console.error('Google Login Error:', error);
+    }
+  };
+
+  const check2FAStatus = async (uid) => {
+    try {
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const { methods, phoneNumber } = data;
+
+        if (methods.sms) {
+          navigation.navigate('TwoFASmsScreen', { userId: uid, userPhoneNumber: phoneNumber });
+        } else if (methods.app) {
+          navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId: uid, firstTime: false });
+        } else {
+          navigation.navigate('Main');
+        }
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      console.error('Error verifying 2FA:', error);
+      Alert.alert('Error', 'An unexpected error occurred.');
     }
   };
 

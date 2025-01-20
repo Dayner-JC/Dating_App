@@ -1,14 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
+import VerifyCodeAppBar from '../../main/appBars/verify_code_appBar';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
-import IconButton from '../../components/icon_button';
-import ArrowIcon from '../../../assets/icons/arrow-left.svg';
-import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
-import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
 
-const VerifyCode2FaSmsScreen = ({ route }) => {
+const VerifyCodeEmailLoginScreen = ({ route }) => {
+  const { userId } = route.params;
   const codeLength = 6;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -17,8 +15,11 @@ const VerifyCode2FaSmsScreen = ({ route }) => {
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const inputsRef = useRef([]);
   const navigation = useNavigation();
-  const { userPhoneNumber, confirmationId, userId } = route.params;
   const isButtonDisabled = !codeArray.every((char) => char !== '');
+
+  useEffect(() => {
+    console.log('UID recibido:', userId);
+  }, [userId]);
 
   useEffect(() => {
     let timer;
@@ -34,6 +35,59 @@ const VerifyCode2FaSmsScreen = ({ route }) => {
     setCodeArray(Array(codeLength).fill(''));
     setIsCodeInvalid(false);
     inputsRef.current[0]?.focus();
+  };
+
+  const verifyCode = async () => {
+    try {
+      const code = codeArray.join('');
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/email-verify/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: userId, code: code }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await check2FAStatus(userId);
+      } else {
+        const errorMessage = data.message || 'Invalid code.';
+        console.log('Error', errorMessage);
+      }
+    } catch (error) {
+      setIsCodeInvalid(true);
+      console.error(error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
+  };
+
+  const check2FAStatus = async (uid) => {
+    try {
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const { methods, phoneNumber } = data;
+
+        if (methods.sms) {
+          navigation.navigate('TwoFASmsScreen', { userId: uid, userPhoneNumber: phoneNumber });
+        } else if (methods.app) {
+          navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId: uid, firstTime: false });
+        } else {
+          navigation.navigate('Main');
+        }
+      } else {
+        navigation.navigate('Main');
+      }
+    } catch (error) {
+      console.error('Error verifying 2FA:', error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
   };
 
   const handleCodeChange = (text, index) => {
@@ -57,10 +111,7 @@ const VerifyCode2FaSmsScreen = ({ route }) => {
       return;
     }
 
-    const newVerificationId = await handlePhoneRegister(userPhoneNumber);
-    if (newVerificationId) {
       Alert.alert('Code Resent', 'A new verification code has been sent.');
-      setIsCodeInvalid(false);
       setAttempts((prev) => prev + 1);
 
       if (attempts === 0) {
@@ -70,53 +121,21 @@ const VerifyCode2FaSmsScreen = ({ route }) => {
       }
 
       resetState();
-    } else {
-      Alert.alert('Error', 'Code Resent Error');
-    }
-  };
-
-  const handleVerifyCode = async () => {
-    const verificationCode = codeArray.join('');
-
-    try {
-        const credential = auth.PhoneAuthProvider.credential(confirmationId, verificationCode);
-        await auth().signInWithCredential(credential);
-
-        const response = await fetch(
-          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/update-sms',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId }),
-          }
-        );
-
-        const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.message || 'Failed to enable SMS 2FA.');
-        }
-
-        navigation.navigate('Main');
-      } catch (error) {
-        setIsCodeInvalid(true);
-        console.error('Verification failed:', error);
-        Alert.alert('Error', 'Invalid verification code.');
-      }
   };
 
   return (
     <>
       <StatusBar backgroundColor="#17261F" />
       <View style={styles.container}>
-      <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
-      </View>
+        <View style={styles.appBar}>
+          <VerifyCodeAppBar />
+        </View>
         <Background style={styles.background} />
         <View style={styles.content}>
           <View style={styles.head}>
             <Text style={styles.title}>Verify Code</Text>
             <Text style={styles.subtitle}>
-              Enter the verification code that we just sent to your{'\n'}mobile phone.
+            Enter the verification code that we just sent to your{'\n'}email.
             </Text>
           </View>
           <View style={styles.codeContainer}>
@@ -174,7 +193,7 @@ const VerifyCode2FaSmsScreen = ({ route }) => {
               height={55}
               marginTop={40}
               disabled={isButtonDisabled}
-              onPress={handleVerifyCode}
+              onPress={verifyCode}
             />
           ) : attempts < 3 ? (
             <TouchableOpacity onPress={handleResendCode}>
@@ -195,11 +214,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   appBar: {
-    height: 60,
-    justifyContent: 'center',
-    backgroundColor: '#17261F',
-    width: '100%',
-    paddingStart: 10,
+    alignItems: 'flex-start',
+    alignContent: 'flex-start',
+    zIndex: 1,
   },
   background: {
     position: 'absolute',
@@ -237,15 +254,16 @@ const styles = StyleSheet.create({
   input: {
     width: 50,
     height: 58,
-    borderBottomWidth: 1,
-    borderBottomColor: '#747474',
+    borderWidth: 1,
+    borderColor: '#747474',
+    borderRadius: 8,
     color: '#D9D2B0',
     fontSize: 24,
     backgroundColor: '#17261F',
     textAlign: 'center',
   },
   inputFocused: {
-    borderBottomColor: '#D9D2B0',
+    borderColor: '#D9D2B0',
   },
   resendContainer: {
     flexDirection: 'row',
@@ -285,4 +303,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VerifyCode2FaSmsScreen;
+export default VerifyCodeEmailLoginScreen;

@@ -183,15 +183,14 @@ const styles = StyleSheet.create({
     width: 32,
     height: 44,
     borderBottomWidth: 1,
-    borderColor: '#747474',
-    borderRadius: 5,
+    borderBottomColor: '#747474',
     color: '#D9D2B0',
     fontSize: 18,
     backgroundColor: '#17261F',
     textAlign: 'center',
   },
   inputFocused: {
-    borderColor: '#D97904',
+    borderBottomColor: '#D97904',
   },
   groupSpacing: {
     width: 10,

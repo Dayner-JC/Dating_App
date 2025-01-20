@@ -17,7 +17,7 @@ const VerifyCodeScreen = ({ route }) => {
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const inputsRef = useRef([]);
   const navigation = useNavigation();
-  const { phoneNumber, callingCode, verificationId, login, email, password, uid } = route.params;
+  const { phoneNumber, callingCode, verificationId, login, email } = route.params;
   const isButtonDisabled = !codeArray.every((char) => char !== '');
 
   useEffect(() => {
@@ -76,10 +76,6 @@ const VerifyCodeScreen = ({ route }) => {
 
   const handleVerifyCode = async () => {
     const verificationCode = codeArray.join('');
-    if (verificationCode.length !== codeLength) {
-      Alert.alert('Invalid Code', 'Please enter the full verification code.');
-      return;
-    }
 
     try {
       const credential = auth.PhoneAuthProvider.credential(verificationId, verificationCode);
@@ -120,7 +116,11 @@ const VerifyCodeScreen = ({ route }) => {
             const data = await response.json();
 
             if (data.success) {
-              navigation.navigate(login ? 'Main' : 'CreateProfileScreen');
+              if(login){
+                await check2FAStatus(userCredential.user.uid);
+              }else{
+              navigation.navigate('CreateProfileScreen');
+              }
             } else {
               Alert.alert('Error', 'User does not exist or invalid credentials.');
             }
@@ -128,7 +128,7 @@ const VerifyCodeScreen = ({ route }) => {
             await currentUser.linkWithCredential(credential);
 
             const firebaseIdToken = await currentUser.getIdToken();
-            const completePhoneNumber = `${callingCode}${phoneNumber}`;
+            const completePhoneNumber = `${callingCode} ${phoneNumber}`;
 
             const requestBody = {
               firebaseIdToken,
@@ -158,6 +158,7 @@ const VerifyCodeScreen = ({ route }) => {
             }
           }
         } catch (error) {
+          setIsCodeInvalid(true);
           console.error('Error linking phone number:', error);
           Alert.alert('Error', 'Failed to link phone number.');
         }
@@ -166,7 +167,7 @@ const VerifyCodeScreen = ({ route }) => {
 
         const userCredential = await auth().signInWithCredential(credential);
         const firebaseIdToken = await userCredential.user.getIdToken();
-        const completePhoneNumber = `${callingCode}${phoneNumber}`;
+        const completePhoneNumber = `${callingCode} ${phoneNumber}`;
 
         const requestBody = {
           firebaseIdToken,
@@ -190,10 +191,12 @@ const VerifyCodeScreen = ({ route }) => {
         const data = await response.json();
 
         if (data.success) {
-          console.log(data);
-          navigation.navigate(login ? 'Main' : 'CreateProfileScreen');
+          if(login){
+            await check2FAStatus(userCredential.user.uid);
+          }else{
+          navigation.navigate('CreateProfileScreen');
+          }
         } else {
-          setIsCodeInvalid(true);
           Alert.alert('Error', 'User does not exist or invalid credentials.');
         }
       }
@@ -204,6 +207,36 @@ const VerifyCodeScreen = ({ route }) => {
     }
   };
 
+    const check2FAStatus = async (uid) => {
+      try {
+        const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: uid }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          const { methods } = data;
+
+          if (methods.app) {
+            navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId: uid, firstTime: false });
+          } else {
+            navigation.navigate('Main');
+          }
+        } else {
+          if(login){
+            navigation.navigate('Main');
+          } else {
+            navigation.navigate('CreateProfileScreen');
+          }
+        }
+      } catch (error) {
+        console.error('Error verifying 2FA:', error);
+        Alert.alert('Error', 'An unexpected error occurred.');
+      }
+    };
 
   return (
     <>

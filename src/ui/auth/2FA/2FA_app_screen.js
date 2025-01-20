@@ -35,7 +35,7 @@ const TwoFAAuthenticatorScreen = ({ navigation, route }) => {
   };
 
   const handleContinue = () => {
-    navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId });
+    navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId, firstTime: true });
   };
 
   return (

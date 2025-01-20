@@ -52,6 +52,7 @@ const TwoFAEnableScreen = ({ navigation }) => {
 
         navigation.navigate('TwoFASmsScreen', {
           userPhoneNumber: result.phoneNumber,
+          userId: result.userId,
         });
       } catch (error) {
         console.error('Error enabling SMS 2FA:', error);
