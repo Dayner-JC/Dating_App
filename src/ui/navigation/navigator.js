@@ -34,7 +34,7 @@ const Stack = createStackNavigator();
 const Navigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SplashScreen" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="RegisterPhoneScreen" component={RegisterPhoneScreen} />
         <Stack.Screen name="LoginPhoneScreen" component={LoginPhoneScreen} />

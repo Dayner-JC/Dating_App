@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     height: 80,
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: '#0A0F0D',
+    borderColor: '#262626CC',
   },
   tabBarLabel: {
     display: 'none',
