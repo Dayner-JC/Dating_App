@@ -29,12 +29,13 @@ import TwoFASmsScreen from '../auth/2FA/2FA_sms_screen';
 import TwoFAAuthenticatorScreen from '../auth/2FA/2FA_app_screen';
 import VerifyCode2FaSmsScreen from '../auth/verify/verify_code_2fa_sms_screen';
 import TwoFAAuthenticatorVerifyScreen from '../auth/verify/2FA_app_verify_screen';
+import AccountScreen from '../main/account/account_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="SplashScreen" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="RegisterPhoneScreen" component={RegisterPhoneScreen} />
         <Stack.Screen name="LoginPhoneScreen" component={LoginPhoneScreen} />
@@ -58,6 +59,7 @@ const Navigator = () => {
         <Stack.Screen name="EditAbout" component={EditAbout} />
         <Stack.Screen name="EditInterests" component={EditInterests} />
         <Stack.Screen name="EditPhotos" component={EditPhotos} />
+        <Stack.Screen name="AccountScreen" component={AccountScreen} />
         <Stack.Screen name="TwoFAEnableScreen" component={TwoFAEnableScreen} />
         <Stack.Screen name="TwoFASmsScreen" component={TwoFASmsScreen} />
         <Stack.Screen name="TwoFAAuthenticatorScreen" component={TwoFAAuthenticatorScreen} />

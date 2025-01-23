@@ -49,7 +49,8 @@ const Step5 = ({ onNext, onChangeData }) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / 40);
     setSelectedHeight(currentHeights[index]);
-    onChangeData('height', currentHeights[index]);
+    onChangeData('height', currentHeights[index] + ` ${unit}`);
+    console.log('height: ', currentHeights[index] + ` ${unit}`);
   };
 
   const renderItem = ({ item, index }) => {

@@ -105,7 +105,7 @@ export default function ProfileFragment() {
           </View>
         </Modal>
 
-      <MenuItem icon={ViewProfileIcon} text="View Profile" onPress={() => {}} />
+      <MenuItem icon={ViewProfileIcon} text="View Profile" onPress={() => navigation.navigate('AccountScreen')} />
       <MenuItem icon={SettingsIcon} text="Settings" onPress={() => {}} />
       <MenuItem icon={HelpCenterIcon} text="Help Center" onPress={() => {}} />
       <MenuItem icon={PrivacyPolicyIcon} text="Privacy Policy" onPress={() => {}} />

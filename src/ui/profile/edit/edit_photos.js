@@ -9,8 +9,10 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
+import { useNavigation } from '@react-navigation/native';
 
 const EditPhotos = () => {
+  const navigation = useNavigation();
   const [photos, setPhotos] = useState([null, null, null, null, null, null]);
 
   const handleSelectPhoto = (index) => {
@@ -46,7 +48,7 @@ const EditPhotos = () => {
     <View style={styles.container}>
         <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Photos</Text>

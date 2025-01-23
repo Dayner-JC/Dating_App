@@ -10,8 +10,10 @@ import {
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
+import { useNavigation } from '@react-navigation/native';
 
 const EditInterests = () => {
+  const navigation = useNavigation();
   const [selectedItems, setSelectedItems] = useState([]);
 
   const sections = [
@@ -70,7 +72,7 @@ const EditInterests = () => {
     <View style={styles.container}>
         <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.goBack()} />
       </View>
         <View style={styles.content}>
         <Text style={styles.title}>Edit Interests</Text>

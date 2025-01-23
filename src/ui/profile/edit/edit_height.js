@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   Animated,
-  StatusBar
+  StatusBar,
 } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
@@ -12,8 +12,10 @@ import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
+import { useNavigation } from '@react-navigation/native';
 
 const EditHeight = () => {
+  const navigation = useNavigation();
   const [unit, setUnit] = useState('cm');
   const [selectedHeight, setSelectedHeight] = useState(160);
   const listRef = useRef(null);
@@ -104,7 +106,7 @@ const EditHeight = () => {
     <View style={styles.container}>
       <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Height</Text>

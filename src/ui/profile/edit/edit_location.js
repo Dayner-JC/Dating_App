@@ -7,8 +7,10 @@ import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
+import { useNavigation } from '@react-navigation/native';
 
 const EditLocation = () => {
+  const navigation = useNavigation();
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [mapRegion, setMapRegion] = useState({
     latitude: 37.7749,
@@ -28,7 +30,7 @@ const EditLocation = () => {
     <View style={styles.container}>
         <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>{}} />
+         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Location</Text>
