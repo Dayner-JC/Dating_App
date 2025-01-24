@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Alert } from 'react';
 import {
   View,
   Text,
@@ -14,8 +14,9 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const EditHeight = () => {
+const EditHeight = ({route}) => {
   const navigation = useNavigation();
+  const { uid } = route.params;
   const [unit, setUnit] = useState('cm');
   const [selectedHeight, setSelectedHeight] = useState(160);
   const listRef = useRef(null);
@@ -102,6 +103,32 @@ const EditHeight = () => {
     );
   };
 
+  const handleSaveChanges = async () => {
+    try {
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-height', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: uid,
+          height: selectedHeight + ` ${unit}`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        navigation.goBack();
+      } else {
+        Alert.alert(data.error || 'Error updating height.');
+      }
+    } catch (error) {
+      console.error('Error updating height:', error);
+      Alert.alert('Failed to update height.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#17261F" />
@@ -173,7 +200,7 @@ const EditHeight = () => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={()=>{}}
+          onPress={handleSaveChanges}
           disabled={!selectedHeight}
         />
         <Button

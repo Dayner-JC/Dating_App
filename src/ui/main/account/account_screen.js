@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
@@ -17,7 +17,6 @@ const AccountScreen = () => {
       const user = auth().currentUser;
       if (user) {
         setUserId(user.uid);
-        console.log('uid: ', user.uid);
         try {
           const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/request-data', {
             method: 'POST',
@@ -26,6 +25,7 @@ const AccountScreen = () => {
           });
           const data = await response.json();
           setUserData(data);
+          console.log('Data: ', data);
         } catch (error) {
           console.error('Error fetching user data:', error);
         } finally {
@@ -100,7 +100,7 @@ const AccountScreen = () => {
       </View>
 
       <TouchableOpacity>
-        <Text style={styles.editButton} onPress={() => navigation.navigate('EditPhotos')}>Edit photos</Text>
+        <Text style={styles.editButton} onPress={() => navigation.navigate('EditPhotos', { uid: userId })}>Edit photos</Text>
       </TouchableOpacity>
 
       <ScrollView style={styles.profileContainer} showsVerticalScrollIndicator={false}>
@@ -121,7 +121,7 @@ const AccountScreen = () => {
         />
         <ProfileItem
           label="Location"
-          value="Miami"
+          value={userData?.location ? `${userData.location.country}, ${userData.location.state}` : 'N/A'}
           onEdit={() => navigation.navigate('EditLocation', { uid: userId })}
         />
         <ProfileItem

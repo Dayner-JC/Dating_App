@@ -38,7 +38,7 @@ const EditName = ({ route }) => {
         if (data.success) {
           navigation.goBack();
         } else {
-          Alert.alert(data.error || 'Error al actualizar el nombre.');
+          Alert.alert(data.error || 'Error updating name.');
         }
       } catch (error) {
         console.error('Error updating name:', error);

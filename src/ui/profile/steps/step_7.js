@@ -1,26 +1,86 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useRef, useState, useCallback } from 'react';
+import { View, Text, ActivityIndicator, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import Button from '../../components/button';
+import Geolocation from '@react-native-community/geolocation';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
+import LocationIcon from '../../../assets/icons/gps.svg';
 
 const Step7 = ({ onNext, onChangeData }) => {
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [mapRegion, setMapRegion] = useState({
-    latitude: 37.7749,
-    longitude: -122.4194,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  });
+  const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState(null);
+  const [locationAcquired, setLocationAcquired] = useState(false);
+  const mapRef = useRef(null);
 
-  const handleMapPress = (event) => {
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    console.log(`[handleMapPress] Map pressed at Latitude=${latitude}, Longitude=${longitude}`);
+  const reverseGeocode = useCallback(async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+      );
+      const data = await response.json();
+      setAddress(data.address);
+      console.log('Address:', data.address);
+    } catch (error) {
+      console.error('Error geocoding location:', error);
+    }
+  }, []);
 
-    setSelectedLocation({ latitude, longitude });
-    onChangeData('location', { latitude, longitude });
+  const getCurrentLocation = useCallback(() => {
+    setLoading(true);
+    Geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const newLocation = { latitude, longitude };
+        setSelectedLocation(newLocation);
+        await reverseGeocode(latitude, longitude);
+
+        if (mapRef.current) {
+          mapRef.current.animateToRegion({
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }, 1000);
+        }
+
+        setLoading(false);
+        setLocationAcquired(true);
+      },
+      (error) => {
+        Alert.alert('Error', 'Location could not be obtained');
+        console.error('Geolocation error:', error);
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  }, [reverseGeocode]);
+
+  const handleMapPress = async (e) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    const newLocation = { latitude, longitude };
+    setSelectedLocation(newLocation);
+    await reverseGeocode(latitude, longitude);
+
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      }, 1000);
+    }
+  };
+
+  const handleContinue = () => {
+    const locationData = {
+      country: address.country,
+      state: address.state,
+    };
+
+    onChangeData('location', locationData);
+    onNext();
   };
 
   return (
@@ -30,36 +90,36 @@ const Step7 = ({ onNext, onChangeData }) => {
         <Text style={styles.subtitle}>Select your location on the map!</Text>
         <View style={styles.map_container}>
           <MapView
+            ref={mapRef}
             style={styles.map}
-            region={mapRegion}
-            onRegionChangeComplete={setMapRegion}
+            initialRegion={{
+              latitude: selectedLocation ? selectedLocation.latitude : 37.78825,
+              longitude: selectedLocation ? selectedLocation.longitude : -122.4324,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
             onPress={handleMapPress}
           >
             {selectedLocation && (
-              <Marker
-                coordinate={selectedLocation}
-                title="Selected Location"
-              />
+              <Marker coordinate={selectedLocation} title="Selected location" />
             )}
           </MapView>
         </View>
-        <Button
-          title="Continue"
-          onPress={() => {
-            if (selectedLocation) {
-              onNext({
-                location: selectedLocation,
-              });
-            }
-          }}
-          backgroundColor="#D97904"
-          disabledBackgroundColor="#8b580f"
-          disabledTextColor = "#a2a8a5"
-          borderRadius={100}
-          width="100%"
-          height={55}
-          disabled={!selectedLocation}
-        />
+        {loading && <ActivityIndicator size="large" color="#D97904" />}
+        {!locationAcquired ? (
+          <TouchableOpacity style={styles.button} onPress={getCurrentLocation} disabled={loading}>
+            <LocationIcon style={styles.icon} />
+            <Text style={styles.buttonText}>Use my current location</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleContinue()}
+            disabled={!selectedLocation}
+          >
+            <Text style={styles.buttonText}>Continue</Text>
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.petalsContainer}>
         <View style={styles.singlePetal}>
@@ -75,11 +135,11 @@ const Step7 = ({ onNext, onChangeData }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
+  container: {
         flex: 1,
         alignItems: 'center',
         width: '100%',
-      },
+  },
   content: {
     flex: 1,
     width: '85%',
@@ -107,6 +167,23 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 20,
     height: 60,
+  },
+  button: {
+    flexDirection: 'row',
+    backgroundColor: '#D97904',
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: 55,
+  },
+  buttonText: {
+    fontFamily: 'Roboto_500',
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  icon: {
+    marginRight: 10,
   },
   petalsContainer: {
     position: 'absolute',

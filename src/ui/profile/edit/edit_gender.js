@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
@@ -8,9 +8,9 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
 
-
-const EditGender = () => {
+const EditGender = ({route}) => {
   const navigation = useNavigation();
+  const { uid } = route.params;
   const [selectedGender, setSelectedGender] = useState(null);
 
   const genders = [
@@ -22,6 +22,32 @@ const EditGender = () => {
   const handleGenderSelect = (id) => {
     setSelectedGender(id);
   };
+
+    const handleSaveChanges = async () => {
+        try {
+          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-gender', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: uid,
+              gender: selectedGender,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            navigation.goBack();
+          } else {
+            Alert.alert(data.error || 'Error updating gender.');
+          }
+        } catch (error) {
+          console.error('Error updating gender:', error);
+          Alert.alert('Failed to update gender.');
+        }
+    };
 
   return (
     <View style={styles.container}>
@@ -63,7 +89,7 @@ const EditGender = () => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={()=>{}}
+          onPress={handleSaveChanges}
           disabled={!selectedGender}
         />
         <Button

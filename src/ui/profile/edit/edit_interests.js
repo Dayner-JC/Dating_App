@@ -6,14 +6,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   StatusBar,
+  Alert,
 } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const EditInterests = () => {
+const EditInterests = ({route}) => {
   const navigation = useNavigation();
+  const { uid } = route.params;
   const [selectedItems, setSelectedItems] = useState([]);
 
   const sections = [
@@ -65,8 +67,31 @@ const EditInterests = () => {
     });
   };
 
-  const handleNext = () => {
-  };
+    const handleSaveChanges = async () => {
+        try {
+          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-interests', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: uid,
+              interests: selectedItems,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            navigation.goBack();
+          } else {
+            Alert.alert(data.error || 'Error updating interests.');
+          }
+        } catch (error) {
+          console.error('Error updating interests:', error);
+          Alert.alert('Failed to update interests.');
+        }
+    };
 
   return (
     <View style={styles.container}>
@@ -111,7 +136,7 @@ const EditInterests = () => {
       </ScrollView>
       <Button
         title="Save changes"
-        onPress={handleNext}
+        onPress={handleSaveChanges}
         fontFamily="Roboto_500"
         backgroundColor="#D97904"
         disabledBackgroundColor = "#8b580f"

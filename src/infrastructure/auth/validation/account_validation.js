@@ -57,6 +57,7 @@ export const validateAndSendAccount = async (data) => {
     }
 
     const result = await response.json();
+
     return { success: true, data: result };
   } catch (error) {
     return { success: false, errors: { backend: error.message } };

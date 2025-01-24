@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
@@ -8,9 +8,10 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const EditIntentions = () => {
+const EditIntentions = ({route}) => {
   const navigation = useNavigation();
-  const [selectedGender, setSelectedGender] = useState(null);
+  const { uid } = route.params;
+  const [selectedIntentions, setSelectedIntentions] = useState(null);
 
   const intentions = [
     { id: 'serious_relationship', label: 'Serious Relationship' },
@@ -20,9 +21,35 @@ const EditIntentions = () => {
     { id: 'networking', label: 'Networking' },
   ];
 
-  const handleGenderSelect = (id) => {
-    setSelectedGender(id);
+  const handleIntentionsSelect = (id) => {
+    setSelectedIntentions(id);
   };
+
+    const handleSaveChanges = async () => {
+        try {
+          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-intentions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: uid,
+              intentions: selectedIntentions,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            navigation.goBack();
+          } else {
+            Alert.alert(data.error || 'Error updating intentions.');
+          }
+        } catch (error) {
+          console.error('Error updating intentions:', error);
+          Alert.alert('Failed to update intentions.');
+        }
+    };
 
   return (
     <View style={styles.container}>
@@ -34,22 +61,22 @@ const EditIntentions = () => {
         <Text style={styles.title}>Edit Intentions</Text>
         <Text style={styles.subtitle}>What is your dating intention?</Text>
     <View style={styles.option_container}>
-        {intentions.map((gender) => (
+        {intentions.map((intention) => (
           <TouchableOpacity
-            key={gender.id}
+            key={intention.id}
             style={[
-              styles.genderOption,
-              selectedGender === gender.id && styles.selectedOption,
+              styles.intentionsOption,
+              selectedIntentions === intention.id && styles.selectedOption,
             ]}
-            onPress={() => handleGenderSelect(gender.id)}
+            onPress={() => handleIntentionsSelect(intention.id)}
           >
             <Text
               style={[
-                styles.genderText,
-                selectedGender === gender.id && styles.selectedText,
+                styles.intentionsText,
+                selectedIntentions === intention.id && styles.selectedText,
               ]}
             >
-              {gender.label}
+              {intention.label}
             </Text>
           </TouchableOpacity>
         ))}
@@ -64,8 +91,8 @@ const EditIntentions = () => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={()=>{}}
-          disabled={!selectedGender}
+          onPress={handleSaveChanges}
+          disabled={!selectedIntentions}
         />
         <Button
           title="Cancel"
@@ -129,7 +156,7 @@ const styles = StyleSheet.create({
   option_container: {
     marginVertical: 35,
   },
-  genderOption: {
+  intentionsOption: {
     backgroundColor: '#5258531A',
     borderColor: '#525853',
     borderWidth: 2,
@@ -142,7 +169,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3A341B',
     borderColor: '#D97904',
   },
-  genderText: {
+  intentionsText: {
     color: '#D9D2B0',
     fontSize: 16,
     fontFamily: 'Roboto_400',

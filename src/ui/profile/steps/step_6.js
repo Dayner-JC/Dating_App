@@ -6,7 +6,7 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
 const Step6 = ({ onNext, onChangeData }) => {
-  const [selectedGender, setSelectedGender] = useState(null);
+  const [selectedIntentions, setSelectedIntentions] = useState(null);
 
   const intentions = [
     { id: 'serious_relationship', label: 'Serious Relationship' },
@@ -16,8 +16,8 @@ const Step6 = ({ onNext, onChangeData }) => {
     { id: 'networking', label: 'Networking' },
   ];
 
-  const handleGenderSelect = (id) => {
-    setSelectedGender(id);
+  const handleIntentionsSelect = (id) => {
+    setSelectedIntentions(id);
     onChangeData('intentions', id);
   };
 
@@ -27,22 +27,22 @@ const Step6 = ({ onNext, onChangeData }) => {
         <Text style={styles.title}>Intentions</Text>
         <Text style={styles.subtitle}>What is your dating intention?</Text>
     <View style={styles.option_container}>
-        {intentions.map((gender) => (
+        {intentions.map((intention) => (
           <TouchableOpacity
-            key={gender.id}
+            key={intention.id}
             style={[
-              styles.genderOption,
-              selectedGender === gender.id && styles.selectedOption,
+              styles.intentionsOption,
+              selectedIntentions === intention.id && styles.selectedOption,
             ]}
-            onPress={() => handleGenderSelect(gender.id)}
+            onPress={() => handleIntentionsSelect(intention.id)}
           >
             <Text
               style={[
-                styles.genderText,
-                selectedGender === gender.id && styles.selectedText,
+                styles.intentionsText,
+                selectedIntentions === intention.id && styles.selectedText,
               ]}
             >
-              {gender.label}
+              {intention.label}
             </Text>
           </TouchableOpacity>
         ))}
@@ -58,7 +58,7 @@ const Step6 = ({ onNext, onChangeData }) => {
           width={'100%'}
           height={55}
           onPress={onNext}
-          disabled={!selectedGender}
+          disabled={!selectedIntentions}
         />
       </View>
       <View style={styles.petalsContainer}>
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   option_container: {
     marginVertical: 35,
   },
-  genderOption: {
+  intentionsOption: {
     backgroundColor: '#5258531A',
     borderColor: '#525853',
     borderWidth: 2,
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3A341B',
     borderColor: '#D97904',
   },
-  genderText: {
+  intentionsText: {
     color: '#D9D2B0',
     fontSize: 16,
     fontFamily: 'Roboto_400',

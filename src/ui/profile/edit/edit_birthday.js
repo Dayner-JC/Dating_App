@@ -1,5 +1,5 @@
 import {React, useState, useRef, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TextInput, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
@@ -8,8 +8,9 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const EditBirthday = () => {
+const EditBirthday = ({route}) => {
   const navigation = useNavigation();
+  const { uid } = route.params;
   const codeLength = 8;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -60,11 +61,35 @@ const EditBirthday = () => {
     setIsButtonDisabled(!isValid);
   }, [codeArray]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const month = codeArray.slice(0, 2).join('');
     const day = codeArray.slice(2, 4).join('');
     const year = codeArray.slice(4).join('');
     const dateOfBirth = `${month}/${day}/${year}`;
+
+      try {
+        const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-birthday', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+            birthday: dateOfBirth,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          navigation.goBack();
+        } else {
+          Alert.alert(data.error || 'Error updating birthday.');
+        }
+      } catch (error) {
+        console.error('Error updating birthday:', error);
+        Alert.alert('Failed to update birthday.');
+      }
   };
 
   return (

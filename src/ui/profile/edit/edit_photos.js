@@ -10,29 +10,44 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
 import { useNavigation } from '@react-navigation/native';
+import { readFile } from 'react-native-fs';
 
-const EditPhotos = () => {
+const EditPhotos = ({route}) => {
   const navigation = useNavigation();
+  const { uid } = route.params;
   const [photos, setPhotos] = useState([null, null, null, null, null, null]);
 
   const handleSelectPhoto = (index) => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        selectionLimit: 1,
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log('Selección de imagen cancelada.');
-        } else if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    launchImageLibrary(options, async (response) => {
+      if (response.didCancel) {
+        Alert.alert('Selección cancelada');
+      } else if (response.errorMessage) {
+        Alert.alert('Error seleccionando imagen', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        try {
+          const selectedImage = response.assets[0];
+          const base64Image = await readFile(selectedImage.uri, 'base64');
+
+          const imagePayload = {
+            image: base64Image,
+            fileName: selectedImage.fileName || `image_${index}.jpg`,
+            type: selectedImage.type || 'image/jpeg',
+          };
+
           const newPhotos = [...photos];
-          newPhotos[index] = response.assets[0].uri;
+          newPhotos[index] = imagePayload;
           setPhotos(newPhotos);
+        } catch (error) {
+          Alert.alert('Error', 'No se pudo procesar la imagen');
+          console.error('Error al leer la imagen:', error);
         }
       }
-    );
+    });
   };
 
   const handleDeletePhoto = (index) => {
@@ -41,7 +56,30 @@ const EditPhotos = () => {
     setPhotos(newPhotos);
   };
 
-  const handleContinue = () => {
+  const handleSaveChanges = async () => {
+      try {
+        const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-photos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+            photos: photos,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          navigation.goBack();
+        } else {
+          Alert.alert(data.error || 'Error updating photos.');
+        }
+      } catch (error) {
+        console.error('Error updating photos:', error);
+        Alert.alert('Failed to update photos.');
+      }
   };
 
   return (
@@ -66,7 +104,7 @@ const EditPhotos = () => {
                 onPress={() => handleSelectPhoto(index)}
               >
                 {photo ? (
-                  <Image source={{ uri: photo }} style={styles.photo} />
+                  <Image source={{ uri: `data:${photo.type};base64,${photo.image}` }} style={styles.photo} />
                 ) : (
                   <View style={styles.placeholder}>
                     <InputIcon width={'100%'} height={'100%'} />
@@ -94,7 +132,7 @@ const EditPhotos = () => {
           borderRadius={100}
           width={'100%'}
           height={55}
-          onPress={handleContinue}
+          onPress={handleSaveChanges}
           disabled={photos.filter(Boolean).length < 1}
         />
         <Button

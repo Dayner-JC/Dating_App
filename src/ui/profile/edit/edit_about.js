@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TextInput, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
@@ -29,6 +29,32 @@ const EditAbout = ({route}) => {
     setInputFocus(false);
   };
 
+    const handleSaveChanges = async () => {
+        try {
+          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-about', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: uid,
+              about: userInfo,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            navigation.goBack();
+          } else {
+            Alert.alert(data.error || 'Error updating info.');
+          }
+        } catch (error) {
+          console.error('Error updating info:', error);
+          Alert.alert('Failed to update info.');
+        }
+    };
+
   const isButtonDisabled = userInfo.length < minLength || userInfo.length > maxLength;
 
   return (
@@ -55,13 +81,13 @@ const EditAbout = ({route}) => {
         />
         <Button
           title="Save changes"
-          onPress={() => {}}
           backgroundColor="#D97904"
           disabledBackgroundColor="#8b580f"
           disabledTextColor="#a2a8a5"
           borderRadius={100}
           width="100%"
           height={55}
+          onPress={handleSaveChanges}
           disabled={isButtonDisabled}
         />
         <Button

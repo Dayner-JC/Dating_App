@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { readFile } from 'react-native-fs';
 import InputIcon from '../../../assets/icons/input.svg';
 import DeleteIcon from '../../../assets/icons/delete.svg';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
@@ -10,25 +11,39 @@ import Button from '../../components/button';
 
 const Step10 = ({ onNext, onChangeData }) => {
   const [photos, setPhotos] = useState([null, null, null, null, null, null]);
+  const [loading, setLoading] = useState(false);
 
   const handleSelectPhoto = (index) => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        selectionLimit: 1,
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log('Selección de imagen cancelada.');
-        } else if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    launchImageLibrary(options, async (response) => {
+      if (response.didCancel) {
+        Alert.alert('Selection cancelled');
+      } else if (response.errorMessage) {
+        Alert.alert('Error selecting image', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        try {
+          const selectedImage = response.assets[0];
+          const base64Image = await readFile(selectedImage.uri, 'base64');
+
+          const imagePayload = {
+            image: base64Image,
+            fileName: selectedImage.fileName || `image_${index}.jpg`,
+            type: selectedImage.type || 'image/jpeg',
+          };
+
           const newPhotos = [...photos];
-          newPhotos[index] = response.assets[0].uri;
+          newPhotos[index] = imagePayload;
           setPhotos(newPhotos);
+        } catch (error) {
+          Alert.alert('Error', 'Unable to process the image');
+          console.error('Error reading the image:', error);
         }
       }
-    );
+    });
   };
 
   const handleDeletePhoto = (index) => {
@@ -60,7 +75,7 @@ const Step10 = ({ onNext, onChangeData }) => {
                 onPress={() => handleSelectPhoto(index)}
               >
                 {photo ? (
-                  <Image source={{ uri: photo }} style={styles.photo} />
+                  <Image source={{ uri: `data:${photo.type};base64,${photo.image}` }} style={styles.photo} />
                 ) : (
                   <View style={styles.placeholder}>
                     <InputIcon width={'100%'} height={'100%'} />
@@ -78,32 +93,37 @@ const Step10 = ({ onNext, onChangeData }) => {
             </View>
           ))}
         </View>
-        <Button
-          title="Complete"
-          fontSize={16}
-          fontFamily="Roboto_500"
-          backgroundColor="#D97904"
-          disabledBackgroundColor="#8b580f"
-          disabledTextColor="#a2a8a5"
-          borderRadius={100}
-          width={'100%'}
-          height={55}
-          onPress={handleContinue}
-          disabled={photos.filter(Boolean).length < 1}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#D97904" />
+        ) : (
+          <Button
+            title="Complete"
+            fontSize={16}
+            fontFamily="Roboto_500"
+            backgroundColor="#D97904"
+            disabledBackgroundColor="#8b580f"
+            disabledTextColor="#a2a8a5"
+            borderRadius={100}
+            width={'100%'}
+            height={55}
+            onPress={handleContinue}
+            disabled={photos.filter(Boolean).length < 1}
+          />
+        )}
       </View>
       <View style={styles.petalsContainer}>
-                      <View style={styles.singlePetal}>
-                        <Petal1 style={styles.petal1} />
-                      </View>
-                      <View style={styles.doublePetals}>
-                        <Petal2 style={styles.petal2} />
-                        <Petal3 style={styles.petal3} />
-            </View>
-            </View>
+        <View style={styles.singlePetal}>
+          <Petal1 style={styles.petal1} />
+        </View>
+        <View style={styles.doublePetals}>
+          <Petal2 style={styles.petal2} />
+          <Petal3 style={styles.petal3} />
+        </View>
+      </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
