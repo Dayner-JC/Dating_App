@@ -106,9 +106,9 @@ export default function ProfileFragment() {
         </Modal>
 
       <MenuItem icon={ViewProfileIcon} text="View Profile" onPress={() => navigation.navigate('AccountScreen')} />
-      <MenuItem icon={SettingsIcon} text="Settings" onPress={() => {}} />
+      <MenuItem icon={SettingsIcon} text="Settings" onPress={() => navigation.navigate('SettingsScreen')} />
       <MenuItem icon={HelpCenterIcon} text="Help Center" onPress={() => {}} />
-      <MenuItem icon={PrivacyPolicyIcon} text="Privacy Policy" onPress={() => {}} />
+      <MenuItem icon={PrivacyPolicyIcon} text="Privacy Policy" onPress={() => navigation.navigate('PrivacyPolicyScreen')} />
 
       <TouchableOpacity style={styles.logoutButton} onPress={() => setModalVisible(true)}>
         <LogoutIcon2/>

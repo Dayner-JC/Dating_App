@@ -13,7 +13,7 @@ import RegisterEmailScreen from '../auth/email/register_email_screen';
 import PhoneAfterEmail from '../auth/phone_after_email';
 import VerifyCodeEmailScreen from '../auth/verify/verify_code_email_screen';
 import VerifyCodeEmailLoginScreen from '../auth/verify/verify_code_email_login_screen';
-import NewPasswordScreen from '../auth/new_password_screen';
+import NewPasswordScreen from '../main/account/password/new_password_screen';
 import EditName from '../profile/edit/edit_name';
 import EditBirthday from '../profile/edit/edit_birthday';
 import EditGender from '../profile/edit/edit_gender';
@@ -29,7 +29,13 @@ import TwoFASmsScreen from '../auth/2FA/2FA_sms_screen';
 import TwoFAAuthenticatorScreen from '../auth/2FA/2FA_app_screen';
 import VerifyCode2FaSmsScreen from '../auth/verify/verify_code_2fa_sms_screen';
 import TwoFAAuthenticatorVerifyScreen from '../auth/verify/2FA_app_verify_screen';
+import SettingsScreen from '../main/account/settings_screen';
 import AccountScreen from '../main/account/account_screen';
+import ChangePasswordScreen from '../main/account/password/change_password_screen';
+import PrivacyManagementScreen from '../main/account/privacy_management_screen';
+import ProfileVisibilityScreen from '../profile/profile_visibility_screen';
+import BlockedUserScreen from '../main/account/users/blocked_user_screen';
+import PrivacyPolicyScreen from '../main/account/privacy_policy/privacy_policy_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -43,6 +49,7 @@ const Navigator = () => {
         <Stack.Screen name="RegisterEmailScreen" component={RegisterEmailScreen} />
         <Stack.Screen name="PhoneAfterEmail" component={PhoneAfterEmail} />
         <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
         <Stack.Screen name="VerifyCodeScreen" component={VerifyCodeScreen} />
         <Stack.Screen name="VerifyCodeEmailScreen" component={VerifyCodeEmailScreen} />
         <Stack.Screen name="VerifyCodeEmailLoginScreen" component={VerifyCodeEmailLoginScreen} />
@@ -65,6 +72,11 @@ const Navigator = () => {
         <Stack.Screen name="TwoFAAuthenticatorScreen" component={TwoFAAuthenticatorScreen} />
         <Stack.Screen name="VerifyCode2FaSmsScreen" component={VerifyCode2FaSmsScreen} />
         <Stack.Screen name="TwoFAAuthenticatorVerifyScreen" component={TwoFAAuthenticatorVerifyScreen} />
+        <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+        <Stack.Screen name="PrivacyManagementScreen" component={PrivacyManagementScreen} />
+        <Stack.Screen name="ProfileVisibilityScreen" component={ProfileVisibilityScreen} />
+        <Stack.Screen name="BlockedUserScreen" component={BlockedUserScreen} />
+        <Stack.Screen name="PrivacyPolicyScreen" component={PrivacyPolicyScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

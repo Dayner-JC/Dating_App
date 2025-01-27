@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import VerifyCodeAppBar from '../main/appBars/verify_code_appBar';
-import Button from '../components/button';
-import HideIcon from '../../assets/icons/hide.svg';
-import ShowIcon from '../../assets/icons/show.svg';
+import VerifyCodeAppBar from '../../appBars/verify_code_appBar';
+import Button from '../../../components/button';
+import HideIcon from '../../../../assets/icons/hide.svg';
+import ShowIcon from '../../../../assets/icons/show.svg';
 import { useNavigation } from '@react-navigation/native';
-import Petal1 from '../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../assets/splash_screen_flower/petals/petal_10.svg';
+import Petal1 from '../../../../assets/splash_screen_flower/petals/petal_7.svg';
+import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
+import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
 
 const NewPasswordScreen = ({ route }) => {
   const { email } = route.params;
@@ -17,7 +17,7 @@ const NewPasswordScreen = ({ route }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isFocused, setIsFocused] = useState({ password: false, confirmPassword: false });
 
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
   const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password);
   const passwordsMatch = password === confirmPassword;

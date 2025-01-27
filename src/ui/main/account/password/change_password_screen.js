@@ -1,0 +1,207 @@
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Alert,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  StatusBar,
+} from 'react-native';
+import IconButton from '../../../components/icon_button';
+import ArrowIcon from '../../../../assets/icons/arrow-left.svg';
+import HideIcon from '../../../../assets/icons/hide.svg';
+import ShowIcon from '../../../../assets/icons/show.svg';
+import {useNavigation} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
+import {useFocusEffect} from '@react-navigation/native';
+import Button from '../../../components/button';
+
+const ChangePasswordScreen = () => {
+  const navigation = useNavigation();
+
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const isPasswordValid =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(
+      password,
+    );
+
+  const handlePasswordToggle = () => setShowPassword(prev => !prev);
+
+  const requestPasswordReset = async () => {
+    try {
+      const response = await fetch(
+        'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/request',
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          //   body: JSON.stringify({ email }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // setUid(data.uid);
+        Alert.alert('Success', 'The code was sent to your email.');
+        // navigation.navigate('VerifyCodeEmailScreen', { uid: data.uid, email: email });
+      } else {
+        Alert.alert('Error', 'Could not send code.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#0A0F0D" />
+      <View style={styles.appBar}>
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.title}>Change your{'\n'}Password</Text>
+
+        <View style={styles.input_container}>
+          <Text style={styles.password_text}>Current Password</Text>
+          <View
+            style={[
+              styles.password_input_container,
+              isFocused ? styles.focused_border : styles.default_border,
+            ]}>
+            <TextInput
+              style={styles.input}
+              placeholder="********"
+              placeholderTextColor="#D9D2B03D"
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            {password.length > 0 && (
+              <TouchableOpacity
+                style={styles.toggle_password_visibility}
+                onPress={handlePasswordToggle}>
+                {showPassword ? (
+                  <HideIcon width={20} height={20} />
+                ) : (
+                  <ShowIcon width={20} height={20} />
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={styles.forgot_container}>
+            <Text style={styles.forgot_text} onPress={requestPasswordReset}>
+              Forgot your password?
+            </Text>
+          </View>
+        </View>
+        <Button
+          title={'Continue'}
+          fontFamily="Roboto_500"
+          fontSize={16}
+          backgroundColor="#D97904"
+          disabledBackgroundColor="#8b580f"
+          disabledTextColor="#a2a8a5"
+          borderRadius={100}
+          height={55}
+          marginTop={20}
+          disabled={!isPasswordValid}
+          onPress={() => {}}
+        />
+        <Button
+          title={'Cancel'}
+          fontFamily="Roboto_500"
+          fontSize={16}
+          backgroundColor="transparent"
+          borderWidth={1}
+          borderColor="#747474"
+          borderRadius={100}
+          height={55}
+          marginTop={20}
+          onPress={() => navigation.goBack()}
+        />
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0A0F0D',
+    alignItems: 'center',
+    position: 'relative',
+    paddingVertical: 20,
+  },
+  content: {
+    width: '85%',
+    alignItems: 'flex-start',
+  },
+  appBar: {
+    height: 60,
+    justifyContent: 'center',
+    backgroundColor: '#0A0F0D',
+    width: '100%',
+    paddingStart: 10,
+  },
+  title: {
+    fontFamily: 'GreatMangoDemo',
+    fontSize: 32,
+    color: '#D9D2B0',
+    paddingTop: 20,
+  },
+  subtitle_text: {
+    fontFamily: 'Roboto_400',
+    color: '#D9D2B0',
+    fontSize: 14,
+    marginBottom: 50,
+  },
+  password_text: {
+    fontFamily: 'Roboto_500',
+    color: '#D9D2B0',
+    fontSize: 12,
+    marginBottom: 5,
+    marginTop: 50,
+  },
+  password_input_container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 5,
+    height: 60,
+    paddingHorizontal: 16,
+  },
+  input_container: {
+    width: '100%',
+    marginBottom: 5,
+  },
+  default_border: {
+    borderColor: '#D9D2B0',
+  },
+  focused_border: {
+    borderColor: '#D97904',
+  },
+  input: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  forgot_container: {
+    width: '100%',
+    alignItems: 'flex-end',
+  },
+  forgot_text: {
+    fontFamily: 'Roboto_500',
+    color: '#D97904',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
+});
+
+export default ChangePasswordScreen;

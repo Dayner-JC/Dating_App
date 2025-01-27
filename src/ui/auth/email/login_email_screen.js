@@ -16,11 +16,8 @@ import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_9.svg';
 import Petal4 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import PhoneIcon from '../../../assets/icons/phone.svg';
-import {
-  validateGoogleLogin,
-  validateFacebookLogin,
-  validateAppleLogin,
-} from '../../../infrastructure/auth/validation/login_validation';
+import { validateFacebookLogin, validateAppleLogin} from '../../../infrastructure/auth/validation/login_validation';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const LoginEmailScreen = () => {
   const navigation = useNavigation();
@@ -95,16 +92,81 @@ const LoginEmailScreen = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      const result = await validateGoogleLogin();
-      if (result?.success) {
-        navigation.navigate('Main');
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+      const signInResult = await GoogleSignin.signIn();
+
+      let idToken = signInResult.data?.idToken;
+
+      if (!idToken) {
+        idToken = signInResult.idToken;
+      }
+
+      if (!idToken) {
+        throw new Error('Failed to obtain token ID');
+      }
+
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+      const userCredential = await auth().signInWithCredential(googleCredential);
+
+      const firebaseIdToken = await userCredential.user.getIdToken();
+
+      setUid(userCredential.user);
+
+      const requestBody = {
+        firebaseIdToken,
+        uid,
+      };
+
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        await check2FAStatus(uid);
       } else {
-        Alert.alert('Login Failed', 'Google login failed.');
+        Alert.alert('Error', data.message);
       }
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong during Google login.');
+      console.error('Google Login Error:', error);
     }
   };
+
+    const check2FAStatus = async () => {
+      try {
+        const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: uid }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          const { methods, phoneNumber } = data;
+
+          if (methods.sms) {
+            navigation.navigate('TwoFASmsScreen', { userId: uid, userPhoneNumber: phoneNumber });
+          } else if (methods.app) {
+            navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId: uid, firstTime: false });
+          } else {
+            navigation.navigate('Main');
+          }
+        } else {
+          navigation.navigate('Main');
+        }
+      } catch (error) {
+        console.error('Error verifying 2FA:', error);
+        Alert.alert('Error', 'An unexpected error occurred.');
+      }
+    };
 
   const handleFacebookLogin = async () => {
     try {
@@ -272,7 +334,7 @@ const LoginEmailScreen = () => {
           height={55}
           marginTop={15}
           icon={<GoogleIcon width={20} height={20}/>}
-          onPress={() => {}}
+          onPress={handleGoogleLogin}
         />
         <Button
           title="Sign in with Apple"
