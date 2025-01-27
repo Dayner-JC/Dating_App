@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
-  Modal
+  Modal,
 } from 'react-native';
 import IconButton from '../../components/icon_button';
 import Button from '../../components/button';
@@ -19,6 +19,7 @@ import SecurityIcon from '../../../assets/icons/security.svg';
 import CloseIcon from '../../../assets/icons/close.svg';
 import {useNavigation} from '@react-navigation/native';
 import DeleteIcon1 from '../../../assets/icons/trash-white.svg';
+import auth from '@react-native-firebase/auth';
 
 const MenuItem = ({icon: Icon, text, onPress}) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -28,13 +29,44 @@ const MenuItem = ({icon: Icon, text, onPress}) => (
   </TouchableOpacity>
 );
 
-const handleDeleteUser = async () => {
-
-};
-
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+
+  const handleDeleteUser = async () => {
+    const uid = auth().currentUser?.uid;
+
+    if (!uid) {
+      console.error('No authenticated user found.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/user/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ uid }),
+      });
+
+      const result = await response.json();
+      if (response.ok && result.success) {
+        console.log('User deleted successfully');
+
+        await auth().signOut();
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'SplashScreen' }],
+        });
+      } else {
+        console.error(result.message || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error during user deletion:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
