@@ -12,6 +12,9 @@ import IconButton from '../../../components/icon_button';
 import ArrowIcon from '../../../../assets/icons/arrow-left.svg';
 import HideIcon from '../../../../assets/icons/hide.svg';
 import ShowIcon from '../../../../assets/icons/show.svg';
+import Petal1 from '../../../../assets/splash_screen_flower/petals/petal_7.svg';
+import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
+import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
 import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import {useFocusEffect} from '@react-navigation/native';
@@ -59,12 +62,13 @@ const ChangePasswordScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#0A0F0D" />
+      <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Change your{'\n'}Password</Text>
+        <Text style={styles.subtitle_text}>Introduce your current password.</Text>
 
         <View style={styles.input_container}>
           <Text style={styles.password_text}>Current Password</Text>
@@ -127,6 +131,15 @@ const ChangePasswordScreen = () => {
           onPress={() => navigation.goBack()}
         />
       </View>
+      <View style={styles.petalsContainer}>
+        <View style={styles.singlePetal}>
+          <Petal1 style={styles.petal1} />
+        </View>
+        <View style={styles.doublePetals}>
+          <Petal2 style={styles.petal2} />
+          <Petal3 style={styles.petal3} />
+        </View>
+      </View>
     </View>
   );
 };
@@ -134,10 +147,10 @@ const ChangePasswordScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F0D',
+    backgroundColor: '#17261F',
     alignItems: 'center',
     position: 'relative',
-    paddingVertical: 20,
+    height: '100%',
   },
   content: {
     width: '85%',
@@ -146,28 +159,28 @@ const styles = StyleSheet.create({
   appBar: {
     height: 60,
     justifyContent: 'center',
-    backgroundColor: '#0A0F0D',
+    backgroundColor: '#17261F',
     width: '100%',
     paddingStart: 10,
   },
   title: {
     fontFamily: 'GreatMangoDemo',
-    fontSize: 32,
     color: '#D9D2B0',
+    fontSize: 40,
+    letterSpacing: 1,
     paddingTop: 20,
   },
   subtitle_text: {
     fontFamily: 'Roboto_400',
     color: '#D9D2B0',
     fontSize: 14,
-    marginBottom: 50,
+    marginBottom: 35,
   },
   password_text: {
     fontFamily: 'Roboto_500',
     color: '#D9D2B0',
     fontSize: 12,
     marginBottom: 5,
-    marginTop: 50,
   },
   password_input_container: {
     flexDirection: 'row',
@@ -201,6 +214,32 @@ const styles = StyleSheet.create({
     color: '#D97904',
     fontSize: 14,
     textDecorationLine: 'underline',
+  },
+  petalsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  singlePetal: {
+    flex: 1,
+  },
+  doublePetals: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  petal1: {
+    marginStart: 10,
+    marginBottom: 60,
+  },
+  petal2: {
+    marginTop: 60,
+  },
+  petal3: {
+    marginLeft: 60,
+    marginTop: 20,
   },
 });
 

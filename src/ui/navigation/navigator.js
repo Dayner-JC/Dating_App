@@ -36,6 +36,10 @@ import PrivacyManagementScreen from '../main/account/privacy_management_screen';
 import ProfileVisibilityScreen from '../profile/profile_visibility_screen';
 import BlockedUserScreen from '../main/account/users/blocked_user_screen';
 import PrivacyPolicyScreen from '../main/account/privacy_policy/privacy_policy_screen';
+import VerifyCodeChangeEmailScreen from '../auth/verify/verify_code_change_email_screen';
+import ChangeEmailScreen from '../main/account/email/change_email_screen';
+import ChangePhoneScreen from '../main/account/phone/change_phone_screen';
+import VerifyCodeChangePhoneScreen from '../auth/verify/verify_code_change_phone_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -77,6 +81,10 @@ const Navigator = () => {
         <Stack.Screen name="ProfileVisibilityScreen" component={ProfileVisibilityScreen} />
         <Stack.Screen name="BlockedUserScreen" component={BlockedUserScreen} />
         <Stack.Screen name="PrivacyPolicyScreen" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="ChangeEmailScreen" component={ChangeEmailScreen} />
+        <Stack.Screen name="VerifyCodeChangeEmailScreen" component={VerifyCodeChangeEmailScreen} />
+        <Stack.Screen name="ChangePhoneScreen" component={ChangePhoneScreen} />
+        <Stack.Screen name="VerifyCodeChangePhoneScreen" component={VerifyCodeChangePhoneScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

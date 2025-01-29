@@ -19,6 +19,7 @@ import SecurityIcon from '../../../assets/icons/security.svg';
 import CloseIcon from '../../../assets/icons/close.svg';
 import {useNavigation} from '@react-navigation/native';
 import DeleteIcon1 from '../../../assets/icons/trash-white.svg';
+import DeleteIcon from '../../../assets/icons/trash.svg';
 import auth from '@react-native-firebase/auth';
 
 const MenuItem = ({icon: Icon, text, onPress}) => (
@@ -134,17 +135,17 @@ const SettingsScreen = () => {
         text="Change Password"
         onPress={() => navigation.navigate('ChangePasswordScreen')}
       />
-      <MenuItem icon={EmailIcon} text="Change Email" onPress={() => {}} />
+      <MenuItem icon={EmailIcon} text="Change Email" onPress={() => navigation.navigate('ChangeEmailScreen')} />
       <MenuItem
         icon={PhoneIcon}
         text="Change Phone Number"
-        onPress={() => {}}
+        onPress={() => navigation.navigate('ChangePhoneScreen')}
       />
 
       <TouchableOpacity
         style={styles.deleteButton} onPress={() => setModalVisible(true)}
       >
-        <DeleteIcon1 />
+        <DeleteIcon />
         <Text style={styles.deleteText}>Delete Account</Text>
       </TouchableOpacity>
     </View>

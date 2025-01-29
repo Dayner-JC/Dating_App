@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, StatusBar } from 'react-native';
 import VerifyCodeAppBar from '../../appBars/verify_code_appBar';
 import Button from '../../../components/button';
 import HideIcon from '../../../../assets/icons/hide.svg';
@@ -48,6 +48,7 @@ const NewPasswordScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
         <VerifyCodeAppBar />
       </View>
