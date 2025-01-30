@@ -19,6 +19,7 @@ import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import {useFocusEffect} from '@react-navigation/native';
 import Button from '../../../components/button';
+import API_BASE_URL from '../../../../config/config';
 
 const ChangePasswordScreen = () => {
   const navigation = useNavigation();
@@ -37,7 +38,7 @@ const ChangePasswordScreen = () => {
   const requestPasswordReset = async () => {
     try {
       const response = await fetch(
-        'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/request',
+        `${API_BASE_URL}/auth/login/password-reset/request`,
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},

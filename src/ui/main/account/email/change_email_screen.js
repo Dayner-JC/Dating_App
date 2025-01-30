@@ -14,6 +14,8 @@ import ArrowIcon from '../../../../assets/icons/arrow-left.svg';
 import Petal1 from '../../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
+import API_BASE_URL from '../../../../config/config';
+import auth from '@react-native-firebase/auth';
 
 const ChangeEmailScreen = () => {
   const [email, setEmail] = useState('');
@@ -31,13 +33,29 @@ const ChangeEmailScreen = () => {
 
   const isButtonEnabled = isEmailValid && emailsMatch;
 
-  const updateEmail = async () => {};
+  const updateEmail = async () => {
+    const currentUser = auth().currentUser;
+
+    const response = await fetch(`${API_BASE_URL}/profile/email/request-change`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({uid: currentUser.uid, email: email}),
+    });
+
+    if (response.ok) {
+      navigation.navigate('VerifyCodeChangeEmailScreen', {uid: currentUser.uid, email: email});
+    } else {
+      Alert.alert('Error', 'Error send verification code');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-          <IconButton icon={<ArrowIcon />} onPress={()=>navigation.goBack()}/>
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Change Email Address</Text>

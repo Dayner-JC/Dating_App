@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
 import LocationIcon from '../../../assets/icons/gps.svg';
 import Button from '../../components/button';
+import API_BASE_URL from '../../../config/config';
 
 const EditLocation = ({route}) => {
   const navigation = useNavigation();
@@ -86,7 +87,7 @@ const EditLocation = ({route}) => {
       state: address.state,
     };
           try {
-            const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-location', {
+            const response = await fetch(`${API_BASE_URL}/profile/edit/edit-location`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

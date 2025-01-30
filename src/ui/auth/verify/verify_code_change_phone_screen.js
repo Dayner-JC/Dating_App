@@ -13,6 +13,7 @@ import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import {useNavigation} from '@react-navigation/native';
+import API_BASE_URL from '../../../config/config';
 
 const VerifyCodeChangePhoneScreen = (/*{ route }*/) => {
   //const { uid, email } = route.params;

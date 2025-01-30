@@ -7,6 +7,7 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
+import API_BASE_URL from '../../../config/config';
 
 const EditIntentions = ({route}) => {
   const navigation = useNavigation();
@@ -27,7 +28,7 @@ const EditIntentions = ({route}) => {
 
     const handleSaveChanges = async () => {
         try {
-          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-intentions', {
+          const response = await fetch(`${API_BASE_URL}/profile/edit/edit-intentions`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

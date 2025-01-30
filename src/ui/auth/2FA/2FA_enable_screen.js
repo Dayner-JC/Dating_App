@@ -8,6 +8,7 @@ import MessageIcon from '../../../assets/icons/message.svg';
 import BarCodeIcon from '../../../assets/icons/scan-barcode.svg';
 import MessageWhiteIcon from '../../../assets/icons/message-white.svg';
 import BarCodeWhiteIcon from '../../../assets/icons/scan-barcode-white.svg';
+import API_BASE_URL from '../../../config/config';
 
 const TwoFAEnableScreen = ({ navigation }) => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -37,7 +38,7 @@ const TwoFAEnableScreen = ({ navigation }) => {
         }
 
         const response = await fetch(
-          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/enable-sms',
+          `${API_BASE_URL}/auth/2fa/enable-sms`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

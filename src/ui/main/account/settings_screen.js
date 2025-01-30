@@ -21,6 +21,7 @@ import {useNavigation} from '@react-navigation/native';
 import DeleteIcon1 from '../../../assets/icons/trash-white.svg';
 import DeleteIcon from '../../../assets/icons/trash.svg';
 import auth from '@react-native-firebase/auth';
+import API_BASE_URL from '../../../config/config';
 
 const MenuItem = ({icon: Icon, text, onPress}) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -43,7 +44,7 @@ const SettingsScreen = () => {
     }
 
     try {
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/user/delete', {
+      const response = await fetch(`${API_BASE_URL}/user/delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
