@@ -14,9 +14,10 @@ import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import {useNavigation} from '@react-navigation/native';
 import API_BASE_URL from '../../../config/config';
+import auth from '@react-native-firebase/auth';
 
-const VerifyCodeChangePhoneScreen = (/*{ route }*/) => {
-  //const { uid, email } = route.params;
+const VerifyCodeChangePhoneScreen = ({ route }) => {
+  const { phoneNumber, callingCode, verificationId } = route.params;
   const codeLength = 6;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -26,10 +27,6 @@ const VerifyCodeChangePhoneScreen = (/*{ route }*/) => {
   const inputsRef = useRef([]);
   const navigation = useNavigation();
   const isButtonDisabled = !codeArray.every(char => char !== '');
-
-  //   useEffect(() => {
-  //     console.log('UID recibido:', uid);
-  //   }, [uid]);
 
   useEffect(() => {
     let timer;
@@ -48,25 +45,39 @@ const VerifyCodeChangePhoneScreen = (/*{ route }*/) => {
   };
 
   const verifyCode = async () => {
-    // try {
-    //   const code = codeArray.join('');
-    //   const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/verify', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ uid, code }),
-    //   });
-    //   const data = await response.json();
-    //   if (response.ok) {
-    //     navigation.navigate('NewPasswordScreen', { uid, email });
-    //   } else {
-    //     const errorMessage = data.message || 'Invalid code.';
-    //     console.log('Error', errorMessage);
-    //   }
-    // } catch (error) {
-    //   setIsCodeInvalid(true);
-    //   console.error(error);
-    //   Alert.alert('Error', 'An unexpected error occurred.');
-    // }
+    const verificationCode = codeArray.join('');
+
+    try {
+      const credential = auth.PhoneAuthProvider.credential(
+        verificationId,
+        verificationCode
+      );
+
+      const user = auth().currentUser;
+      if(!user){
+        setIsCodeInvalid(true);
+        Alert.alert('Error','Authentication expired please log back in');
+      }
+
+      await user.updatePhoneNumber(credential);
+
+      const response = await fetch(
+        `${API_BASE_URL}/profile/phone/update`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({uid: user.uid, completePhoneNumber: `${callingCode} ${phoneNumber}`}),
+        },
+      );
+
+      if(response.ok){
+        Alert.alert('Success','Your phone number has been updated');
+        navigation.navigate('SettingsScreen');
+      }
+    } catch (error) {
+      setIsCodeInvalid(true);
+      Alert.alert('Error checking the code. Please try again.');
+    }
   };
 
   const handleCodeChange = (text, index) => {

@@ -1,45 +1,67 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, StatusBar } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  StatusBar,
+} from 'react-native';
 import VerifyCodeAppBar from '../../appBars/verify_code_appBar';
 import Button from '../../../components/button';
 import HideIcon from '../../../../assets/icons/hide.svg';
 import ShowIcon from '../../../../assets/icons/show.svg';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Petal1 from '../../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
 import API_BASE_URL from '../../../../config/config';
+import auth from '@react-native-firebase/auth';
 
-const NewPasswordScreen = ({ route }) => {
-  const { email } = route.params;
+const NewPasswordScreen = ({route}) => {
+  const {email} = route.params;
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isFocused, setIsFocused] = useState({ password: false, confirmPassword: false });
+  const [isFocused, setIsFocused] = useState({
+    password: false,
+    confirmPassword: false,
+  });
 
   const navigation = useNavigation();
 
-  const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password);
+  const isPasswordValid =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(
+      password,
+    );
   const passwordsMatch = password === confirmPassword;
 
   const isButtonEnabled = isPasswordValid && passwordsMatch;
 
   const updatePassword = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login/password-reset/new-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const user = auth().currentUser;
 
-      const data = await response.json();
+      if (!user || !user.email) {
+        Alert.alert('Error', 'Your section login has expired please log back in.');
+        return;
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/auth/login/password-reset/new-password`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email, password}),
+        },
+      );
 
       if (response.ok) {
+        await user.updatePassword(password);
         Alert.alert('Success', 'Updated password!');
         navigation.navigate('LoginEmailScreen');
-      } else {
-        console.log('Error', 'Password could not be updated. ' + data.message);
       }
     } catch (error) {
       console.error(error);
@@ -56,66 +78,78 @@ const NewPasswordScreen = ({ route }) => {
       <View style={styles.content}>
         <Text style={styles.title}>New password</Text>
         <Text style={styles.subtitle}>Introduce your new password.</Text>
-      <View style={styles.section_input_container}>
-        <View style={styles.input_container}>
-          <Text style={styles.label}>New password</Text>
-          <View
-            style={[
-              styles.input_wrapper,
-              isFocused.password ? styles.focused_border : styles.default_border,
-            ]}
-          >
-            <TextInput
-              style={styles.input}
-              placeholder="Create your new password"
-              placeholderTextColor="#D9D2B080"
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-              onFocus={() => setIsFocused((prev) => ({ ...prev, password: true }))}
-              onBlur={() => setIsFocused((prev) => ({ ...prev, password: false }))}
-            />
-            {password.length > 0 && (
-              <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
-                {showPassword ? (
-                  <HideIcon width={20} height={20} />
-                ) : (
-                  <ShowIcon width={20} height={20} />
-                )}
-              </TouchableOpacity>
-            )}
+        <View style={styles.section_input_container}>
+          <View style={styles.input_container}>
+            <Text style={styles.label}>New password</Text>
+            <View
+              style={[
+                styles.input_wrapper,
+                isFocused.password
+                  ? styles.focused_border
+                  : styles.default_border,
+              ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Create your new password"
+                placeholderTextColor="#D9D2B080"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                onFocus={() =>
+                  setIsFocused(prev => ({...prev, password: true}))
+                }
+                onBlur={() =>
+                  setIsFocused(prev => ({...prev, password: false}))
+                }
+              />
+              {password.length > 0 && (
+                <TouchableOpacity
+                  onPress={() => setShowPassword(prev => !prev)}>
+                  {showPassword ? (
+                    <HideIcon width={20} height={20} />
+                  ) : (
+                    <ShowIcon width={20} height={20} />
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.input_container}>
-          <Text style={styles.label}>Confirm password</Text>
-          <View
-            style={[
-              styles.input_wrapper,
-              isFocused.confirmPassword ? styles.focused_border : styles.default_border,
-            ]}
-          >
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm the password"
-              placeholderTextColor="#D9D2B080"
-              secureTextEntry={!showConfirmPassword}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              onFocus={() => setIsFocused((prev) => ({ ...prev, confirmPassword: true }))}
-              onBlur={() => setIsFocused((prev) => ({ ...prev, confirmPassword: false }))}
-            />
-            {confirmPassword.length > 0 && (
-              <TouchableOpacity onPress={() => setShowConfirmPassword((prev) => !prev)}>
-                {showConfirmPassword ? (
-                  <HideIcon width={20} height={20} />
-                ) : (
-                  <ShowIcon width={20} height={20} />
-                )}
-              </TouchableOpacity>
-            )}
+          <View style={styles.input_container}>
+            <Text style={styles.label}>Confirm password</Text>
+            <View
+              style={[
+                styles.input_wrapper,
+                isFocused.confirmPassword
+                  ? styles.focused_border
+                  : styles.default_border,
+              ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Confirm the password"
+                placeholderTextColor="#D9D2B080"
+                secureTextEntry={!showConfirmPassword}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                onFocus={() =>
+                  setIsFocused(prev => ({...prev, confirmPassword: true}))
+                }
+                onBlur={() =>
+                  setIsFocused(prev => ({...prev, confirmPassword: false}))
+                }
+              />
+              {confirmPassword.length > 0 && (
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(prev => !prev)}>
+                  {showConfirmPassword ? (
+                    <HideIcon width={20} height={20} />
+                  ) : (
+                    <ShowIcon width={20} height={20} />
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
-        </View>
         </View>
 
         <Button
