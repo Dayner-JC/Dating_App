@@ -4,6 +4,7 @@ import Button from '../../components/button';
 import VerifyCodeAppBar from '../../main/appBars/verify_code_appBar';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import { useNavigation } from '@react-navigation/native';
+import API_BASE_URL from '../../../config/config';
 
 const VerifyCodeEmailLoginScreen = ({ route }) => {
   const { userId } = route.params;
@@ -40,7 +41,7 @@ const VerifyCodeEmailLoginScreen = ({ route }) => {
   const verifyCode = async () => {
     try {
       const code = codeArray.join('');
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/email-verify/verify', {
+      const response = await fetch(`${API_BASE_URL}/auth/login/email-verify/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: userId, code: code }),
@@ -63,7 +64,7 @@ const VerifyCodeEmailLoginScreen = ({ route }) => {
 
   const check2FAStatus = async (uid) => {
     try {
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+      const response = await fetch(`${API_BASE_URL}/auth/2fa/isEnable-verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: uid }),

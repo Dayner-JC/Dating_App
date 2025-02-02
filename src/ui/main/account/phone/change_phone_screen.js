@@ -11,15 +11,14 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_9.svg';
 import Petal4 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
-import { handlePhoneRegister } from '../../infrastructure/auth/register/register_phone';
+import { handlePhoneRegister } from '../../../../infrastructure/auth/register/register_phone';
 
-const ChangePhoneScreen = (/*{route}*/) => {
+const ChangePhoneScreen = () => {
     const navigation = useNavigation();
     const [countryCode, setCountryCode] = useState('US');
     const [callingCode, setCallingCode] = useState('+1');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-   // const { email, password } = route.params;
 
     const onSelect = (country) => {
       setCountryCode(country.cca2);
@@ -36,7 +35,17 @@ const ChangePhoneScreen = (/*{route}*/) => {
     };
 
     const handleSendCode = async () => {
+      try {
+        const confirmResult = await auth().verifyPhoneNumber(`${callingCode} ${phoneNumber}`);
 
+        navigation.navigate('VerifyCodeChangePhoneScreen', {
+          verificationId: confirmResult.verificationId,
+          phoneNumber: phoneNumber,
+          callingCode: callingCode,
+        });
+      } catch (error) {
+        Alert.alert('Failed to send verification code. Please try again.');
+      }
     };
 
     return (

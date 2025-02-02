@@ -13,9 +13,11 @@ import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import IconButton from '../../components/icon_button';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import {useNavigation} from '@react-navigation/native';
+import API_BASE_URL from '../../../config/config';
+import auth from '@react-native-firebase/auth';
 
-const VerifyCodeChangeEmailScreen = (/*{ route }*/) => {
-  //const { uid, email } = route.params;
+const VerifyCodeChangeEmailScreen = ({route}) => {
+  const {uid, email} = route.params;
   const codeLength = 6;
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
@@ -25,10 +27,6 @@ const VerifyCodeChangeEmailScreen = (/*{ route }*/) => {
   const inputsRef = useRef([]);
   const navigation = useNavigation();
   const isButtonDisabled = !codeArray.every(char => char !== '');
-
-  //   useEffect(() => {
-  //     console.log('UID recibido:', uid);
-  //   }, [uid]);
 
   useEffect(() => {
     let timer;
@@ -47,25 +45,59 @@ const VerifyCodeChangeEmailScreen = (/*{ route }*/) => {
   };
 
   const verifyCode = async () => {
-    // try {
-    //   const code = codeArray.join('');
-    //   const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/verify', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ uid, code }),
-    //   });
-    //   const data = await response.json();
-    //   if (response.ok) {
-    //     navigation.navigate('NewPasswordScreen', { uid, email });
-    //   } else {
-    //     const errorMessage = data.message || 'Invalid code.';
-    //     console.log('Error', errorMessage);
-    //   }
-    // } catch (error) {
-    //   setIsCodeInvalid(true);
-    //   console.error(error);
-    //   Alert.alert('Error', 'An unexpected error occurred.');
-    // }
+    try {
+      const code = codeArray.join('');
+      const response = await fetch(
+        `${API_BASE_URL}/profile/email/verify-change`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({uid: uid, code: code}),
+        },
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        const user = auth().currentUser;
+
+        try {
+          await user.verifyBeforeUpdateEmail(email);
+
+          const response_update = await fetch(
+            `${API_BASE_URL}/profile/email/update-change`,
+            {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({uid: uid, email: email}),
+            },
+          );
+
+          if (response_update.ok) {
+            navigation.navigate('ConfirmChangeEmailScreen');
+          } else {
+            setIsCodeInvalid(true);
+            Alert.alert('Error', 'Error during email update');
+          }
+        } catch (verificationError) {
+          setIsCodeInvalid(true);
+          Alert.alert(
+            'Error',
+            'Error please log in again before trying to change your email.',
+          );
+        }
+      } else {
+        setIsCodeInvalid(true);
+        const errorMessage = data.message || 'Invalid code.';
+        console.log('Error', errorMessage);
+      }
+    } catch (error) {
+      setIsCodeInvalid(true);
+      console.error(error);
+      Alert.alert(
+        'Error',
+        'Error please log in again before trying to change your email.',
+      );
+    }
   };
 
   const handleCodeChange = (text, index) => {
@@ -105,10 +137,13 @@ const VerifyCodeChangeEmailScreen = (/*{ route }*/) => {
     <>
       <StatusBar backgroundColor="#17261F" />
       <View style={styles.container}>
-      <StatusBar backgroundColor="#17261F" />
-      <View style={styles.appBar}>
-        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
-      </View>
+        <StatusBar backgroundColor="#17261F" />
+        <View style={styles.appBar}>
+          <IconButton
+            icon={<ArrowIcon />}
+            onPress={() => navigation.goBack()}
+          />
+        </View>
         <Background style={styles.background} />
         <View style={styles.content}>
           <View style={styles.head}>

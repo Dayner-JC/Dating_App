@@ -12,6 +12,7 @@ import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import { useNavigation } from '@react-navigation/native';
+import API_BASE_URL from '../../../config/config';
 
 const EditInterests = ({route}) => {
   const navigation = useNavigation();
@@ -69,7 +70,7 @@ const EditInterests = ({route}) => {
 
     const handleSaveChanges = async () => {
         try {
-          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-interests', {
+          const response = await fetch(`${API_BASE_URL}/profile/edit/edit-interests`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

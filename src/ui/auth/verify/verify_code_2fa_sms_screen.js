@@ -7,6 +7,7 @@ import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
+import API_BASE_URL from '../../../config/config';
 
 const VerifyCode2FaSmsScreen = ({ route }) => {
   const codeLength = 6;
@@ -83,7 +84,7 @@ const VerifyCode2FaSmsScreen = ({ route }) => {
         await auth().signInWithCredential(credential);
 
         const response = await fetch(
-          'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/update-sms',
+          `${API_BASE_URL}/auth/2fa/update-sms`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

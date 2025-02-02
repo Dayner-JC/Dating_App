@@ -22,6 +22,7 @@ import {
   validateFacebookLogin,
   validateAppleLogin,
 } from '../../../infrastructure/auth/validation/login_validation';
+import API_BASE_URL from '../../../config/config';
 
 const LoginPhoneScreen = () => {
   const navigation = useNavigation();
@@ -85,7 +86,7 @@ const LoginPhoneScreen = () => {
         uid,
       };
 
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/google', {
+      const response = await fetch(`${API_BASE_URL}/auth/login/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ const LoginPhoneScreen = () => {
 
   const check2FAStatus = async (uid) => {
     try {
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+      const response = await fetch(`${API_BASE_URL}/auth/2fa/isEnable-verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: uid }),

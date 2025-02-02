@@ -7,6 +7,7 @@ import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
+import API_BASE_URL from '../../../config/config';
 
 const VerifyCodeScreen = ({ route }) => {
   const codeLength = 6;
@@ -102,8 +103,8 @@ const VerifyCodeScreen = ({ route }) => {
             };
 
             const endpoint = login
-              ? 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone'
-              : 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone';
+              ? `${API_BASE_URL}/auth/login/phone`
+              : `${API_BASE_URL}/auth/register/phone`;
 
             const response = await fetch(endpoint, {
               method: 'POST',
@@ -138,7 +139,7 @@ const VerifyCodeScreen = ({ route }) => {
             };
 
             const response = await fetch(
-              'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone',
+              `${API_BASE_URL}/auth/register/phone`,
               {
                 method: 'POST',
                 headers: {
@@ -177,8 +178,8 @@ const VerifyCodeScreen = ({ route }) => {
         };
 
         const endpoint = login
-          ? 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/phone'
-          : 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/register/phone';
+          ? `${API_BASE_URL}/auth/login/phone`
+          : `${API_BASE_URL}/auth/register/phone`;
 
         const response = await fetch(endpoint, {
           method: 'POST',
@@ -209,7 +210,7 @@ const VerifyCodeScreen = ({ route }) => {
 
     const check2FAStatus = async (uid) => {
       try {
-        const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+        const response = await fetch(`${API_BASE_URL}/auth/2fa/isEnable-verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: uid }),

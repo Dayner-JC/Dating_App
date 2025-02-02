@@ -11,6 +11,7 @@ import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
 import { useNavigation } from '@react-navigation/native';
 import { readFile } from 'react-native-fs';
+import API_BASE_URL from '../../../config/config';
 
 const EditPhotos = ({route}) => {
   const navigation = useNavigation();
@@ -58,7 +59,7 @@ const EditPhotos = ({route}) => {
 
   const handleSaveChanges = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-photos', {
+        const response = await fetch(`${API_BASE_URL}/profile/edit/edit-photos`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

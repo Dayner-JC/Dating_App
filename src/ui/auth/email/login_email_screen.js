@@ -18,6 +18,7 @@ import Petal4 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import PhoneIcon from '../../../assets/icons/phone.svg';
 import { validateFacebookLogin, validateAppleLogin} from '../../../infrastructure/auth/validation/login_validation';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import API_BASE_URL from '../../../config/config';
 
 const LoginEmailScreen = () => {
   const navigation = useNavigation();
@@ -44,7 +45,7 @@ const LoginEmailScreen = () => {
         if (user) {
           const idToken = await user.getIdToken();
 
-          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/email', {
+          const response = await fetch(`${API_BASE_URL}/auth/login/email`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ const LoginEmailScreen = () => {
 
   const requestPasswordReset = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/request', {
+      const response = await fetch(`${API_BASE_URL}/auth/login/password-reset/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -119,7 +120,7 @@ const LoginEmailScreen = () => {
         uid,
       };
 
-      const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/google', {
+      const response = await fetch(`${API_BASE_URL}/auth/login/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +142,7 @@ const LoginEmailScreen = () => {
 
     const check2FAStatus = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/isEnable-verify', {
+        const response = await fetch(`${API_BASE_URL}/auth/2fa/isEnable-verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: uid }),

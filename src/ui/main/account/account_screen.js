@@ -5,6 +5,7 @@ import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import { useFocusEffect } from '@react-navigation/native';
+import API_BASE_URL from '../../../config/config';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
@@ -18,7 +19,7 @@ const AccountScreen = () => {
       if (user) {
         setUserId(user.uid);
         try {
-          const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/request-data', {
+          const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.uid }),

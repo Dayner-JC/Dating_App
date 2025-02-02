@@ -19,6 +19,7 @@ import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import {useFocusEffect} from '@react-navigation/native';
 import Button from '../../../components/button';
+import API_BASE_URL from '../../../../config/config';
 
 const ChangePasswordScreen = () => {
   const navigation = useNavigation();
@@ -34,23 +35,48 @@ const ChangePasswordScreen = () => {
 
   const handlePasswordToggle = () => setShowPassword(prev => !prev);
 
+  const verifyCurrentPassword = async () => {
+    const user = auth().currentUser;
+
+    if (!user || !user.email) {
+      Alert.alert('Error', 'Your section login has expired please log back in.');
+      return;
+    }
+
+    const email = user.email;
+
+    try {
+      const credential = auth.EmailAuthProvider.credential(email, password);
+      await user.reauthenticateWithCredential(credential);
+
+      navigation.navigate('NewPasswordScreen', { email });
+    } catch (error) {
+      Alert.alert('Error', 'The current password is incorrect.');
+    }
+  };
+
   const requestPasswordReset = async () => {
     try {
-      const response = await fetch(
-        'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/login/password-reset/request',
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          //   body: JSON.stringify({ email }),
-        },
-      );
+      const user = auth().currentUser;
+
+      if (!user || !user.email) {
+        Alert.alert('Error', 'Your section login has expired please log back in.');
+        return;
+      }
+
+      const email = user.email;
+
+      const response = await fetch(`${API_BASE_URL}/auth/login/password-reset/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
 
       if (response.ok) {
-        // setUid(data.uid);
         Alert.alert('Success', 'The code was sent to your email.');
-        // navigation.navigate('VerifyCodeEmailScreen', { uid: data.uid, email: email });
+        navigation.navigate('VerifyCodeEmailScreen', { uid: data.uid, email: email });
       } else {
         Alert.alert('Error', 'Could not send code.');
       }
@@ -116,7 +142,7 @@ const ChangePasswordScreen = () => {
           height={55}
           marginTop={20}
           disabled={!isPasswordValid}
-          onPress={() => {}}
+          onPress={verifyCurrentPassword}
         />
         <Button
           title={'Cancel'}

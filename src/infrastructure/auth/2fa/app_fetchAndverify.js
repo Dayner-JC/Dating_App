@@ -1,7 +1,9 @@
+import API_BASE_URL from '../../../config/config';
+
 export const fetch2FASetup = async (userId) => {
   console.log('userId: ', userId);
   const response = await fetch(
-    'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/app-generate',
+    `${API_BASE_URL}/auth/2fa/app-generate`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -18,7 +20,7 @@ export const fetch2FASetup = async (userId) => {
 
 export const verify2FAToken = async (userId, token, firstTime) => {
   const response = await fetch(
-    'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/auth/2fa/app-verify',
+    `${API_BASE_URL}/auth/2fa/app-verify`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

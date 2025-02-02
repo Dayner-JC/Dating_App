@@ -1,6 +1,7 @@
 import auth from '@react-native-firebase/auth';
+import API_BASE_URL from '../../../config/config';
 
-const BACKEND_URL = 'http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/create';
+const BACKEND_URL = `${API_BASE_URL}/profile/create`;
 
 /**
  * Validates user account data.
