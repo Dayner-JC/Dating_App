@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import IconButton from '../../components/icon_button';
@@ -9,31 +10,44 @@ import API_BASE_URL from '../../../config/config';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
-
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  const [images, setImages] = useState([]);
 
-    const fetchUserData = async () => {
-      const user = auth().currentUser;
-      if (user) {
-        setUserId(user.uid);
-        try {
-          const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.uid }),
-          });
-          const data = await response.json();
-          setUserData(data);
-          console.log('Data: ', data);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        } finally {
-          setLoading(false);
+  const fetchUserData = async () => {
+    const user = auth().currentUser;
+    if (user) {
+      setUserId(user.uid);
+      try {
+        const userResponse = await fetch(`${API_BASE_URL}/profile/request-data`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.uid }),
+        });
+        const data = await userResponse.json();
+        setUserData(data);
+
+        const imagesResponse = await fetch(`${API_BASE_URL}/profile/photos/get`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.uid }),
+        });
+        const imagesData = await imagesResponse.json();
+
+        if (imagesData.success) {
+          console.log('Images:', imagesData.images);
+          setImages(imagesData.images);
+        } else {
+          console.error('Error fetching images:', imagesData.error);
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -70,7 +84,7 @@ const AccountScreen = () => {
     );
   }
 
-  const images = [
+  const imagesA = [
     require('../../../assets/user_1.jpg'),
     require('../../../assets/2.png'),
     require('../../../assets/3.png'),
@@ -88,7 +102,7 @@ const AccountScreen = () => {
       <Text style={styles.title}>Profile</Text>
       <Text style={styles.sectionTitle}>Photos</Text>
       <View style={styles.photoGrid}>
-        {images.map((img, index) => (
+        {imagesA.map((img, index) => (
           <View key={index} style={styles.photoContainer}>
             <Image source={img} style={styles.photo} />
             {index === 0 && (
