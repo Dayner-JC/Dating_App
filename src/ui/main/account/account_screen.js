@@ -1,47 +1,73 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  StatusBar,
+  ActivityIndicator,
+} from 'react-native';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
-import { useNavigation } from '@react-navigation/native';
+import InputIcon from '../../../assets/icons/input.svg';
+import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import API_BASE_URL from '../../../config/config';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
-
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  const [images, setImages] = useState([]);
 
-    const fetchUserData = async () => {
-      const user = auth().currentUser;
-      if (user) {
-        setUserId(user.uid);
-        try {
-          const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
+  const fetchUserData = async () => {
+    const user = auth().currentUser;
+    if (user) {
+      setUserId(user.uid);
+      try {
+        const userResponse = await fetch(
+          `${API_BASE_URL}/profile/request-data`,
+          {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.uid }),
-          });
-          const data = await response.json();
-          setUserData(data);
-          console.log('Data: ', data);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        } finally {
-          setLoading(false);
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userId: user.uid}),
+          },
+        );
+        const data = await userResponse.json();
+        setUserData(data);
+
+        const imagesResponse = await fetch(
+          `${API_BASE_URL}/profile/photos/get`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userId: user.uid}),
+          },
+        );
+        const imagesData = await imagesResponse.json();
+
+        if (imagesData.success) {
+          setImages(imagesData.images);
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
       fetchUserData();
-    }, [])
+    }, []),
   );
 
-  const calculateAge = (birthday) => {
+  const calculateAge = birthday => {
     if (!birthday) {
       return 'N/A';
     }
@@ -70,96 +96,114 @@ const AccountScreen = () => {
     );
   }
 
-  const images = [
-    require('../../../assets/user_1.jpg'),
-    require('../../../assets/2.png'),
-    require('../../../assets/3.png'),
-    require('../../../assets/1.png'),
-    require('../../../assets/5.png'),
-    require('../../../assets/6.png'),
-  ];
-
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#0A0F0D" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <Text style={styles.title}>Profile</Text>
       <Text style={styles.sectionTitle}>Photos</Text>
       <View style={styles.photoGrid}>
-        {images.map((img, index) => (
-          <View key={index} style={styles.photoContainer}>
-            <Image source={img} style={styles.photo} />
-            {index === 0 && (
-              <View style={styles.mainLabel}>
-                <Text style={styles.mainLabelText}>Main</Text>
+        {[...Array(6)].map((_, index) => {
+          const photo = images[index];
+          return (
+            <View key={index} style={styles.photoWrapper}>
+              <View
+                style={[
+                  styles.photoContainer,
+                  photo ? styles.solidBorder : styles.dashedBorder,
+                ]}>
+                {photo ? (
+                  <Image source={{ uri: photo }} style={styles.photo} />
+                ) : (
+                  <View style={styles.placeholder}>
+                    <InputIcon width={'100%'} height={'100%'} />
+                  </View>
+                )}
+                {index === 0 && photo && (
+                  <View style={styles.mainLabel}>
+                    <Text style={styles.mainLabelText}>Main</Text>
+                  </View>
+                )}
               </View>
-            )}
-          </View>
-        ))}
+            </View>
+          );
+        })}
       </View>
 
       <TouchableOpacity>
-        <Text style={styles.editButton} onPress={() => navigation.navigate('EditPhotos', { uid: userId })}>Edit photos</Text>
+        <Text
+          style={styles.editButton}
+          onPress={() => navigation.navigate('EditPhotos', {uid: userId})}>
+          Edit photos
+        </Text>
       </TouchableOpacity>
 
-      <ScrollView style={styles.profileContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.profileContainer}
+        showsVerticalScrollIndicator={false}>
         <ProfileItem
           label="Your Name"
           value={userData?.name || 'N/A'}
-          onEdit={() => navigation.navigate('EditName', { uid: userId })}
+          onEdit={() => navigation.navigate('EditName', {uid: userId})}
         />
         <ProfileItem
           label="Personal description"
           value={userData?.description || 'N/A'}
-          onEdit={() => navigation.navigate('EditAbout', { uid: userId })}
+          onEdit={() => navigation.navigate('EditAbout', {uid: userId})}
         />
         <ProfileItem
           label="Interests and hobbies"
           value={userData.interests ? userData.interests.join(', ') : 'N/A'}
-          onEdit={() => navigation.navigate('EditInterests', { uid: userId })}
+          onEdit={() => navigation.navigate('EditInterests', {uid: userId})}
         />
         <ProfileItem
           label="Location"
-          value={userData?.location ? `${userData.location.country}, ${userData.location.state}` : 'N/A'}
-          onEdit={() => navigation.navigate('EditLocation', { uid: userId })}
+          value={
+            userData?.location
+              ? `${userData.location.country}, ${userData.location.state}`
+              : 'N/A'
+          }
+          onEdit={() => navigation.navigate('EditLocation', {uid: userId})}
         />
         <ProfileItem
           label="Age"
           value={userData?.birthday ? calculateAge(userData.birthday) : 'N/A'}
-          onEdit={() => navigation.navigate('EditBirthday', { uid: userId })}
+          onEdit={() => navigation.navigate('EditBirthday', {uid: userId})}
         />
         <ProfileItem
           label="Height"
           value={userData?.height?.toString() || 'N/A'}
-          onEdit={() => navigation.navigate('EditHeight', { uid: userId })}
+          onEdit={() => navigation.navigate('EditHeight', {uid: userId})}
         />
         <ProfileItem
           label="Gender"
           value={userData?.gender || 'N/A'}
-          onEdit={() => navigation.navigate('EditGender', { uid: userId })}
+          onEdit={() => navigation.navigate('EditGender', {uid: userId})}
         />
         <ProfileItem
           label="Preference"
           value={userData?.preference || 'N/A'}
-          onEdit={() => navigation.navigate('EditPreferences', { uid: userId })}
+          onEdit={() => navigation.navigate('EditPreferences', {uid: userId})}
         />
         <ProfileItem
           label="Intentions"
           value={userData?.intentions || 'N/A'}
-          onEdit={() => navigation.navigate('EditIntentions', { uid: userId })}
+          onEdit={() => navigation.navigate('EditIntentions', {uid: userId})}
         />
       </ScrollView>
     </View>
   );
 };
 
-const ProfileItem = ({ label, value, onEdit }) => (
+const ProfileItem = ({label, value, onEdit}) => (
   <View style={styles.profileItem}>
     <View style={styles.textContainer}>
       <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value} ellipsizeMode="tail">{value || 'N/A'}</Text>
+      <Text style={styles.value} ellipsizeMode="tail">
+        {value || 'N/A'}
+      </Text>
     </View>
     <TouchableOpacity onPress={onEdit}>
       <Text style={styles.editText}>Edit</Text>
@@ -204,24 +248,47 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    marginHorizontal: 20,
   },
-  photo: {
-    width: 110,
-    height: 110,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#525853',
+  photoWrapper: {
+    width: '30%',
+    aspectRatio: 1,
+    marginBottom: 20,
+    position: 'relative',
   },
   photoContainer: {
-    position: 'relative',
+    flex: 1,
+    borderRadius: 8,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dashedBorder: {
+    borderWidth: 1,
+    borderColor: '#525853',
+    borderStyle: 'dashed',
+  },
+  solidBorder: {
+    borderWidth: 1,
+    borderColor: '#525853',
+    borderStyle: 'solid',
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
+  },
+  placeholder: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#5258531A',
   },
   mainLabel: {
     width: 60,
     position: 'absolute',
-    bottom: 15,
-    left: '50',
+    bottom: 5,
+    left: '50%',
     transform: [{ translateX: -30 }],
     backgroundColor: '#D9D2B0',
     paddingVertical: 4,
