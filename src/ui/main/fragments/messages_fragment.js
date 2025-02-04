@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
   View,
@@ -25,8 +26,10 @@ const messages = [
 ];
 
 export default function MessagesFragment() {
+  const navigation = useNavigation();
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.messageItem}>
+    <TouchableOpacity style={styles.messageItem} onPress={() => {navigation.navigate('ChatScreen');}}>
       <Image
         source={require('../../../assets/image.png')}
         style={styles.avatar}

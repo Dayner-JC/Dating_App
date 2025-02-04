@@ -41,12 +41,13 @@ import ChangeEmailScreen from '../main/account/email/change_email_screen';
 import ChangePhoneScreen from '../main/account/phone/change_phone_screen';
 import VerifyCodeChangePhoneScreen from '../auth/verify/verify_code_change_phone_screen';
 import ConfirmChangeEmailScreen from '../main/account/email/confirm_change_email_screen';
+import ChatScreen from '../main/chat/chat_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SettingsScreen" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="RegisterPhoneScreen" component={RegisterPhoneScreen} />
         <Stack.Screen name="LoginPhoneScreen" component={LoginPhoneScreen} />
@@ -87,6 +88,7 @@ const Navigator = () => {
         <Stack.Screen name="ChangePhoneScreen" component={ChangePhoneScreen} />
         <Stack.Screen name="VerifyCodeChangePhoneScreen" component={VerifyCodeChangePhoneScreen} />
         <Stack.Screen name="ConfirmChangeEmailScreen" component={ConfirmChangeEmailScreen} />
+        <Stack.Screen name="ChatScreen" component={ChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
