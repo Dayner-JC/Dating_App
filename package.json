@@ -1,6 +1,6 @@
 {
   "name": "DatingApp",
-  "version": "0.46",
+  "version": "0.47",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

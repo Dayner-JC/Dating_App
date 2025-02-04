@@ -29,7 +29,6 @@ const ProfileCreationSteps = () => {
     location: null,
     about: null,
     interests: null,
-    photos: null,
   });
 
   const steps = [
@@ -47,7 +46,6 @@ const ProfileCreationSteps = () => {
 
   const goNext = async () => {
     if (currentStep === steps.length - 1) {
-      console.log('formData: ', formData);
       const response = await validateAndSendAccount(formData);
 
       if (response.success) {

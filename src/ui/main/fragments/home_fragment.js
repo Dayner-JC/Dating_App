@@ -1,4 +1,5 @@
-import React from 'react';
+// components/HomeFragment.js
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,46 +8,87 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import VerifiedIcon from '../../../assets/icons/verify.svg';
 import LocationIcon from '../../../assets/icons/location.svg';
+import auth from '@react-native-firebase/auth';
+import API_BASE_URL from '../../../config/config';
 
 const { height, width } = Dimensions.get('window');
 
-const profiles = [
-  {
-    id: '1',
-    name: 'Max',
-    age: 27,
-    location: 'Utah',
-    image: require('../../../assets/user_1.jpg'),
-    verified: true,
-  },
-  {
-    id: '2',
-    name: 'Sophia',
-    age: 24,
-    location: 'New York',
-    image: require('../../../assets/user_2.jpg'),
-    verified: false,
-  },
-];
-
 export default function HomeFragment() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const user = auth().currentUser;
+    const loadUsers = async () => {
+      try {
+        const userResponse = await fetch(`${API_BASE_URL}/get_users/get`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid }),
+        });
+        const data = await userResponse.json();
+        console.log('User: ', data);
+        setUsers(data);
+      } catch (error) {
+        console.error('Failed to load users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadUsers();
+  }, []);
+
+  const calculateAge = (birthday) => {
+    if (!birthday) {
+      return 'N/A';
+    }
+    const [month, day, year] = birthday.split('/');
+    const birthDate = new Date(`${year}`, month - 1, day);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+    return age.toString();
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FFFFFF" />
+      </View>
+    );
+  }
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => console.log('Clicked on:', item.name)}
     >
-      <Image source={item.image} style={styles.image} />
+      <Image
+        source={
+          item.photos?.length > 0
+            ? { uri: item.photos[0] }
+            : require('../../../assets/user_1.jpg')
+        }
+        style={styles.image}
+      />
       <View style={styles.infoContainer}>
         <Text style={styles.name}>
-          {item.name}, {item.age}{' '}
-          {item.verified && (<VerifiedIcon/>)}
+          {item.name || 'Unknown'}, {calculateAge(item.birthday) || 'Unknown'}{' '}
+          {item.verified && <VerifiedIcon />}
         </Text>
         <View style={styles.locationContainer}>
           <LocationIcon style={styles.locationIcon} width={16} height={16} />
-          <Text style={styles.location}>{item.location}</Text>
+          <Text style={styles.location}>
+            {item.location?.country || 'Unknown'}, {item.location?.state || 'Unknown'}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -55,7 +97,7 @@ export default function HomeFragment() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={profiles}
+        data={users}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         pagingEnabled
@@ -68,13 +110,19 @@ export default function HomeFragment() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0A0F0D',
+  },
   container: {
     flex: 1,
     backgroundColor: '#0A0F0D',
   },
   card: {
     width: width - 40,
-    height: height - 172,
+    height: height - 200,
     marginHorizontal: 20,
     marginVertical: 20,
     justifyContent: 'flex-end',
@@ -94,12 +142,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 20,
+    padding: 10,
   },
   name: {
     color: '#FFFFFF',
     fontFamily: 'Roboto_700',
-    fontSize: 28,
+    fontSize: width * 0.06,
   },
   locationContainer: {
     flexDirection: 'row',
@@ -112,6 +160,6 @@ const styles = StyleSheet.create({
   location: {
     fontFamily: 'Roboto_400',
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
 });

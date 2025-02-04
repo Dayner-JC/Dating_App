@@ -105,7 +105,7 @@ const EditPreferences = ({route}) => {
           borderRadius={100}
           height={55}
           marginTop={10}
-          onPress={() => {}}
+          onPress={() => navigation.goBack()}
         />
       </View>
       <View style={styles.petalsContainer}>

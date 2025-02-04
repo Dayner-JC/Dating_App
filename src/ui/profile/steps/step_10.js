@@ -8,6 +8,8 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
+import API_BASE_URL from '../../../config/config';
+import auth from '@react-native-firebase/auth';
 
 const Step10 = ({ onNext, onChangeData }) => {
   const [photos, setPhotos] = useState([null, null, null, null, null, null]);
@@ -46,6 +48,33 @@ const Step10 = ({ onNext, onChangeData }) => {
     });
   };
 
+  const uploadPhotos = async () => {
+    const user = auth().currentUser;
+    try {
+      const response = await fetch(`${API_BASE_URL}/profile/photos/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          photos: photos,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        handleContinue();
+      } else {
+        Alert.alert(data.error || 'Error updating photos.');
+      }
+    } catch (error) {
+      console.error('Error updating photos:', error);
+      Alert.alert('Failed to update photos.');
+    }
+};
+
   const handleDeletePhoto = (index) => {
     const newPhotos = [...photos];
     newPhotos[index] = null;
@@ -53,7 +82,6 @@ const Step10 = ({ onNext, onChangeData }) => {
   };
 
   const handleContinue = () => {
-    onChangeData('photos', photos);
     onNext();
   };
 
@@ -106,7 +134,7 @@ const Step10 = ({ onNext, onChangeData }) => {
             borderRadius={100}
             width={'100%'}
             height={55}
-            onPress={handleContinue}
+            onPress={uploadPhotos}
             disabled={photos.filter(Boolean).length < 1}
           />
         )}

@@ -18,7 +18,6 @@ export const validateAndSendAccount = async (data) => {
         location,
         about,
         interests,
-        photos,
       } = data;
   const errors = {};
 
@@ -49,7 +48,6 @@ export const validateAndSendAccount = async (data) => {
         location,
         about,
         interests,
-        photos,
       }),
     });
 

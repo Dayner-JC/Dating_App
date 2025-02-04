@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import LogoutIcon from '../../../assets/icons/logout.svg';
 import CloseIcon from '../../../assets/icons/close.svg';
@@ -12,6 +12,7 @@ import PrivacyPolicyIcon from '../../../assets/icons/note.svg';
 import ArrowRightIcon from '../../../assets/icons/arrow-right.svg';
 import LogoutIcon2 from '../../../assets/icons/logout-2.svg';
 import { useNavigation } from '@react-navigation/native';
+import API_BASE_URL from '../../../config/config';
 
 const MenuItem = ({ icon: Icon, text, onPress }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -23,7 +24,49 @@ const MenuItem = ({ icon: Icon, text, onPress }) => (
 
 export default function ProfileFragment() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profileName, setProfileName] = useState(null);
   const navigation = useNavigation();
+
+  const fetchProfilePhotoAndName = async () => {
+    try {
+      const currentUser = auth().currentUser;
+      if (!currentUser) {
+        console.error('No authenticated user found');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/profile/photos/get`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.uid }),
+      });
+
+      const photo = await response.json();
+      if (photo.success && photo.images.length > 0) {
+        setProfilePhoto(photo.images[0]);
+      }
+
+      const responseName = await fetch(`${API_BASE_URL}/profile/get-name`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.uid }),
+      });
+
+      const dataName = await responseName.json();
+
+      if (dataName.success) {
+        setProfileName(dataName.name);
+      }
+
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfilePhotoAndName();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -52,7 +95,7 @@ export default function ProfileFragment() {
       <View style={styles.profileContainer}>
         <View style={styles.photoWrapper}>
           <Image
-            source={require('../../../assets/user_1.jpg')}
+            source={{ uri: profilePhoto }}
             style={styles.profileImage}
           />
           <TouchableOpacity style={styles.editButton} onPress={() => {}}>
@@ -60,7 +103,7 @@ export default function ProfileFragment() {
           </TouchableOpacity>
         </View>
         <Text style={styles.greeting}>
-          Hi, <Text style={styles.boldText}>Max</Text>
+          Hi, <Text style={styles.boldText}>{`${profileName}`}</Text>
         </Text>
       </View>
 
