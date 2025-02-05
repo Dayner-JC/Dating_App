@@ -1,6 +1,11 @@
 import React, { useEffect } from 'react';
+import { LogBox } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import Navigator from './ui/navigation/navigator';
+
+LogBox.ignoreLogs([
+  'Support for defaultProps will be removed from function components',
+]);
 
 const App = () => {
   useEffect(() => {

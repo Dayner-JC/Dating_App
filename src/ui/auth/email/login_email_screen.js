@@ -1,8 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState} from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import Button from '../../components/button';
 import auth from '@react-native-firebase/auth';
 import GoogleIcon from '../../../assets/icons/google.svg';
@@ -10,14 +17,17 @@ import FacebookIcon from '../../../assets/icons/facebook.svg';
 import AppleIcon from '../../../assets/icons/apple.svg';
 import HideIcon from '../../../assets/icons/hide.svg';
 import ShowIcon from '../../../assets/icons/show.svg';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_9.svg';
 import Petal4 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import PhoneIcon from '../../../assets/icons/phone.svg';
-import { validateFacebookLogin, validateAppleLogin} from '../../../infrastructure/auth/validation/login_validation';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import {
+  validateFacebookLogin,
+  validateAppleLogin,
+} from '../../../infrastructure/auth/validation/login_validation';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import API_BASE_URL from '../../../config/config';
 
 const LoginEmailScreen = () => {
@@ -29,17 +39,24 @@ const LoginEmailScreen = () => {
   const [step, setStep] = useState(1);
   const [uid, setUid] = useState(null);
 
-  const isEmailValid = email.endsWith('@gmail.com') && /.+@gmail\.com/.test(email);
-  const isPasswordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password);
+  const isEmailValid =
+    email.endsWith('@gmail.com') && /.+@gmail\.com/.test(email);
+  const isPasswordValid =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(
+      password,
+    );
 
-  const handlePasswordToggle = () => setShowPassword((prev) => !prev);
+  const handlePasswordToggle = () => setShowPassword(prev => !prev);
 
   const handleContinue = async () => {
     if (step === 1 && isEmailValid) {
       setStep(2);
     } else if (step === 2 && isPasswordValid) {
       try {
-        const userCredential = await auth().signInWithEmailAndPassword(email, password);
+        const userCredential = await auth().signInWithEmailAndPassword(
+          email,
+          password,
+        );
         const user = userCredential.user;
 
         if (user) {
@@ -50,17 +67,19 @@ const LoginEmailScreen = () => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ token: idToken, uid: user.uid, email: email }),
+            body: JSON.stringify({token: idToken, uid: user.uid, email: email}),
           });
 
           if (response.ok) {
             console.log('uid enviado: ', user.uid);
-            navigation.navigate('VerifyCodeEmailLoginScreen', { userId: user.uid });
+            navigation.navigate('VerifyCodeEmailLoginScreen', {
+              userId: user.uid,
+            });
           } else {
-            Alert.alert('Error','User not found');
+            Alert.alert('Error', 'User not found');
           }
         } else {
-            Alert.alert('Error','Failed to obtain user');
+          Alert.alert('Error', 'Failed to obtain user');
         }
       } catch (error) {
         console.error(error);
@@ -70,18 +89,24 @@ const LoginEmailScreen = () => {
 
   const requestPasswordReset = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login/password-reset/request`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/auth/login/password-reset/request`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email}),
+        },
+      );
 
       const data = await response.json();
 
       if (response.ok) {
         setUid(data.uid);
         Alert.alert('Success', 'The code was sent to your email.');
-        navigation.navigate('VerifyCodeEmailScreen', { uid: data.uid, email: email });
+        navigation.navigate('VerifyCodeEmailScreen', {
+          uid: data.uid,
+          email: email,
+        });
       } else {
         Alert.alert('Error', 'Could not send code.');
       }
@@ -93,7 +118,7 @@ const LoginEmailScreen = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
 
       const signInResult = await GoogleSignin.signIn();
 
@@ -109,15 +134,15 @@ const LoginEmailScreen = () => {
 
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-      const userCredential = await auth().signInWithCredential(googleCredential);
+      const userCredential = await auth().signInWithCredential(
+        googleCredential,
+      );
 
       const firebaseIdToken = await userCredential.user.getIdToken();
 
-      setUid(userCredential.user);
-
       const requestBody = {
-        firebaseIdToken,
-        uid,
+        firebaseIdToken: firebaseIdToken,
+        uid: userCredential.user.uid,
       };
 
       const response = await fetch(`${API_BASE_URL}/auth/login/google`, {
@@ -140,34 +165,40 @@ const LoginEmailScreen = () => {
     }
   };
 
-    const check2FAStatus = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/auth/2fa/isEnable-verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: uid }),
-        });
+  const check2FAStatus = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/2fa/isEnable-verify`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userId: uid}),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (response.ok) {
-          const { methods, phoneNumber } = data;
+      if (response.ok) {
+        const {methods, phoneNumber} = data;
 
-          if (methods.sms) {
-            navigation.navigate('TwoFASmsScreen', { userId: uid, userPhoneNumber: phoneNumber });
-          } else if (methods.app) {
-            navigation.navigate('TwoFAAuthenticatorVerifyScreen', { userId: uid, firstTime: false });
-          } else {
-            navigation.navigate('Main');
-          }
+        if (methods.sms) {
+          navigation.navigate('TwoFASmsScreen', {
+            userId: uid,
+            userPhoneNumber: phoneNumber,
+          });
+        } else if (methods.app) {
+          navigation.navigate('TwoFAAuthenticatorVerifyScreen', {
+            userId: uid,
+            firstTime: false,
+          });
         } else {
           navigation.navigate('Main');
         }
-      } catch (error) {
-        console.error('Error verifying 2FA:', error);
-        Alert.alert('Error', 'An unexpected error occurred.');
+      } else {
+        navigation.navigate('Main');
       }
-    };
+    } catch (error) {
+      console.error('Error verifying 2FA:', error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
+  };
 
   const handleFacebookLogin = async () => {
     try {
@@ -198,174 +229,176 @@ const LoginEmailScreen = () => {
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ flexGrow: 1 }}
-      scrollEnabled={true}
-    >
+      contentContainerStyle={{flexGrow: 1}}
+      scrollEnabled={true}>
       <View style={styles.container}>
-      <View style={styles.top_petals}>
-        <Petal1 style={styles.petal1}/>
-      </View>
+        <View style={styles.top_petals}>
+          <Petal1 style={styles.petal1} />
+        </View>
         <View style={styles.content}>
           <Text style={styles.title_text}>Sign in</Text>
           <Text style={styles.subtitle_text}>Welcome back!</Text>
 
           {step === 1 && (
-              <View style={styles.input_container}>
-                <Text style={styles.email_text}>Email</Text>
-                <View
-                  style={[
-                    styles.email_input_container,
-                    isFocused ? styles.focused_border : styles.default_border,
-                  ]}
-                >
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email address"
-                    placeholderTextColor="#D9D2B03D"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                  />
-                </View>
+            <View style={styles.input_container}>
+              <Text style={styles.email_text}>Email</Text>
+              <View
+                style={[
+                  styles.email_input_container,
+                  isFocused ? styles.focused_border : styles.default_border,
+                ]}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your email address"
+                  placeholderTextColor="#D9D2B03D"
+                  keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                />
               </View>
-            )}
-            {step === 2 && (
-              <View style={styles.input_container}>
-                <Text style={styles.email_text}>Password</Text>
-                <View
-                  style={[
-                    styles.email_input_container,
-                    isFocused ? styles.focused_border : styles.default_border,
-                  ]}
-                >
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your password"
-                    placeholderTextColor="#D9D2B03D"
-                    secureTextEntry={!showPassword}
-                    value={password}
-                    onChangeText={setPassword}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                  />
-                  {password.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.toggle_password_visibility}
-                      onPress={handlePasswordToggle}
-                    >
-                      {showPassword ? (
-                    <HideIcon width={20} height={20} />
-                  ) : (
-                    <ShowIcon width={20} height={20} />
-                  )}
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            )}
-            <View style={styles.forgot_container}>
-            {password.length > 0 && (
-                <Text style={styles.forgot_text} onPress={requestPasswordReset}>Forgot your password?</Text>
-            )}
             </View>
+          )}
+          {step === 2 && (
+            <View style={styles.input_container}>
+              <Text style={styles.email_text}>Password</Text>
+              <View
+                style={[
+                  styles.email_input_container,
+                  isFocused ? styles.focused_border : styles.default_border,
+                ]}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your password"
+                  placeholderTextColor="#D9D2B03D"
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                />
+                {password.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.toggle_password_visibility}
+                    onPress={handlePasswordToggle}>
+                    {showPassword ? (
+                      <HideIcon width={20} height={20} />
+                    ) : (
+                      <ShowIcon width={20} height={20} />
+                    )}
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          )}
+          <View style={styles.forgot_container}>
+            {password.length > 0 && (
+              <Text style={styles.forgot_text} onPress={requestPasswordReset}>
+                Forgot your password?
+              </Text>
+            )}
+          </View>
 
-            <Button
-              title={step === 1 ? 'Sign in' : 'Continue'}
-              fontSize={16}
-              fontFamily="Roboto_500"
-              backgroundColor="#D97904"
-              disabledBackgroundColor="#8b580f"
-              disabledTextColor="#a2a8a5"
-              borderRadius={100}
-              width={'100%'}
-              height={55}
-              marginTop={20}
-              onPress={handleContinue}
-              disabled={(step === 1 && !isEmailValid) || (step === 2 && !isPasswordValid)}
-            />
+          <Button
+            title={step === 1 ? 'Sign in' : 'Continue'}
+            fontSize={16}
+            fontFamily="Roboto_500"
+            backgroundColor="#D97904"
+            disabledBackgroundColor="#8b580f"
+            disabledTextColor="#a2a8a5"
+            borderRadius={100}
+            width={'100%'}
+            height={55}
+            marginTop={20}
+            onPress={handleContinue}
+            disabled={
+              (step === 1 && !isEmailValid) || (step === 2 && !isPasswordValid)
+            }
+          />
 
-        <View style={styles.or_container}>
-          <View style={styles.line} />
-          <Text style={styles.or_text}>or</Text>
-          <View style={styles.line} />
+          <View style={styles.or_container}>
+            <View style={styles.line} />
+            <Text style={styles.or_text}>or</Text>
+            <View style={styles.line} />
+          </View>
+
+          <Button
+            title="Sign in with phone"
+            fontSize={14}
+            fontFamily="Roboto_400"
+            backgroundColor="transparent"
+            textColor="#D9D2B0"
+            borderWidth={1}
+            borderColor="#747474"
+            borderRadius={100}
+            width="100%"
+            height={55}
+            icon={<PhoneIcon width={20} height={20} />}
+            onPress={() => navigation.navigate('LoginPhoneScreen')}
+          />
+
+          <Button
+            title="Sign in with Facebook"
+            fontSize={14}
+            fontFamily="Roboto_400"
+            backgroundColor="transparent"
+            textColor="#D9D2B0"
+            borderWidth={1}
+            borderColor="#747474"
+            borderRadius={100}
+            width="100%"
+            height={55}
+            marginTop={15}
+            icon={<FacebookIcon width={20} height={20} />}
+            onPress={() => {}}
+          />
+          <Button
+            title="Sign in with Google"
+            fontSize={14}
+            fontFamily="Roboto_400"
+            backgroundColor="transparent"
+            textColor="#D9D2B0"
+            borderWidth={1}
+            borderColor="#747474"
+            borderRadius={100}
+            width="100%"
+            height={55}
+            marginTop={15}
+            icon={<GoogleIcon width={20} height={20} />}
+            onPress={handleGoogleLogin}
+          />
+          <Button
+            title="Sign in with Apple"
+            fontSize={14}
+            fontFamily="Roboto_400"
+            backgroundColor="transparent"
+            textColor="#D9D2B0"
+            borderWidth={1}
+            borderColor="#747474"
+            borderRadius={100}
+            width="100%"
+            height={55}
+            marginTop={15}
+            icon={<AppleIcon width={20} height={20} />}
+          />
+          <Text
+            style={styles.footer_text}
+            onPress={() => navigation.navigate('RegisterEmailScreen')}>
+            Don't have an account?{'  '}
+            <Text style={styles.sign_up_text}>Sign up</Text>
+          </Text>
         </View>
-
-        <Button
-              title="Sign in with phone"
-              fontSize={14}
-              fontFamily="Roboto_400"
-              backgroundColor="transparent"
-              textColor="#D9D2B0"
-              borderWidth={1}
-              borderColor="#747474"
-              borderRadius={100}
-              width="100%"
-              height={55}
-              icon={<PhoneIcon width={20} height={20} />}
-              onPress={() => navigation.navigate('LoginPhoneScreen')}
-            />
-
-        <Button
-          title="Sign in with Facebook"
-          fontSize={14}
-          fontFamily="Roboto_400"
-          backgroundColor="transparent"
-          textColor="#D9D2B0"
-          borderWidth={1}
-          borderColor="#747474"
-          borderRadius={100}
-          width="100%"
-          height={55}
-          marginTop={15}
-          icon={<FacebookIcon width={20} height={20}/>}
-          onPress={()=>{}}
-        />
-        <Button
-          title="Sign in with Google"
-          fontSize={14}
-          fontFamily="Roboto_400"
-          backgroundColor="transparent"
-          textColor="#D9D2B0"
-          borderWidth={1}
-          borderColor="#747474"
-          borderRadius={100}
-          width="100%"
-          height={55}
-          marginTop={15}
-          icon={<GoogleIcon width={20} height={20}/>}
-          onPress={handleGoogleLogin}
-        />
-        <Button
-          title="Sign in with Apple"
-          fontSize={14}
-          fontFamily="Roboto_400"
-          backgroundColor="transparent"
-          textColor="#D9D2B0"
-          borderWidth={1}
-          borderColor="#747474"
-          borderRadius={100}
-          width="100%"
-          height={55}
-          marginTop={15}
-          icon={<AppleIcon width={20} height={20}/>}
-        />
-        <Text style={styles.footer_text} onPress={() => navigation.navigate('RegisterEmailScreen')}>
-        Don't have an account?{'  '}
-          <Text style={styles.sign_up_text}>Sign up</Text>
-        </Text>
+        <View style={styles.bottom_petals_container}>
+          <View>
+            <Petal2 style={styles.petal2} />
+          </View>
+          <View style={styles.bottom_petal_3_4_container}>
+            <Petal3 />
+            <Petal4 />
+          </View>
+        </View>
       </View>
-      <View style={styles.bottom_petals_container}>
-        <View>
-          <Petal2 style={styles.petal2}/>
-        </View>
-        <View style={styles.bottom_petal_3_4_container}>
-          <Petal3/>
-          <Petal4/>
-        </View>
-      </View>
-    </View>
     </KeyboardAwareScrollView>
   );
 };
@@ -470,7 +503,7 @@ const styles = StyleSheet.create({
     color: '#D97904',
     textDecorationLine: 'underline',
   },
-  top_petals:{
+  top_petals: {
     width: '100%',
     alignItems: 'flex-end',
     paddingEnd: 20,

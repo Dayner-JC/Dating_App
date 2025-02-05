@@ -14,10 +14,12 @@ import VerifiedIcon from '../../../assets/icons/verify.svg';
 import LocationIcon from '../../../assets/icons/location.svg';
 import auth from '@react-native-firebase/auth';
 import API_BASE_URL from '../../../config/config';
+import { useNavigation } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
 export default function HomeFragment() {
+  const navigation = useNavigation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +33,6 @@ export default function HomeFragment() {
           body: JSON.stringify({ uid: user.uid }),
         });
         const data = await userResponse.json();
-        console.log('User: ', data);
         setUsers(data);
       } catch (error) {
         console.error('Failed to load users:', error);
@@ -69,7 +70,7 @@ export default function HomeFragment() {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => console.log('Clicked on:', item.name)}
+      onPress={() => navigation.navigate('ProfileScreen', { user: item })}
     >
       <Image
         source={

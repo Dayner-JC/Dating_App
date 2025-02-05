@@ -72,7 +72,7 @@ const VerifyCodeChangePhoneScreen = ({ route }) => {
 
       if(response.ok){
         Alert.alert('Success','Your phone number has been updated');
-        navigation.navigate('SettingsScreen');
+        navigation.navigate('SplashScreen');
       }
     } catch (error) {
       setIsCodeInvalid(true);

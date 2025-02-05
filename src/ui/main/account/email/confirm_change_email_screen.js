@@ -35,7 +35,7 @@ const ConfirmChangeEmailScreen = () => {
           borderRadius={100}
           width="100%"
           height={55}
-          onPress={() => navigation.navigate('SettingsScreen')}
+          onPress={() => navigation.navigate('SplashScreen')}
           marginTop={80}
         />
       </View>

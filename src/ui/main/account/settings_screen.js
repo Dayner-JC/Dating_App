@@ -36,7 +36,8 @@ const SettingsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleDeleteUser = async () => {
-    const uid = auth().currentUser?.uid;
+    const user = auth().currentUser;
+    const uid = user.uid;
 
     if (!uid) {
       console.error('No authenticated user found.');
@@ -56,7 +57,7 @@ const SettingsScreen = () => {
       if (response.ok && result.success) {
         console.log('User deleted successfully');
 
-        await auth().signOut();
+        await user.delete();
 
         navigation.reset({
           index: 0,

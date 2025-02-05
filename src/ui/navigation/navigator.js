@@ -42,6 +42,7 @@ import ChangePhoneScreen from '../main/account/phone/change_phone_screen';
 import VerifyCodeChangePhoneScreen from '../auth/verify/verify_code_change_phone_screen';
 import ConfirmChangeEmailScreen from '../main/account/email/confirm_change_email_screen';
 import HelpCenterScreen from '../help_center/help_center_screen';
+import ProfileScreen from '../main/profile_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -89,6 +90,7 @@ const Navigator = () => {
         <Stack.Screen name="VerifyCodeChangePhoneScreen" component={VerifyCodeChangePhoneScreen} />
         <Stack.Screen name="ConfirmChangeEmailScreen" component={ConfirmChangeEmailScreen} />
         <Stack.Screen name="HelpCenterScreen" component={HelpCenterScreen} />
+        <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
