@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator } from 'react-native';
 import Button from '../components/button';
 import IconButton from '../components/icon_button';
 import ArrowIcon from '../../assets/icons/arrow-left.svg';
@@ -7,11 +7,14 @@ import Petal1 from '../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
+import API_BASE_URL from '../../config/config';
 
-const ProfileVisibilityScreen = (/*{route}*/) => {
+const ProfileVisibilityScreen = ({ route }) => {
   const navigation = useNavigation();
-  //const { uid } = route.params;
+  const { uid } = route.params;
   const [selectedOption, setSelectedOption] = useState(null);
+  const [privacySettings, setPrivacySettings] = useState(null); // Estado para almacenar todas las configuraciones
+  const [loading, setLoading] = useState(true);
 
   const options = [
     { id: 'all', label: 'Visible to all users' },
@@ -19,67 +22,122 @@ const ProfileVisibilityScreen = (/*{route}*/) => {
     { id: 'hide', label: 'Hide profile temporarily' },
   ];
 
+  // Cargar las configuraciones actuales del usuario
+  useEffect(() => {
+    const fetchPrivacySettings = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/user/privacy-settings/get`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid }),
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const { privacySettings } = data;
+
+          setPrivacySettings(privacySettings);
+
+          const visibility = privacySettings.profileVisibility;
+          if (visibility.Visible_to_all_users) {
+            setSelectedOption('all');
+          } else if (visibility.Visible_only_to_matches) {
+            setSelectedOption('matches');
+          } else if (visibility.Hide_profile_temporarily) {
+            setSelectedOption('hide');
+          }
+        } else {
+          console.error('Error fetching privacy settings:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching privacy settings:', error);
+      } finally {
+        setLoading(false); // Finalizar la carga
+      }
+    };
+
+    fetchPrivacySettings();
+  }, [uid]);
+
+  // Manejar la selección de una opción
   const handleOptionSelect = (id) => {
     setSelectedOption(id);
   };
 
-    const handleSaveChanges = async () => {
-        // try {
-        //   const response = await fetch('http://10.0.2.2:5001/dating-app-7a6f7/us-central1/api/profile/edit/edit-visibility', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //       userId: uid,
-        //       gender: selectedGender,
-        //     }),
-        //   });
+  // Guardar los cambios en la base de datos
+  const handleSaveChanges = async () => {
+    if (!selectedOption || !privacySettings) {return;}
 
-        //   const data = await response.json();
+    try {
+      // Actualizar solo el campo profileVisibility dentro de privacySettings
+      const updatedPrivacySettings = {
+        ...privacySettings,
+        profileVisibility: {
+          Visible_to_all_users: selectedOption === 'all',
+          Visible_only_to_matches: selectedOption === 'matches',
+          Hide_profile_temporarily: selectedOption === 'hide',
+        },
+      };
 
-        //   if (data.success) {
-        //     navigation.goBack();
-        //   } else {
-        //     Alert.alert(data.error || 'Error updating visibility.');
-        //   }
-        // } catch (error) {
-        //   console.error('Error updating visibility:', error);
-        //   Alert.alert('Failed to update visibility.');
-        // }
-    };
+      const response = await fetch(`${API_BASE_URL}/user/privacy-settings/put`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid,
+          privacySettings: updatedPrivacySettings,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        navigation.navigate('PrivacyManagementScreen');
+      } else {
+        console.error('Error updating privacy settings:', data.message);
+      }
+    } catch (error) {
+      console.error('Error updating privacy settings:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#D97904" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-        <StatusBar backgroundColor="#17261F" />
+      <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Profile{'\n'}Visibility</Text>
         <Text style={styles.subtitle}>Who can see your profile?</Text>
-      <View style={styles.option_container}>
-        {options.map((option) => (
-          <TouchableOpacity
-            key={option.id}
-            style={[
-              styles.option,
-              selectedOption === option.id && styles.selectedOption,
-            ]}
-            onPress={() => handleOptionSelect(option.id)}
-          >
-            <Text
+        <View style={styles.option_container}>
+          {options.map((option) => (
+            <TouchableOpacity
+              key={option.id}
               style={[
-                styles.optionText,
-                selectedOption === option.id && styles.selectedText,
+                styles.option,
+                selectedOption === option.id && styles.selectedOption,
               ]}
+              onPress={() => handleOptionSelect(option.id)}
             >
-              {option.label}
-            </Text>
-            <View style={[styles.circle, selectedOption === option.id && styles.selectedCircle]} />
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={[
+                  styles.optionText,
+                  selectedOption === option.id && styles.selectedText,
+                ]}
+              >
+                {option.label}
+              </Text>
+              <View style={[styles.circle, selectedOption === option.id && styles.selectedCircle]} />
+            </TouchableOpacity>
+          ))}
+        </View>
         <Button
           title="Save changes"
           fontSize={16}
@@ -113,7 +171,7 @@ const ProfileVisibilityScreen = (/*{route}*/) => {
         </View>
         <View style={styles.doublePetals}>
           <Petal2 style={styles.petal2} />
-            <Petal3 style={styles.petal3} />
+          <Petal3 style={styles.petal3} />
         </View>
       </View>
     </View>
@@ -191,6 +249,12 @@ const styles = StyleSheet.create({
     borderWidth: 3.5,
     backgroundColor: '#FFFFFF',
     borderColor: '#D97904',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#17261F',
   },
   petalsContainer: {
     position: 'absolute',

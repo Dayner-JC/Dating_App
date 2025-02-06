@@ -67,7 +67,6 @@ const ProfileCreationSteps = () => {
   };
 
   const handleChangeData = (step, value) => {
-    console.log(formData.photos);
     setFormData(prevData => ({
       ...prevData,
       [step]: value,
