@@ -21,8 +21,8 @@ android {
         applicationId "ntsprint.datingapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 43
-        versionName "0.49"
+        versionCode 44
+        versionName "0.50"
     }
     signingConfigs {
         debug {

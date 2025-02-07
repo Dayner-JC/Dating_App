@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import LogoutIcon from '../../../assets/icons/logout.svg';
 import CloseIcon from '../../../assets/icons/close.svg';
@@ -26,6 +27,7 @@ export default function ProfileFragment() {
   const [modalVisible, setModalVisible] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profileName, setProfileName] = useState(null);
+  const [userId, setUserId] = useState(null);
   const navigation = useNavigation();
 
   const fetchProfilePhotoAndName = async () => {
@@ -35,6 +37,8 @@ export default function ProfileFragment() {
         console.error('No authenticated user found');
         return;
       }
+
+      setUserId(currentUser.uid);
 
       const response = await fetch(`${API_BASE_URL}/profile/photos/get`, {
         method: 'POST',
@@ -64,9 +68,11 @@ export default function ProfileFragment() {
     }
   };
 
-  useEffect(() => {
-    fetchProfilePhotoAndName();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfilePhotoAndName();
+    }, [])
+  );
 
   const handleLogout = async () => {
     try {
@@ -98,7 +104,7 @@ export default function ProfileFragment() {
             source={{ uri: profilePhoto }}
             style={styles.profileImage}
           />
-          <TouchableOpacity style={styles.editButton} onPress={() => {}}>
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('UploadProfilePictureScreen', {uid: userId})}>
             <EditImgIcon />
           </TouchableOpacity>
         </View>

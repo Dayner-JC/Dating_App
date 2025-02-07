@@ -44,6 +44,7 @@ import ConfirmChangeEmailScreen from '../main/account/email/confirm_change_email
 import ChatScreen from '../main/chat/chat_screen';
 import HelpCenterScreen from '../help_center/help_center_screen';
 import ProfileScreen from '../main/profile_screen';
+import UploadProfilePictureScreen from '../profile/profile_picture/upload_profile_picture_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -93,6 +94,7 @@ const Navigator = () => {
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
         <Stack.Screen name="HelpCenterScreen" component={HelpCenterScreen} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+        <Stack.Screen name="UploadProfilePictureScreen" component={UploadProfilePictureScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
