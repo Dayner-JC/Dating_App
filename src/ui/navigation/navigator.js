@@ -45,6 +45,7 @@ import ChatScreen from '../main/chat/chat_screen';
 import HelpCenterScreen from '../help_center/help_center_screen';
 import ProfileScreen from '../main/profile_screen';
 import UploadProfilePictureScreen from '../profile/profile_picture/upload_profile_picture_screen';
+import DatingPreferencesScreen from '../main/account/dating_preferences/dating_preferences_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -95,6 +96,7 @@ const Navigator = () => {
         <Stack.Screen name="HelpCenterScreen" component={HelpCenterScreen} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="UploadProfilePictureScreen" component={UploadProfilePictureScreen} />
+        <Stack.Screen name="DatingPreferencesScreen" component={DatingPreferencesScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

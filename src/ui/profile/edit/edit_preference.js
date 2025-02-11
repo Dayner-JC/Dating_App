@@ -78,6 +78,7 @@ const EditPreferences = ({route}) => {
             >
               {gender.label}
             </Text>
+            <View style={[styles.circle, selectedGender === gender.id && styles.selectedCircle]}/>
           </TouchableOpacity>
         ))}
         </View>
@@ -157,13 +158,16 @@ const styles = StyleSheet.create({
     marginVertical: 35,
   },
   genderOption: {
+    flexDirection: 'row',
     backgroundColor: '#5258531A',
     borderColor: '#525853',
     borderWidth: 2,
     borderRadius: 8,
-    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 15,
     height: 56,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
   },
   selectedOption: {
     backgroundColor: '#3A341B',
@@ -177,6 +181,18 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     color: '#FFFFFF',
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderWidth: 0.5,
+    borderColor: '#DADADA',
+    borderRadius: 4,
+  },
+  selectedCircle: {
+    borderWidth: 3.5,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D97904',
   },
   petalsContainer: {
     position: 'absolute',
