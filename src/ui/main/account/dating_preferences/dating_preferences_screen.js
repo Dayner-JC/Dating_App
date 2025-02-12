@@ -1,37 +1,111 @@
 /* eslint-disable eqeqeq */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Slider } from '@miblanchard/react-native-slider';
+import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import API_BASE_URL from '../../../../config/config';
 
 const DatingPreferencesScreen = () => {
   const navigation = useNavigation();
   const [maxDistance, setMaxDistance] = useState(5);
   const [ageRange, setAgeRange] = useState([18, 30]);
-  const [photoRangeIndex, setPhotoRangeIndex] = useState(0);
-  const photoRangeValues = ['2', '2-4', '4-6'];
+  const [preference, setPreference] = useState('Women');
+  const [loading, setLoading] = useState(true);
+  const [photoRangeIndex, setPhotoRangeIndex] = useState([2, 6]);
+
+  const currentUser = auth().currentUser;
+  const uid = currentUser?.uid;
+
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile/dating_preferences/get`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Error fetching preferences');
+        }
+
+        const data = await response.json();
+        const { datingPreferences, preference } = data;
+
+        setMaxDistance(datingPreferences.maxDistance);
+        setAgeRange(datingPreferences.ageRange);
+        setPhotoRangeIndex(datingPreferences.photoRangeIndex);
+        setPreference(preference);
+      } catch (error) {
+        console.error('Error fetching preferences:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (uid) {
+      fetchPreferences();
+    }
+  }, [uid]);
+
+  const handleBackPress = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/profile/dating_preferences/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid,
+          datingPreferences: {
+            maxDistance,
+            ageRange,
+            photoRangeIndex,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error updating preferences');
+      }
+
+    } catch (error) {
+      Alert.alert('Failed to save preferences.');
+    } finally {
+      navigation.navigate('Main');
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#D97904" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#0A0F0D" />
-      <TouchableOpacity style={styles.appBar} onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={styles.appBar} onPress={handleBackPress}>
         <Text style={styles.closeButton}>×</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Dating Preferences</Text>
       <View style={styles.content}>
         <View style={styles.row}>
           <Text style={styles.label}>Show Me</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('EditPreferences')}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditPreferences',{uid: uid, from: 'DatingPreferencesScreen'})}>
             <Text style={styles.editText}>Edit</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.lookingForText}>Women</Text>
+        <Text style={styles.lookingForText}>{preference}</Text>
         <View style={styles.divisor} />
 
         <View style={styles.row}>
@@ -85,19 +159,15 @@ const DatingPreferencesScreen = () => {
         <View style={styles.row}>
           <Text style={styles.label}>Min. Number of Photos</Text>
           <Text style={styles.valueText}>
-            {photoRangeValues[photoRangeIndex]} photos
+            {photoRangeIndex[0]}-{photoRangeIndex[1]} photos
           </Text>
         </View>
         <Slider
-          value={photoRangeIndex * 2 + 2}
+          value={photoRangeIndex}
           minimumValue={2}
           maximumValue={6}
-          step={2}
-          onValueChange={(value) => {
-            const closestValue = Math.min(6, Math.max(2, value));
-            const index = Math.floor((closestValue - 2) / 2);
-            setPhotoRangeIndex(index);
-          }}
+          step={1}
+          onValueChange={(value) => setPhotoRangeIndex(value)}
           minimumTrackTintColor="#ff9800"
           maximumTrackTintColor="#222322"
           thumbTintColor="#ff9800"
@@ -116,6 +186,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0F0D',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#17261F',
   },
   appBar: {
     height: 60,

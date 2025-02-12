@@ -11,7 +11,7 @@ import API_BASE_URL from '../../../config/config';
 
 const EditPreferences = ({route}) => {
   const navigation = useNavigation();
-  const { uid } = route.params;
+  const { uid, from } = route.params;
   const [selectedGender, setSelectedGender] = useState(null);
 
   const genders = [
@@ -41,12 +41,11 @@ const EditPreferences = ({route}) => {
           const data = await response.json();
 
           if (data.success) {
-            navigation.goBack();
+            navigation.navigate(from);
           } else {
             Alert.alert(data.error || 'Error updating preference.');
           }
         } catch (error) {
-          console.error('Error updating preference:', error);
           Alert.alert('Failed to update preference.');
         }
     };
@@ -55,7 +54,7 @@ const EditPreferences = ({route}) => {
     <View style={styles.container}>
         <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.goBack()} />
+         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.navigate(from)} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Preference</Text>

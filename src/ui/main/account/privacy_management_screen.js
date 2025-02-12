@@ -70,7 +70,6 @@ const PrivacyManagementScreen = () => {
           Alert.alert('Error', 'Failed to load privacy settings');
         }
       } catch (error) {
-        console.error('Error fetching privacy settings:', error);
         Alert.alert('Error', 'An unexpected error occurred');
       }
     };
