@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, StatusBar, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FlowerAnimation from '../animations/flower_animation';
 import PetalsSplashScreenAnimation from '../animations/petals_splash_screen_animation';
