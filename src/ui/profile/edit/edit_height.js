@@ -29,6 +29,43 @@ const EditHeight = ({route}) => {
   const currentHeights = unit === 'cm' ? cmHeights : ftHeights;
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          const heightData = data.height || '';
+          if (heightData) {
+            const [value, unitFromData] = heightData.split(' ');
+            const numericValue = parseFloat(value);
+            if (unitFromData === 'ft') {
+              setUnit('ft');
+              setSelectedHeight(numericValue);
+            } else {
+              setUnit('cm');
+              setSelectedHeight(Math.round(numericValue));
+            }
+          }
+        } else {
+          Alert.alert('Error', data.error || 'Failed to load user data.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load user data.');
+      }
+    };
+
+    fetchUserData();
+  }, [uid]);
+
+  useEffect(() => {
     const index = currentHeights.indexOf(selectedHeight);
     if (listRef.current && index !== -1) {
       listRef.current.scrollToOffset({ offset: index * 40, animated: true });

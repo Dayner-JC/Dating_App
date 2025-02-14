@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
@@ -19,6 +19,32 @@ const EditName = ({ route }) => {
     const regex = /^[A-Z][a-zA-Z]{2,}$/;
     return regex.test(input.trim());
   }, []);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setName(data.name || null);
+        } else {
+          Alert.alert('Error', data.error || 'Failed to load user data.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load user data.');
+      }
+    };
+
+    fetchUserData();
+  }, [uid]);
 
   const handleSaveChanges = async () => {
     if (validateName(name)) {
