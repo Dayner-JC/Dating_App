@@ -2378,6 +2378,13 @@
   resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
   integrity sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
 
+"@simform_solutions/react-native-audio-waveform@^2.1.3":
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/@simform_solutions/react-native-audio-waveform/-/react-native-audio-waveform-2.1.3.tgz#9d255db6ec376ca8e8555e0c1850c4961e9b8cbe"
+  integrity sha512-IPSUBz35iLF59gVIstay+1CWJYgoXL7jIUIsGPodSifvGlhAmb4H6sItEJTdfAjobLlK+K3j2kOADutsz56XqA==
+  dependencies:
+    lodash "^4.17.21"
+
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
@@ -6848,6 +6855,11 @@ react-native-draggable-flatlist@^4.0.1:
   dependencies:
     "@babel/preset-typescript" "^7.17.12"
 
+react-native-fast-image@^8.6.3:
+  version "8.6.3"
+  resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.6.3.tgz#6edc3f9190092a909d636d93eecbcc54a8822255"
+  integrity sha512-Sdw4ESidXCXOmQ9EcYguNY2swyoWmx53kym2zRsvi+VeFCHEdkO+WG1DK+6W81juot40bbfLNhkc63QnWtesNg==
+
 react-native-fbsdk-next@^13.3.0:
   version "13.4.1"
   resolved "https://registry.yarnpkg.com/react-native-fbsdk-next/-/react-native-fbsdk-next-13.4.1.tgz#e2cb0d0c40ac00abcecceb2ee24473e74c9d8e18"
@@ -6866,10 +6878,10 @@ react-native-geolocation-service@^5.3.1:
   resolved "https://registry.yarnpkg.com/react-native-geolocation-service/-/react-native-geolocation-service-5.3.1.tgz#4ce1017789da6fdfcf7576eb6f59435622af4289"
   integrity sha512-LTXPtPNmrdhx+yeWG47sAaCgQc3nG1z+HLLHlhK/5YfOgfLcAb9HAkhREPjQKPZOUx8pKZMIpdGFUGfJYtimXQ==
 
-react-native-gesture-handler@^2.21.2:
-  version "2.22.1"
-  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.22.1.tgz#869d2b5ffd8b19e44a36780b99cbd88826323353"
-  integrity sha512-E0C9D+Ia2UZYevoSV9rTKjhFWEVdR/3l4Z3TUoQrI/wewgzDlmJOrYvGW5aMlPUuQF2vHQOdFfAWhVEqFu4tWw==
+react-native-gesture-handler@^2.23.1:
+  version "2.23.1"
+  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.23.1.tgz#87b98c630cd3c5234cb63cc718dd22fd6feec34b"
+  integrity sha512-dr5CxIu+kXlxS3snSyt0qXtXGqfDvV26gtQVPNteFIfP0qWBuye/j48XPXePe2pH48QCuXpZM2VOooig7jzooA==
   dependencies:
     "@egjs/hammerjs" "^2.0.17"
     hoist-non-react-statics "^3.3.0"
