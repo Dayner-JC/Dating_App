@@ -100,7 +100,7 @@ const AccountScreen = () => {
     <View style={styles.container}>
       <StatusBar backgroundColor="#0A0F0D" />
       <View style={styles.appBar}>
-        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.navigate('Main')} />
       </View>
       <Text style={styles.title}>Profile</Text>
       <Text style={styles.sectionTitle}>Photos</Text>
@@ -185,7 +185,7 @@ const AccountScreen = () => {
         <ProfileItem
           label="Preference"
           value={userData?.preference || 'N/A'}
-          onEdit={() => navigation.navigate('EditPreferences', {uid: userId})}
+          onEdit={() => navigation.navigate('EditPreferences', {uid: userId, from: 'AccountScreen'})}
         />
         <ProfileItem
           label="Intentions"

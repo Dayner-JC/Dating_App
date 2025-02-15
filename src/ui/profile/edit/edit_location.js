@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useRef, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, Alert, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
@@ -137,7 +138,7 @@ const EditLocation = ({route}) => {
             )}
           </MapView>
         </View>
-        {loading && <ActivityIndicator size="large" color="#D97904" />}
+        {loading && <ActivityIndicator style = {{marginBottom: 20}} size="large" color="#D97904" />}
         {!locationAcquired ? (
           <TouchableOpacity style={styles.button} onPress={getCurrentLocation} disabled={loading}>
             <LocationIcon style={styles.icon} />

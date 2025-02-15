@@ -4,8 +4,10 @@ import IconButton from '../../components/icon_button';
 import NotificationsIcon from '../../../assets/icons/notifications.svg';
 import FilterIcon from '../../../assets/icons/filters.svg';
 import Flower from '../../../assets/splash_screen_flower/flower.svg';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeAppBar = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.appBar}>
       <Flower width={50} height={50} />
@@ -16,7 +18,7 @@ const HomeAppBar = () => {
         />
         <IconButton
           icon={<FilterIcon/>}
-          onPress={() => {}}
+          onPress={() => navigation.navigate('DatingPreferencesScreen')}
         />
       </View>
     </View>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
@@ -25,6 +25,32 @@ const EditIntentions = ({route}) => {
   const handleIntentionsSelect = (id) => {
     setSelectedIntentions(id);
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setSelectedIntentions(data.intentions || null);
+        } else {
+          Alert.alert('Error', data.error || 'Failed to load user data.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load user data.');
+      }
+    };
+
+    fetchUserData();
+  }, [uid]);
 
     const handleSaveChanges = async () => {
         try {

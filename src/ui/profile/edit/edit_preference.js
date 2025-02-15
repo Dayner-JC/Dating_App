@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
@@ -11,7 +11,7 @@ import API_BASE_URL from '../../../config/config';
 
 const EditPreferences = ({route}) => {
   const navigation = useNavigation();
-  const { uid } = route.params;
+  const { uid, from } = route.params;
   const [selectedGender, setSelectedGender] = useState(null);
 
   const genders = [
@@ -24,6 +24,32 @@ const EditPreferences = ({route}) => {
   const handleGenderSelect = (id) => {
     setSelectedGender(id);
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setSelectedGender(data.preference || null);
+        } else {
+          Alert.alert('Error', data.error || 'Failed to load user data.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load user data.');
+      }
+    };
+
+    fetchUserData();
+  }, [uid]);
 
     const handleSaveChanges = async () => {
         try {
@@ -41,12 +67,11 @@ const EditPreferences = ({route}) => {
           const data = await response.json();
 
           if (data.success) {
-            navigation.goBack();
+            navigation.navigate(from);
           } else {
             Alert.alert(data.error || 'Error updating preference.');
           }
         } catch (error) {
-          console.error('Error updating preference:', error);
           Alert.alert('Failed to update preference.');
         }
     };
@@ -55,7 +80,7 @@ const EditPreferences = ({route}) => {
     <View style={styles.container}>
         <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.goBack()} />
+         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.navigate(from)} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Preference</Text>
@@ -78,6 +103,7 @@ const EditPreferences = ({route}) => {
             >
               {gender.label}
             </Text>
+            <View style={[styles.circle, selectedGender === gender.id && styles.selectedCircle]}/>
           </TouchableOpacity>
         ))}
         </View>
@@ -157,13 +183,16 @@ const styles = StyleSheet.create({
     marginVertical: 35,
   },
   genderOption: {
+    flexDirection: 'row',
     backgroundColor: '#5258531A',
     borderColor: '#525853',
     borderWidth: 2,
     borderRadius: 8,
-    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 15,
     height: 56,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
   },
   selectedOption: {
     backgroundColor: '#3A341B',
@@ -177,6 +206,18 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     color: '#FFFFFF',
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderWidth: 0.5,
+    borderColor: '#DADADA',
+    borderRadius: 4,
+  },
+  selectedCircle: {
+    borderWidth: 3.5,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D97904',
   },
   petalsContainer: {
     position: 'absolute',

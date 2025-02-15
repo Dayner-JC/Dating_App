@@ -23,8 +23,6 @@ const ProfileScreen = ({route, navigation}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showChatButton, setShowChatButton] = useState(false);
 
-  console.log('user: ', user);
-
   const handleScroll = event => {
     const index = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
     setCurrentIndex(index);
