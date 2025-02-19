@@ -14,7 +14,7 @@ const HomeAppBar = () => {
       <View style={styles.buttonContainer}>
         <IconButton
           icon={<NotificationsIcon/>}
-          onPress={() => {}}
+          onPress={() => navigation.navigate('NotificationsScreen')}
         />
         <IconButton
           icon={<FilterIcon/>}

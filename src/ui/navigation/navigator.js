@@ -46,6 +46,8 @@ import HelpCenterScreen from '../help_center/help_center_screen';
 import ProfileScreen from '../main/profile_screen';
 import UploadProfilePictureScreen from '../profile/profile_picture/upload_profile_picture_screen';
 import DatingPreferencesScreen from '../main/account/dating_preferences/dating_preferences_screen';
+import NotificationsScreen from '../notifications/NotificationsScreen';
+
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -59,6 +61,7 @@ const Navigator = () => {
         <Stack.Screen name="RegisterEmailScreen" component={RegisterEmailScreen} />
         <Stack.Screen name="PhoneAfterEmail" component={PhoneAfterEmail} />
         <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
         <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
         <Stack.Screen name="VerifyCodeScreen" component={VerifyCodeScreen} />
         <Stack.Screen name="VerifyCodeEmailScreen" component={VerifyCodeEmailScreen} />
