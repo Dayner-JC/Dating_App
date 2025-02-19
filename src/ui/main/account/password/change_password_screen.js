@@ -17,7 +17,6 @@ import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
 import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
-import {useFocusEffect} from '@react-navigation/native';
 import Button from '../../../components/button';
 import API_BASE_URL from '../../../../config/config';
 
@@ -27,6 +26,8 @@ const ChangePasswordScreen = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const user = auth().currentUser;
+  const email = user.email;
 
   const isPasswordValid =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(
@@ -36,14 +37,11 @@ const ChangePasswordScreen = () => {
   const handlePasswordToggle = () => setShowPassword(prev => !prev);
 
   const verifyCurrentPassword = async () => {
-    const user = auth().currentUser;
 
     if (!user || !user.email) {
       Alert.alert('Error', 'Your section login has expired please log back in.');
       return;
     }
-
-    const email = user.email;
 
     try {
       const credential = auth.EmailAuthProvider.credential(email, password);
@@ -57,14 +55,11 @@ const ChangePasswordScreen = () => {
 
   const requestPasswordReset = async () => {
     try {
-      const user = auth().currentUser;
 
-      if (!user || !user.email) {
+      if (!user || !email) {
         Alert.alert('Error', 'Your section login has expired please log back in.');
         return;
       }
-
-      const email = user.email;
 
       const response = await fetch(`${API_BASE_URL}/auth/login/password-reset/request`, {
         method: 'POST',

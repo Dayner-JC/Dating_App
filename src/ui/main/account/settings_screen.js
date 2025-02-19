@@ -22,6 +22,7 @@ import DeleteIcon1 from '../../../assets/icons/trash-white.svg';
 import DeleteIcon from '../../../assets/icons/trash.svg';
 import auth from '@react-native-firebase/auth';
 import API_BASE_URL from '../../../config/config';
+import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
 
 const MenuItem = ({icon: Icon, text, onPress}) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -33,11 +34,11 @@ const MenuItem = ({icon: Icon, text, onPress}) => (
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
+  const uid = getCurrentUserUID();
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleDeleteUser = async () => {
     const user = auth().currentUser;
-    const uid = user.uid;
 
     if (!uid) {
       console.error('No authenticated user found.');
@@ -55,7 +56,6 @@ const SettingsScreen = () => {
 
       const result = await response.json();
       if (response.ok && result.success) {
-        console.log('User deleted successfully');
 
         await user.delete();
 

@@ -5,6 +5,8 @@ import ArrowIcon from '../../assets/icons/arrow-left.svg';
 import { useNavigation } from '@react-navigation/native';
 import * as Progress from 'react-native-progress';
 import { validateAndSendAccount } from '../../infrastructure/auth/validation/account_validation';
+import { setCurrentUserUID } from '../../infrastructure/uid/uid';
+import auth from '@react-native-firebase/auth';
 import Step1 from './steps/step_1';
 import Step2 from './steps/step_2';
 import Step3 from './steps/step_3';
@@ -46,10 +48,12 @@ const ProfileCreationSteps = () => {
 
   const goNext = async () => {
     if (currentStep === steps.length - 1) {
+      const currentUser = auth().currentUser;
+      setCurrentUserUID(currentUser.uid);
       const response = await validateAndSendAccount(formData);
 
       if (response.success) {
-        navigation.navigate('Main');
+          navigation.navigate('Main');
       } else {
         Alert.alert('Error', `There were issues: ${Object.values(response.errors).join(', ')}`);
       }

@@ -15,9 +15,10 @@ import Petal1 from '../../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
 import API_BASE_URL from '../../../../config/config';
-import auth from '@react-native-firebase/auth';
+import { getCurrentUserUID } from '../../../../infrastructure/uid/uid';
 
 const ChangeEmailScreen = () => {
+  const uid = getCurrentUserUID();
   const [email, setEmail] = useState('');
   const [confirmEmail, setconfirmEmail] = useState('');
   const [isFocused, setIsFocused] = useState({
@@ -34,18 +35,17 @@ const ChangeEmailScreen = () => {
   const isButtonEnabled = isEmailValid && emailsMatch;
 
   const updateEmail = async () => {
-    const currentUser = auth().currentUser;
 
     const response = await fetch(`${API_BASE_URL}/profile/email/request-change`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({uid: currentUser.uid, email: email}),
+      body: JSON.stringify({uid: uid, email: email}),
     });
 
     if (response.ok) {
-      navigation.navigate('VerifyCodeChangeEmailScreen', {uid: currentUser.uid, email: email});
+      navigation.navigate('VerifyCodeChangeEmailScreen', {uid: uid, email: email});
     } else {
       Alert.alert('Error', 'Error send verification code');
     }

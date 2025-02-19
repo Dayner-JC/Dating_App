@@ -10,9 +10,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Slider } from '@miblanchard/react-native-slider';
-import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import API_BASE_URL from '../../../../config/config';
+import { getCurrentUserUID } from '../../../../infrastructure/uid/uid';
 
 const DatingPreferencesScreen = () => {
   const navigation = useNavigation();
@@ -22,8 +22,7 @@ const DatingPreferencesScreen = () => {
   const [loading, setLoading] = useState(true);
   const [photoRangeIndex, setPhotoRangeIndex] = useState([2, 6]);
 
-  const currentUser = auth().currentUser;
-  const uid = currentUser?.uid;
+  const uid = getCurrentUserUID();
 
   useEffect(() => {
     const fetchPreferences = async () => {

@@ -14,6 +14,7 @@ import ArrowRightIcon from '../../../assets/icons/arrow-right.svg';
 import LogoutIcon2 from '../../../assets/icons/logout-2.svg';
 import { useNavigation } from '@react-navigation/native';
 import API_BASE_URL from '../../../config/config';
+import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
 
 const MenuItem = ({ icon: Icon, text, onPress }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -27,25 +28,21 @@ export default function ProfileFragment() {
   const [modalVisible, setModalVisible] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profileName, setProfileName] = useState(null);
-  const [userId, setUserId] = useState(null);
+  const uid = getCurrentUserUID();
   const navigation = useNavigation();
 
-  const fetchProfilePhotoAndName = async () => {
+  const fetchProfilePhotoAndName = useCallback(async () => {
     try {
-      const currentUser = auth().currentUser;
-      if (!currentUser) {
+      if (!uid) {
         console.error('No authenticated user found');
         return;
       }
 
-      setUserId(currentUser.uid);
-
       const response = await fetch(`${API_BASE_URL}/profile/photos/get`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.uid }),
+        body: JSON.stringify({ userId: uid }),
       });
-
       const photo = await response.json();
       if (photo.success && photo.images.length > 0) {
         setProfilePhoto(photo.images[0]);
@@ -54,34 +51,25 @@ export default function ProfileFragment() {
       const responseName = await fetch(`${API_BASE_URL}/profile/get-name`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.uid }),
+        body: JSON.stringify({ userId: uid }),
       });
-
       const dataName = await responseName.json();
-
       if (dataName.success) {
         setProfileName(dataName.name);
       }
-
     } catch (error) {
       console.error('Error fetching profile data:', error);
     }
-  };
+  }, [uid]);
 
   useFocusEffect(
     useCallback(() => {
       fetchProfilePhotoAndName();
-    }, [])
+    }, [fetchProfilePhotoAndName])
   );
 
   const handleLogout = async () => {
     try {
-      const currentUser = auth().currentUser;
-
-      if (!currentUser) {
-        console.error('No authenticated user found');
-        return;
-      }
 
     await auth().signOut();
     navigation.reset({
@@ -104,7 +92,7 @@ export default function ProfileFragment() {
             source={{ uri: profilePhoto }}
             style={styles.profileImage}
           />
-          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('UploadProfilePictureScreen', {uid: userId})}>
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('UploadProfilePictureScreen', {uid: uid})}>
             <EditImgIcon />
           </TouchableOpacity>
         </View>

@@ -1,7 +1,6 @@
 import API_BASE_URL from '../../../config/config';
 
 export const fetch2FASetup = async (userId) => {
-  console.log('userId: ', userId);
   const response = await fetch(
     `${API_BASE_URL}/auth/2fa/app-generate`,
     {

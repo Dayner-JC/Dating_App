@@ -18,9 +18,9 @@ import Dislike from '../../../assets/icons/dislike.svg';
 import Hand from '../../../assets/icons/hand-swipe.svg';
 import DislikeSwipe from '../../../assets/icons/dislike-swipe.svg';
 import LikeSwipe from '../../../assets/icons/like-swipe.svg';
-import auth from '@react-native-firebase/auth';
 import API_BASE_URL from '../../../config/config';
 import { useNavigation } from '@react-navigation/native';
+import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
 
 const { height, width } = Dimensions.get('window');
 
@@ -28,17 +28,15 @@ export default function HomeFragment() {
   const navigation = useNavigation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [uid, setUid] = useState(null);
+  const uid = getCurrentUserUID();
 
   useEffect(() => {
-    const user = auth().currentUser;
-    setUid(user.uid);
     const loadUsers = async () => {
       try {
         const userResponse = await fetch(`${API_BASE_URL}/get_users/get`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: user.uid }),
+          body: JSON.stringify({ uid: uid }),
         });
         const data = await userResponse.json();
         setUsers(data);
@@ -49,7 +47,7 @@ export default function HomeFragment() {
       }
     };
     loadUsers();
-  }, []);
+  }, [uid]);
 
   const calculateAge = (birthday) => {
     if (!birthday) {

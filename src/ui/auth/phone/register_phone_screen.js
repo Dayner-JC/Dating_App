@@ -12,7 +12,6 @@ import EmailIcon from '../../../assets/icons/email.svg';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { handlePhoneRegister } from '../../../infrastructure/auth/register/register_phone';
 import { registerWithGoogle } from '../../../infrastructure/auth/register/register_google';
-//import { registerWithFacebook } from '../../infrastructure/auth/register/register_facebook';
 import Petal1 from '../../../assets/splash_screen_flower/petals/petal_12.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_13.svg';

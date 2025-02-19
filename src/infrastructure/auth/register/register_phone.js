@@ -17,7 +17,6 @@ export const handlePhoneRegister = async (callingCode, phoneNumber) => {
     const confirmation = await auth().signInWithPhoneNumber(`${callingCode}${phoneNumber}`);
     return confirmation.verificationId;
   } catch (error) {
-    console.log('Error: ', error);
     Alert.alert('Error', 'Failed to send verification code.');
     return null;
   }

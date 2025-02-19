@@ -1,6 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, StatusBar } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+  StatusBar,
+} from 'react-native';
+import {launchImageLibrary} from 'react-native-image-picker';
 import InputIcon from '../../../assets/icons/input.svg';
 import DeleteIcon from '../../../assets/icons/delete.svg';
 import IconButton from '../../components/icon_button';
@@ -9,119 +17,159 @@ import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
 import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
-import { useNavigation } from '@react-navigation/native';
-import { readFile } from 'react-native-fs';
+import {useNavigation} from '@react-navigation/native';
+import {readFile} from 'react-native-fs';
 import API_BASE_URL from '../../../config/config';
 
 const EditPhotos = ({route}) => {
   const navigation = useNavigation();
-  const { uid } = route.params;
-  const [photos, setPhotos] = useState([null, null, null, null, null, null]);
+  const {uid} = route.params;
 
-  const handleSelectPhoto = (index) => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
+  const [photos, setPhotos] = useState(Array(6).fill(null));
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile/photos/get`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({userId: uid}),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          const updatedPhotos = Array(6).fill(null);
+          data.images.forEach((url, index) => {
+            if (url) {
+              updatedPhotos[index] = {original: true, uri: url};
+            }
+          });
+          setPhotos(updatedPhotos);
+        } else {
+          Alert.alert(
+            'Error',
+            data.error,
+          );
+        }
+      } catch (error) {
+        Alert.alert('Error', error);
+      }
     };
 
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
-        Alert.alert('Selección cancelada');
-      } else if (response.errorMessage) {
-        Alert.alert('Error seleccionando imagen', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
+    fetchPhotos();
+  }, [uid]);
+
+  const handleSelectPhoto = index => {
+    const options = {mediaType: 'photo', quality: 1};
+    launchImageLibrary(options, async response => {
+      if (response.didCancel || response.errorMessage) {
+        return;
+      }
+      if (response.assets?.[0]) {
         try {
           const selectedImage = response.assets[0];
           const base64Image = await readFile(selectedImage.uri, 'base64');
-
-          const imagePayload = {
+          const newPhoto = {
+            original: false,
             image: base64Image,
             fileName: selectedImage.fileName || `image_${index}.jpg`,
             type: selectedImage.type || 'image/jpeg',
           };
-
-          const newPhotos = [...photos];
-          newPhotos[index] = imagePayload;
-          setPhotos(newPhotos);
+          const updatedPhotos = [...photos];
+          updatedPhotos[index] = newPhoto;
+          setPhotos(updatedPhotos);
         } catch (error) {
-          Alert.alert('Error', 'No se pudo procesar la imagen');
-          console.error('Error al leer la imagen:', error);
+          Alert.alert('Error', error);
         }
       }
     });
   };
 
-  const handleDeletePhoto = (index) => {
-    const newPhotos = [...photos];
-    newPhotos[index] = null;
-    setPhotos(newPhotos);
+  const handleDeletePhoto = index => {
+    const updatedPhotos = [...photos];
+    updatedPhotos[index] = null;
+    setPhotos(updatedPhotos);
+  };
+
+  const getPhotoUri = index => {
+    const photo = photos[index];
+    if (!photo) {
+      return null;
+    }
+    return photo.original
+      ? photo.uri
+      : `data:${photo.type};base64,${photo.image}`;
   };
 
   const handleSaveChanges = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/profile/edit/edit-photos`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: uid,
-            photos: photos,
-          }),
-        });
+    try {
+      const mergedPhotos = photos
+        .filter(photo => photo !== null)
+        .map(photo =>
+          photo.original
+            ? {original: true, uri: photo.uri}
+            : {
+                original: false,
+                image: photo.image,
+                type: photo.type,
+                fileName: photo.fileName,
+              },
+        );
 
-        const data = await response.json();
+      const response = await fetch(`${API_BASE_URL}/profile/edit/edit-photos`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userId: uid, photos: mergedPhotos}),
+      });
 
-        if (data.success) {
-          navigation.goBack();
-        } else {
-          Alert.alert(data.error || 'Error updating photos.');
-        }
-      } catch (error) {
-        console.error('Error updating photos:', error);
-        Alert.alert('Failed to update photos.');
+      const data = await response.json();
+      if (data.success) {
+        navigation.goBack();
+      } else {
+        Alert.alert('Error', data.error);
       }
+    } catch (error) {
+      Alert.alert('Error', error);
+    }
   };
 
   return (
     <View style={styles.container}>
-        <StatusBar backgroundColor="#17261F" />
+      <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={()=>navigation.goBack()} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Photos</Text>
-        <Text style={styles.subtitle}>
-          Upload your photos and videos. Upload at least 1 photo to start. Add 4 or more to shine.
-        </Text>
         <View style={styles.photoGrid}>
-          {photos.map((photo, index) => (
-            <View key={index} style={styles.photoWrapper}>
-              <TouchableOpacity
-                style={[
-                  styles.photoContainer,
-                  photo ? styles.solidBorder : styles.dashedBorder,
-                ]}
-                onPress={() => handleSelectPhoto(index)}
-              >
-                {photo ? (
-                  <Image source={{ uri: `data:${photo.type};base64,${photo.image}` }} style={styles.photo} />
-                ) : (
-                  <View style={styles.placeholder}>
-                    <InputIcon width={'100%'} height={'100%'} />
-                  </View>
-                )}
-              </TouchableOpacity>
-              {photo && (
+          {Array.from({length: 6}).map((_, index) => {
+            const uri = getPhotoUri(index);
+            return (
+              <View key={index} style={styles.photoWrapper}>
                 <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDeletePhoto(index)}
-                >
-                  <DeleteIcon />
+                  style={[
+                    styles.photoContainer,
+                    uri ? styles.solidBorder : styles.dashedBorder,
+                  ]}
+                  onPress={() => handleSelectPhoto(index)}>
+                  {uri ? (
+                    <Image source={{uri}} style={styles.photo} />
+                  ) : (
+                    <View style={styles.placeholder}>
+                      <InputIcon width="100%" height="100%" />
+                    </View>
+                  )}
                 </TouchableOpacity>
-              )}
-            </View>
-          ))}
+                {uri && (
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeletePhoto(index)}>
+                    <DeleteIcon />
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
+          })}
         </View>
         <Button
           title="Save changes"
@@ -131,10 +179,10 @@ const EditPhotos = ({route}) => {
           disabledBackgroundColor="#8b580f"
           disabledTextColor="#a2a8a5"
           borderRadius={100}
-          width={'100%'}
+          width="100%"
           height={55}
           onPress={handleSaveChanges}
-          disabled={photos.filter(Boolean).length < 1}
+          disabled={photos.every(photo => photo === null)}
         />
         <Button
           title="Cancel"
@@ -152,11 +200,11 @@ const EditPhotos = ({route}) => {
       </View>
       <View style={styles.petalsContainer}>
         <View style={styles.singlePetal}>
-            <Petal1 style={styles.petal1} />
+          <Petal1 style={styles.petal1} />
         </View>
         <View style={styles.doublePetals}>
-            <Petal2 style={styles.petal2} />
-            <Petal3 style={styles.petal3} />
+          <Petal2 style={styles.petal2} />
+          <Petal3 style={styles.petal3} />
         </View>
       </View>
     </View>
@@ -245,7 +293,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     elevation: 5,
   },
   deleteText: {

@@ -1,5 +1,6 @@
+/* eslint-disable no-shadow */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Alert, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import IconButton from '../../components/icon_button';
@@ -13,15 +14,78 @@ import LocationIcon from '../../../assets/icons/gps.svg';
 import Button from '../../components/button';
 import API_BASE_URL from '../../../config/config';
 
-const EditLocation = ({route}) => {
+const EditLocation = ({ route }) => {
   const navigation = useNavigation();
   const { uid } = route.params;
-
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState(null);
   const [locationAcquired, setLocationAcquired] = useState(false);
   const mapRef = useRef(null);
+
+  const forwardGeocode = useCallback(async (address) => {
+    try {
+      const query = `${address.city}, ${address.state}, ${address.country}`;
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`
+      );
+      const data = await response.json();
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
+        return { latitude, longitude };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          const locationData = data.location;
+          setAddress(locationData);
+          const coordinates = await forwardGeocode(locationData);
+          if (coordinates) {
+            setSelectedLocation(coordinates);
+            if (mapRef.current) {
+              mapRef.current.animateToRegion(
+                {
+                  ...coordinates,
+                  latitudeDelta: 0.0922,
+                  longitudeDelta: 0.0421,
+                },
+                1000
+              );
+            }
+          }
+        } else {
+          Alert.alert('Error', data.error || 'Failed to load user data.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load user data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [uid, forwardGeocode]);
 
   const reverseGeocode = useCallback(async (latitude, longitude) => {
     try {
@@ -30,9 +94,7 @@ const EditLocation = ({route}) => {
       );
       const data = await response.json();
       setAddress(data.address);
-      console.log('Address:', data.address);
     } catch (error) {
-      console.error('Error geocodificando la ubicación:', error);
     }
   }, []);
 
@@ -44,22 +106,22 @@ const EditLocation = ({route}) => {
         const newLocation = { latitude, longitude };
         setSelectedLocation(newLocation);
         await reverseGeocode(latitude, longitude);
-
         if (mapRef.current) {
-          mapRef.current.animateToRegion({
-            latitude,
-            longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }, 1000);
+          mapRef.current.animateToRegion(
+            {
+              latitude,
+              longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            },
+            1000
+          );
         }
-
         setLoading(false);
         setLocationAcquired(true);
       },
       (error) => {
-        Alert.alert('Error', 'No se pudo obtener la ubicación');
-        console.error('Geolocation error:', error);
+        Alert.alert('Error', error);
         setLoading(false);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
@@ -71,52 +133,50 @@ const EditLocation = ({route}) => {
     const newLocation = { latitude, longitude };
     setSelectedLocation(newLocation);
     await reverseGeocode(latitude, longitude);
-
     if (mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude,
-        longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }, 1000);
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000
+      );
     }
   };
 
   const handleContinue = async () => {
     const locationData = {
-      country: address.country,
-      state: address.state,
+      address,
     };
-          try {
-            const response = await fetch(`${API_BASE_URL}/profile/edit/edit-location`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                userId: uid,
-                location: locationData,
-              }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              navigation.goBack();
-            } else {
-              Alert.alert(data.error || 'Error updating location.');
-            }
-          } catch (error) {
-            console.error('Error updating location:', error);
-            Alert.alert('Failed to update location.');
-          }
+    try {
+      const response = await fetch(`${API_BASE_URL}/profile/edit/edit-location`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: uid,
+          location: locationData,
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        navigation.goBack();
+      } else {
+        Alert.alert(data.error || 'Error updating location.');
+      }
+    } catch (error) {
+      Alert.alert('Failed to update location.');
+    }
   };
 
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#0A0F0D" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Location</Text>
@@ -138,7 +198,7 @@ const EditLocation = ({route}) => {
             )}
           </MapView>
         </View>
-        {loading && <ActivityIndicator style = {{marginBottom: 20}} size="large" color="#D97904" />}
+        {loading && <ActivityIndicator style={{ marginBottom: 20 }} size="large" color="#D97904" />}
         {!locationAcquired ? (
           <TouchableOpacity style={styles.button} onPress={getCurrentLocation} disabled={loading}>
             <LocationIcon style={styles.icon} />
@@ -147,7 +207,7 @@ const EditLocation = ({route}) => {
         ) : (
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleContinue()}
+            onPress={handleContinue}
             disabled={!selectedLocation}
           >
             <Text style={styles.buttonText}>Save changes</Text>
