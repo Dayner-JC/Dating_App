@@ -9,7 +9,7 @@ import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
 import API_BASE_URL from '../../../config/config';
 
-const EditBirthday = ({route}) => {
+const EditBirthday = ({ route }) => {
   const navigation = useNavigation();
   const { uid } = route.params;
   const codeLength = 8;
@@ -17,21 +17,6 @@ const EditBirthday = ({route}) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const inputsRef = useRef([]);
-
-  const handleCodeChange = (text, index) => {
-    const newCodeArray = [...codeArray];
-    newCodeArray[index] = text;
-
-    if (text.length > 0 && index < codeLength - 1) {
-      inputsRef.current[index + 1]?.focus();
-    }
-
-    if (text === '' && index > 0) {
-      inputsRef.current[index - 1]?.focus();
-    }
-
-    setCodeArray(newCodeArray);
-  };
 
   const validateDate = (month, day, year) => {
     const monthNumber = parseInt(month, 10);
@@ -45,13 +30,58 @@ const EditBirthday = ({route}) => {
     ) {
       return false;
     }
-
     const daysInMonth = [31, (yearNumber % 4 === 0 && yearNumber % 100 !== 0 || yearNumber % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     if (dayNumber > daysInMonth[monthNumber - 1]) {
       return false;
     }
-
     return true;
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          const birthday = data.birthday || '';
+          if (birthday) {
+            const [month, day, year] = birthday.split('/');
+            const newCodeArray = [
+              month[0] || '', month[1] || '',
+              day[0] || '', day[1] || '',
+              year[0] || '', year[1] || '', year[2] || '', year[3] || '',
+            ];
+            setCodeArray(newCodeArray);
+          }
+        } else {
+          Alert.alert('Error', data.error || 'Failed to load user data.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load user data.');
+      }
+    };
+
+    fetchUserData();
+  }, [uid]);
+
+  const handleCodeChange = (text, index) => {
+    const newCodeArray = [...codeArray];
+    newCodeArray[index] = text;
+    if (text.length > 0 && index < codeLength - 1) {
+      inputsRef.current[index + 1]?.focus();
+    }
+    if (text === '' && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+    setCodeArray(newCodeArray);
   };
 
   useEffect(() => {
@@ -97,7 +127,7 @@ const EditBirthday = ({route}) => {
     <View style={styles.container}>
       <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
-         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
+        <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>Edit Birthday</Text>

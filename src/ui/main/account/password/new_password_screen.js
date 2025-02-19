@@ -25,6 +25,7 @@ const NewPasswordScreen = ({route}) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const user = auth().currentUser;
   const [isFocused, setIsFocused] = useState({
     password: false,
     confirmPassword: false,
@@ -42,9 +43,8 @@ const NewPasswordScreen = ({route}) => {
 
   const updatePassword = async () => {
     try {
-      const user = auth().currentUser;
 
-      if (!user || !user.email) {
+      if (!user || !email) {
         Alert.alert('Error', 'Your section login has expired please log back in.');
         return;
       }

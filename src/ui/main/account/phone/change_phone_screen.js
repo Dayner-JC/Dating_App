@@ -11,7 +11,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Petal2 from '../../../../assets/splash_screen_flower/petals/petal_8.svg';
 import Petal3 from '../../../../assets/splash_screen_flower/petals/petal_9.svg';
 import Petal4 from '../../../../assets/splash_screen_flower/petals/petal_10.svg';
-import { handlePhoneRegister } from '../../../../infrastructure/auth/register/register_phone';
 
 const ChangePhoneScreen = () => {
     const navigation = useNavigation();

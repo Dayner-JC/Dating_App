@@ -13,7 +13,7 @@ const ProfileVisibilityScreen = ({ route }) => {
   const navigation = useNavigation();
   const { uid } = route.params;
   const [selectedOption, setSelectedOption] = useState(null);
-  const [privacySettings, setPrivacySettings] = useState(null); // Estado para almacenar todas las configuraciones
+  const [privacySettings, setPrivacySettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const options = [
@@ -22,7 +22,6 @@ const ProfileVisibilityScreen = ({ route }) => {
     { id: 'hide', label: 'Hide profile temporarily' },
   ];
 
-  // Cargar las configuraciones actuales del usuario
   useEffect(() => {
     const fetchPrivacySettings = async () => {
       try {
@@ -52,24 +51,21 @@ const ProfileVisibilityScreen = ({ route }) => {
       } catch (error) {
         console.error('Error fetching privacy settings:', error);
       } finally {
-        setLoading(false); // Finalizar la carga
+        setLoading(false);
       }
     };
 
     fetchPrivacySettings();
   }, [uid]);
 
-  // Manejar la selección de una opción
   const handleOptionSelect = (id) => {
     setSelectedOption(id);
   };
 
-  // Guardar los cambios en la base de datos
   const handleSaveChanges = async () => {
     if (!selectedOption || !privacySettings) {return;}
 
     try {
-      // Actualizar solo el campo profileVisibility dentro de privacySettings
       const updatedPrivacySettings = {
         ...privacySettings,
         profileVisibility: {

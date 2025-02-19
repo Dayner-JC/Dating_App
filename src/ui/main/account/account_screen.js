@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -13,58 +13,53 @@ import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import InputIcon from '../../../assets/icons/input.svg';
 import {useNavigation} from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
 import {useFocusEffect} from '@react-navigation/native';
 import API_BASE_URL from '../../../config/config';
+import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
 
 const AccountScreen = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null);
+  const uid = getCurrentUserUID();
   const [images, setImages] = useState([]);
 
-  const fetchUserData = async () => {
-    const user = auth().currentUser;
-    if (user) {
-      setUserId(user.uid);
-      try {
-        const userResponse = await fetch(
-          `${API_BASE_URL}/profile/request-data`,
-          {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({userId: user.uid}),
-          },
-        );
-        const data = await userResponse.json();
-        setUserData(data);
-
-        const imagesResponse = await fetch(
-          `${API_BASE_URL}/profile/photos/get`,
-          {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({userId: user.uid}),
-          },
-        );
-        const imagesData = await imagesResponse.json();
-
-        if (imagesData.success) {
-          setImages(imagesData.images);
+  const fetchUserData = useCallback(async () => {
+    try {
+      const userResponse = await fetch(
+        `${API_BASE_URL}/profile/request-data`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: uid }),
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
+      );
+      const data = await userResponse.json();
+      setUserData(data);
+
+      const imagesResponse = await fetch(
+        `${API_BASE_URL}/profile/photos/get`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: uid }),
+        }
+      );
+      const imagesData = await imagesResponse.json();
+      if (imagesData.success) {
+        setImages(imagesData.images);
       }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [uid]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchUserData();
-    }, []),
+    }, [fetchUserData])
   );
 
   const calculateAge = birthday => {
@@ -135,7 +130,7 @@ const AccountScreen = () => {
       <TouchableOpacity>
         <Text
           style={styles.editButton}
-          onPress={() => navigation.navigate('EditPhotos', {uid: userId})}>
+          onPress={() => navigation.navigate('EditPhotos', {uid: uid})}>
           Edit photos
         </Text>
       </TouchableOpacity>
@@ -146,17 +141,17 @@ const AccountScreen = () => {
         <ProfileItem
           label="Your Name"
           value={userData?.name || 'N/A'}
-          onEdit={() => navigation.navigate('EditName', {uid: userId})}
+          onEdit={() => navigation.navigate('EditName', {uid: uid})}
         />
         <ProfileItem
           label="Personal description"
           value={userData?.description || 'N/A'}
-          onEdit={() => navigation.navigate('EditAbout', {uid: userId})}
+          onEdit={() => navigation.navigate('EditAbout', {uid: uid})}
         />
         <ProfileItem
           label="Interests and hobbies"
           value={userData.interests ? userData.interests.join(', ') : 'N/A'}
-          onEdit={() => navigation.navigate('EditInterests', {uid: userId})}
+          onEdit={() => navigation.navigate('EditInterests', {uid: uid})}
         />
         <ProfileItem
           label="Location"
@@ -165,32 +160,32 @@ const AccountScreen = () => {
               ? `${userData.location.country}, ${userData.location.state}`
               : 'N/A'
           }
-          onEdit={() => navigation.navigate('EditLocation', {uid: userId})}
+          onEdit={() => navigation.navigate('EditLocation', {uid: uid})}
         />
         <ProfileItem
           label="Age"
           value={userData?.birthday ? calculateAge(userData.birthday) : 'N/A'}
-          onEdit={() => navigation.navigate('EditBirthday', {uid: userId})}
+          onEdit={() => navigation.navigate('EditBirthday', {uid: uid})}
         />
         <ProfileItem
           label="Height"
           value={userData?.height?.toString() || 'N/A'}
-          onEdit={() => navigation.navigate('EditHeight', {uid: userId})}
+          onEdit={() => navigation.navigate('EditHeight', {uid: uid})}
         />
         <ProfileItem
           label="Gender"
           value={userData?.gender || 'N/A'}
-          onEdit={() => navigation.navigate('EditGender', {uid: userId})}
+          onEdit={() => navigation.navigate('EditGender', {uid: uid})}
         />
         <ProfileItem
           label="Preference"
           value={userData?.preference || 'N/A'}
-          onEdit={() => navigation.navigate('EditPreferences', {uid: userId, from: 'AccountScreen'})}
+          onEdit={() => navigation.navigate('EditPreferences', {uid: uid, from: 'AccountScreen'})}
         />
         <ProfileItem
           label="Intentions"
           value={userData?.intentions || 'N/A'}
-          onEdit={() => navigation.navigate('EditIntentions', {uid: userId})}
+          onEdit={() => navigation.navigate('EditIntentions', {uid: uid})}
         />
       </ScrollView>
     </View>

@@ -4,11 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import API_BASE_URL from '../../../config/config';
-import auth from '@react-native-firebase/auth';
+import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
 
 const PrivacyManagementScreen = () => {
   const navigation = useNavigation();
-  const [userId, setUserId] = useState(null);
+  const uid = getCurrentUserUID();
   const [notifications, setNotifications] = useState({
     newMessages: true,
     likesReceived: true,
@@ -29,23 +29,14 @@ const PrivacyManagementScreen = () => {
 
 
   useEffect(() => {
-    const currentUser = auth().currentUser;
-    if (currentUser) {
-      setUserId(currentUser.uid);
-    } else {
-      Alert.alert('Error', 'User not authenticated');
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!userId) {return;}
+    if (!uid) {return;}
 
     const fetchPrivacySettings = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/user/privacy-settings/get`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: userId }),
+          body: JSON.stringify({ uid: uid }),
         });
         const data = await response.json();
 
@@ -75,7 +66,7 @@ const PrivacyManagementScreen = () => {
     };
 
     fetchPrivacySettings();
-  }, [userId]);
+  }, [uid]);
 
   if (loading) {
     return (
@@ -90,7 +81,7 @@ const PrivacyManagementScreen = () => {
       const response = await fetch(`${API_BASE_URL}/user/privacy-settings/put`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: userId, privacySettings: updatedSettings }),
+        body: JSON.stringify({ uid: uid, privacySettings: updatedSettings }),
       });
 
       const data = await response.json();
@@ -185,7 +176,7 @@ const PrivacyManagementScreen = () => {
           <Text style={styles.sectionTitle}>Profile Visibility</Text>
           <View style={styles.row}>
             <Text style={styles.text}>{profileVisibility}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('ProfileVisibilityScreen', { uid: userId })}>
+            <TouchableOpacity onPress={() => navigation.navigate('ProfileVisibilityScreen', { uid: uid })}>
               <Text style={styles.editText}>Edit</Text>
             </TouchableOpacity>
           </View>

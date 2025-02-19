@@ -135,32 +135,6 @@ const LoginPhoneScreen = () => {
     }
   };
 
-  const handleFacebookLogin = async () => {
-    try {
-      const result = await validateFacebookLogin();
-      if (result?.success) {
-        navigation.navigate('Main');
-      } else {
-        Alert.alert('Login Failed', 'Facebook login failed.');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Something went wrong during Facebook login.');
-    }
-  };
-
-  const handleAppleLogin = async () => {
-    try {
-      const result = await validateAppleLogin();
-      if (result?.success) {
-        navigation.navigate('Main');
-      } else {
-        Alert.alert('Login Failed', 'Apple login failed.');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Something went wrong during Apple login.');
-    }
-  };
-
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}

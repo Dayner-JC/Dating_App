@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
-import auth from '@react-native-firebase/auth';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import Button from '../../components/button';
@@ -9,40 +8,27 @@ import BarCodeIcon from '../../../assets/icons/scan-barcode.svg';
 import MessageWhiteIcon from '../../../assets/icons/message-white.svg';
 import BarCodeWhiteIcon from '../../../assets/icons/scan-barcode-white.svg';
 import API_BASE_URL from '../../../config/config';
+import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
 
 const TwoFAEnableScreen = ({ navigation }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const uid = getCurrentUserUID();
 
   const handleContinue = async () => {
     if (selectedOption === 'app') {
       setIsLoading(true);
-      const currentUser = auth().currentUser;
-      const userId = currentUser.uid;
-      if (!currentUser) {
-        Alert.alert('Error', 'No authenticated user found.');
-        return;
-      }
-      if (!userId) {
-        Alert.alert('Error', 'No userID.');
-        return;
-      }
-      navigation.navigate('TwoFAAuthenticatorScreen', {userId: userId});
+      navigation.navigate('TwoFAAuthenticatorScreen', {userId: uid});
     } else if (selectedOption === 'sms') {
       try {
         setIsLoading(true);
-        const currentUser = auth().currentUser;
-        if (!currentUser) {
-          Alert.alert('Error', 'No authenticated user found.');
-          return;
-        }
 
         const response = await fetch(
           `${API_BASE_URL}/auth/2fa/enable-sms`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: currentUser.uid }),
+            body: JSON.stringify({ uid: uid }),
           }
         );
 

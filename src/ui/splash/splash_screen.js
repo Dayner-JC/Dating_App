@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, StatusBar, ScrollView, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, StatusBar, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FlowerAnimation from '../animations/flower_animation';
 import PetalsSplashScreenAnimation from '../animations/petals_splash_screen_animation';
@@ -8,9 +8,33 @@ import HeadTextAnimation from '../animations/head_text_animation';
 import SubtitleTextAnimation from '../animations/subtitle_text_animation';
 import DivisorAnimation from '../animations/divisor_animation';
 import ButtonAnimation from '../animations/button_animation';
+import auth from '@react-native-firebase/auth';
+import { setCurrentUserUID } from '../../infrastructure/uid/uid';
 
 const SplashScreen = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const checkAuthState = async () => {
+      const currentUser = auth().currentUser;
+      if (currentUser) {
+        setCurrentUserUID(currentUser.uid);
+        navigation.navigate('Main');
+      }
+      setIsLoading(false);
+    };
+
+    checkAuthState();
+  }, [navigation]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#D97904" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -79,6 +103,12 @@ const styles = StyleSheet.create({
   },
   divisor:{
     width: '90%',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#17261F',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -105,7 +105,7 @@ const Step7 = ({ onNext, onChangeData }) => {
             )}
           </MapView>
         </View>
-        {loading && <ActivityIndicator size="large" color="#D97904" />}
+        {loading && <ActivityIndicator style = {{marginBottom: 20}} size="large" color="#D97904" />}
         {!locationAcquired ? (
           <TouchableOpacity style={styles.button} onPress={getCurrentLocation} disabled={loading}>
             <LocationIcon style={styles.icon} />

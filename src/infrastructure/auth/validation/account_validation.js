@@ -1,5 +1,5 @@
-import auth from '@react-native-firebase/auth';
 import API_BASE_URL from '../../../config/config';
+import { getCurrentUserUID } from '../../uid/uid';
 
 const BACKEND_URL = `${API_BASE_URL}/profile/create`;
 
@@ -26,12 +26,7 @@ export const validateAndSendAccount = async (data) => {
   }
 
   try {
-    const user = auth().currentUser;
-    if (!user) {
-      throw new Error('User is not authenticated');
-    }
-
-    const uid = user.uid;
+    const uid = getCurrentUserUID();
     const response = await fetch(BACKEND_URL, {
       method: 'POST',
       headers: {
