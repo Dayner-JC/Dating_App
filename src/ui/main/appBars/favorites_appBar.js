@@ -3,25 +3,18 @@ import { View, StyleSheet } from 'react-native';
 
 const FavoritesAppBar = () => {
   return (
-    <View style={styles.appBar}>
-    </View>
+    <View style={styles.appBar} />
   );
 };
 
 const styles = StyleSheet.create({
   appBar: {
-    height: 72,
+    height: 20,
     backgroundColor: '#0A0F0D',
     justifyContent: 'center',
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  appBarText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 10,
   },
 });
 

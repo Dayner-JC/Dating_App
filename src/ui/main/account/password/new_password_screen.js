@@ -62,6 +62,8 @@ const NewPasswordScreen = ({route}) => {
         await user.updatePassword(password);
         Alert.alert('Success', 'Updated password!');
         navigation.navigate('LoginEmailScreen');
+      }else{
+        Alert.alert('Error', 'Please log back in');
       }
     } catch (error) {
       console.error(error);

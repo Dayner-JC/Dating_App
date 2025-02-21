@@ -5,6 +5,7 @@ import VerifyCodeAppBar from '../../main/appBars/verify_code_appBar';
 import Background from '../../../assets/backgrounds/verifi_code_background.svg';
 import { useNavigation } from '@react-navigation/native';
 import API_BASE_URL from '../../../config/config';
+import auth from '@react-native-firebase/auth';
 
 const VerifyCodeEmailLoginScreen = ({ route }) => {
   const { userId } = route.params;
