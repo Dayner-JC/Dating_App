@@ -72,6 +72,8 @@ export default function HomeFragment() {
       });
       if (response.ok) {
         console.log('Like successfully registered');
+      } else {
+        console.log('like fail registered');
       }
     } catch (error) {
       console.error('Error registering like:', error);
@@ -87,6 +89,8 @@ export default function HomeFragment() {
       });
       if (response.ok) {
         console.log('Dislike successfully registered');
+      } else {
+        console.log('Dislike fail registered');
       }
     } catch (error) {
       console.error('Error registering dislike:', error);
