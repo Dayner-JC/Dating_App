@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,88 +8,94 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import InfoIcon from '../../../assets/icons/info.svg';
 import VerifiedIcon from '../../../assets/icons/verify.svg';
 import LocationIcon from '../../../assets/icons/location.svg';
 import { useNavigation } from '@react-navigation/native';
+import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
+import API_BASE_URL from '../../../config/config';
 
 const dataLists = {
-  peopleWhoLikeYou: [
-    { id: '1', name: 'Leslie', image: 'https://th.bing.com/th/id/R.2aa40bb626c09354da4c56b8744ad9b1?rik=Dn7hj%2bq19wBDLw&pid=ImgRaw&r=0' },
-    { id: '2', name: 'Brenda', image: 'https://th.bing.com/th/id/OIP.lq99e0pkiblHoXx7ZU_x2AHaHZ?rs=1&pid=ImgDetMain' },
-    { id: '3', name: 'Alexander', image: 'https://th.bing.com/th/id/OIP.Sw6i6KBSlnsT9_Mqq6gWnAHaHi?w=184&h=187&c=7&r=0&o=5&pid=1.7' },
-  ],
-  matches: [
-     { id: '1', name: 'Brandi', age: 22, location: 'Naperville', image: 'https://static1.bigstockphoto.com/1/7/2/large1500/27169880.jpg'},
-     { id: '2', name: 'Claire', age: 28, location: 'Orange', image: 'https://th.bing.com/th/id/R.6db076ba1e4078e3e20d6463b29b072d?rik=EPWU4cEYyDavmg&riu=http%3a%2f%2fcdn3.upsocl.com%2fwp-content%2fuploads%2f2014%2f03%2f268.jpg&ehk=yfLWWyMuDKwwoodDORRXdGBs79s04AL3oqoOUz3OPYc%3d&risl=&pid=ImgRaw&r=0' },
-  ],
   suggestions: [
     { id: '1', name: 'Jenny', age: 24, location: 'Orlando', image: 'https://th.bing.com/th/id/OIP.GBooRNWo9Dv24_Q0hG3l4QHaKh?w=744&h=1057&rs=1&pid=ImgDetMain' },
     { id: '2', name: 'Wendy', age: 30, location: 'Austin', image: 'https://i.pinimg.com/originals/a1/2c/f8/a12cf89e0fb01fcc800c75f6c48741c9.jpg' },
   ],
-  peopleYouLike: [
-    { id: '1', name: 'Emily', image: 'https://th.bing.com/th/id/OIP.jsXuwEhPK5VUlcOJN7A9NAHaJP?pid=ImgDet&w=191&h=237&c=7' },
-    { id: '2', name: 'Sophia', image: 'https://th.bing.com/th/id/OIP.tp2Df52FjwbmqtyH6NJ51gHaNK?pid=ImgDet&w=188&h=333&c=7' },
-    { id: '3', name: 'Isabella', image: 'https://th.bing.com/th/id/OIP.tP7Zo7_9Afr3u2O0kjTkNwAAAA?pid=ImgDet&w=191&h=191&c=7' },
-  ],
 };
-
-const renderPeopleWhoLikeYouCard = ({ item }) => (
-  <View style={styles.photoContainer}>
-    <Image source={{ uri: item.image }} style={styles.photoImage} />
-    {item.name && <Text style={styles.photoName}>{item.name}</Text>}
-  </View>
-);
-
-const renderMatchCard = ({ item }) => (
-  <View style={styles.cardContainer}>
-    <Image source={{ uri: item.image }} style={styles.cardImage} />
-    <View style={styles.overlayContainer}>
-      <View style={styles.name_container}>
-      <Text style={styles.cardName}>
-        {item.name}{item.age ? `, ${item.age}` : ''}
-      </Text>
-      <VerifiedIcon width={16} height={16}/>
-      </View>
-      <View style={styles.location_container}>
-        <LocationIcon width={10} height={10}/>
-      {item.location && <Text style={styles.cardLocation}>{item.location}</Text>}
-      </View>
-      <TouchableOpacity style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>Chat Now</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
-const renderPeopleYouLikeCard = ({ item }) => (
-  <View style={styles.photoContainer}>
-    <Image source={{ uri: item.image }} style={styles.photoImage} />
-    {item.name && <Text style={styles.photoName}>{item.name}</Text>}
-  </View>
-);
-
-const renderSuggestionsCard = ({ item }) => (
-  <View style={styles.cardContainer}>
-    <Image source={{ uri: item.image }} style={styles.cardImage} />
-    <View style={styles.overlayContainer}>
-    <View style={styles.name_container}>
-      <Text style={styles.cardName}>
-        {item.name}{item.age ? `, ${item.age}` : ''}
-      </Text>
-      <VerifiedIcon width={16} height={16}/>
-      </View>
-      <View style={styles.location_container}>
-        <LocationIcon width={10} height={10}/>
-      {item.location && <Text style={styles.cardLocation}>{item.location}</Text>}
-      </View>
-    </View>
-  </View>
-);
 
 export default function FavoritesFragment() {
   const navigation = useNavigation();
+  const [peopleWhoLikeYou, setPeopleWhoLikeYou] = useState([]);
+  const [peopleYouLike, setPeopleYouLike] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userId = getCurrentUserUID();
+
+        const peopleWhoLikeYouResponse = await fetch(`${API_BASE_URL}/profile/reactions/people-who-like-you`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
+        const peopleYouLikeResponse = await fetch(`${API_BASE_URL}/profile/reactions/people-you-like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
+        const matchesResponse = await fetch(`${API_BASE_URL}/profile/reactions/matches`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
+
+        const peopleWhoLikeYouData = await peopleWhoLikeYouResponse.json();
+        const peopleYouLikeData = await peopleYouLikeResponse.json();
+        const matchesData = await matchesResponse.json();
+
+        if (peopleWhoLikeYouData.success) {
+          setPeopleWhoLikeYou(peopleWhoLikeYouData.data);
+        }
+        if (peopleYouLikeData.success) {
+          console.log(peopleYouLikeData.data);
+          setPeopleYouLike(peopleYouLikeData.data);
+        }
+        if (matchesData.success) {
+          setMatches(matchesData.data);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('An error occurred while loading data.');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <StatusBar backgroundColor="#0A0F0D" />
+        <ActivityIndicator size="large" color="#FFFFFF" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -100,9 +106,9 @@ export default function FavoritesFragment() {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={dataLists.peopleWhoLikeYou}
+        data={peopleWhoLikeYou}
         renderItem={renderPeopleWhoLikeYouCard}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.uid}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
@@ -113,16 +119,16 @@ export default function FavoritesFragment() {
 
       <View style={styles.headerContainer}>
         <Text style={styles.card_section_title}>Matches</Text>
-        {dataLists.matches.length > 0 && (
-          <TouchableOpacity onPress={()=>navigation.navigate('ListMatchesScreen')}>
+        {matches.length > 0 && (
+          <TouchableOpacity onPress={() => navigation.navigate('ListMatchesScreen')}>
             <Text style={styles.seeAllText}>See all</Text>
           </TouchableOpacity>
         )}
       </View>
       <FlatList
-        data={dataLists.matches}
+        data={matches}
         renderItem={renderMatchCard}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.uid}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
@@ -130,9 +136,11 @@ export default function FavoritesFragment() {
           <Text style={styles.emptyText}>There are no matches yet.</Text>
         }
       />
+
       <View style={styles.divisor_container}>
         <View style={styles.divisor} />
       </View>
+
       <View style={styles.infoHeaderContainer}>
         <Text style={styles.sectionTitle}>People you like</Text>
         <TouchableOpacity onPress={() => {}}>
@@ -140,9 +148,9 @@ export default function FavoritesFragment() {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={dataLists.peopleYouLike}
+        data={peopleYouLike}
         renderItem={renderPeopleYouLikeCard}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.uid}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
@@ -175,10 +183,69 @@ export default function FavoritesFragment() {
   );
 }
 
+const renderPeopleWhoLikeYouCard = ({ item }) => (
+  <View style={styles.photoContainer}>
+    <Image source={{ uri: item.photos[0] }} style={styles.photoImage} />
+    {item.name && <Text style={styles.photoName}>{item.name}</Text>}
+  </View>
+);
+
+const renderMatchCard = ({ item }) => (
+  <View style={styles.cardContainer}>
+    <Image source={{ uri: item.photos[0] }} style={styles.cardImage} />
+    <View style={styles.overlayContainer}>
+      <View style={styles.name_container}>
+        <Text style={styles.cardName}>
+          {item.name}{item.age ? `, ${item.age}` : ''}
+        </Text>
+        <VerifiedIcon width={16} height={16} />
+      </View>
+      <View style={styles.location_container}>
+        <LocationIcon width={10} height={10} />
+        {item.location && <Text style={styles.cardLocation}>{item.location}</Text>}
+      </View>
+      <TouchableOpacity style={styles.buttonContainer}>
+        <Text style={styles.buttonText}>Chat Now</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
+
+const renderPeopleYouLikeCard = ({ item }) => (
+  <View style={styles.photoContainer}>
+    <Image source={{ uri: item.photos[0] }} style={styles.photoImage} />
+    {item.name && <Text style={styles.photoName}>{item.name}</Text>}
+  </View>
+);
+
+const renderSuggestionsCard = ({ item }) => (
+  <View style={styles.cardContainer}>
+    <Image source={{ uri: item.image }} style={styles.cardImage} />
+    <View style={styles.overlayContainer}>
+      <View style={styles.name_container}>
+        <Text style={styles.cardName}>
+          {item.name}{item.age ? `, ${item.age}` : ''}
+        </Text>
+        <VerifiedIcon width={16} height={16} />
+      </View>
+      <View style={styles.location_container}>
+        <LocationIcon width={10} height={10} />
+        {item.location && <Text style={styles.cardLocation}>{item.location}</Text>}
+      </View>
+    </View>
+  </View>
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0F0D',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#0A0F0D',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   name_container: {
     flexDirection: 'row',
