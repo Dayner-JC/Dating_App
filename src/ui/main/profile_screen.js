@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 import LocationIcon from '../../assets/icons/location.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -15,6 +16,8 @@ import IconButton from '../components/icon_button';
 import CloseIcon from '../../assets/icons/close-button.svg';
 import LikeIcon from '../../assets/icons/heart.svg';
 import BackIcon from '../../assets/icons/back-button.svg';
+import API_BASE_URL from '../../config/config';
+import { getCurrentUserUID } from '../../infrastructure/uid/uid';
 
 const {width: screenWidth} = Dimensions.get('window');
 
@@ -22,6 +25,42 @@ const ProfileScreen = ({route, navigation}) => {
   const {user} = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showChatButton, setShowChatButton] = useState(false);
+  const uid = getCurrentUserUID();
+
+  const handleLike = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/profile/reactions/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid, targetUserId: user.id }),
+      });
+      if (response.ok) {
+        ToastAndroid.show(`Like send to ${user.name}`, ToastAndroid.SHORT);
+        setShowChatButton(true);
+      } else {
+        ToastAndroid.show('You can\'t react twice \n to the same user', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.error('Error registering like:', error);
+    }
+  };
+
+  const handleDislike = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/profile/reactions/dislike`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid, targetUserId: user.id }),
+      });
+      if (response.ok) {
+        ToastAndroid.show(`Dislike send to ${user.name}`, ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show('You can\'t react twice \n to the same user', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.error('Error registering dislike:', error);
+    }
+  };
 
   const handleScroll = event => {
     const index = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
@@ -84,7 +123,7 @@ const ProfileScreen = ({route, navigation}) => {
           <View style={styles.locationContainer}>
             <LocationIcon style={styles.locationIcon} width={16} height={16} />
             <Text style={styles.location}>
-              {user.location.country}, {user.location.state}
+              {user.location.address.country}, {user.location.address.state}
             </Text>
           </View>
           <Text style={styles.description}>{user.about}</Text>
@@ -133,11 +172,11 @@ const ProfileScreen = ({route, navigation}) => {
           style={styles.actionButtons}>
           <IconButton
             icon={<CloseIcon />}
-            onPress={() => navigation.goBack()}
+            onPress={handleDislike}
           />
           <IconButton
             icon={<LikeIcon />}
-            onPress={() => setShowChatButton(true)}
+            onPress={handleLike}
           />
         </LinearGradient>
       ) : (

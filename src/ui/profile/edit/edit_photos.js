@@ -13,13 +13,11 @@ import InputIcon from '../../../assets/icons/input.svg';
 import DeleteIcon from '../../../assets/icons/delete.svg';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
-import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
 import {useNavigation} from '@react-navigation/native';
 import {readFile} from 'react-native-fs';
 import API_BASE_URL from '../../../config/config';
+import Background from '../../../assets/backgrounds/edits.svg';
 
 const EditPhotos = ({route}) => {
   const navigation = useNavigation();
@@ -139,6 +137,7 @@ const EditPhotos = ({route}) => {
       <View style={styles.appBar}>
         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
+      <Background style={styles.background} />
       <View style={styles.content}>
         <Text style={styles.title}>Edit Photos</Text>
         <View style={styles.photoGrid}>
@@ -198,15 +197,6 @@ const EditPhotos = ({route}) => {
           onPress={() => navigation.goBack()}
         />
       </View>
-      <View style={styles.petalsContainer}>
-        <View style={styles.singlePetal}>
-          <Petal1 style={styles.petal1} />
-        </View>
-        <View style={styles.doublePetals}>
-          <Petal2 style={styles.petal2} />
-          <Petal3 style={styles.petal3} />
-        </View>
-      </View>
     </View>
   );
 };
@@ -224,6 +214,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#17261F',
     width: '100%',
     paddingStart: 10,
+    zIndex: 1,
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
   },
   content: {
     width: '85%',
@@ -300,32 +301,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
     fontWeight: 900,
-  },
-  petalsContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  singlePetal: {
-    flex: 1,
-  },
-  doublePetals: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  petal1: {
-    marginStart: 10,
-    marginBottom: 60,
-  },
-  petal2: {
-    marginTop: 60,
-  },
-  petal3: {
-    marginLeft: 60,
-    marginTop: 20,
   },
 });
 

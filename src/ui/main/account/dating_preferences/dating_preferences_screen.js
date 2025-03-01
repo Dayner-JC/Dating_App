@@ -85,7 +85,8 @@ const DatingPreferencesScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#D97904" />
+        <StatusBar backgroundColor="#0A0F0D" />
+        <ActivityIndicator size="large" color="#FFFFFF" />
       </View>
     );
   }
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#17261F',
+    backgroundColor: '#0A0F0D',
   },
   appBar: {
     height: 60,

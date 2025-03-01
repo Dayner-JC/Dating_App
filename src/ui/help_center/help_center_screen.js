@@ -53,7 +53,12 @@ const HelpCenterScreen = () => {
   }, []);
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return (
+      <View style={styles.loadingContainer}>
+        <StatusBar backgroundColor="#0A0F0D" />
+        <ActivityIndicator size="large" color="#FFFFFF" />
+      </View>
+    );
   }
 
   if (error) {
@@ -355,6 +360,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     paddingStart: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#0A0F0D',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

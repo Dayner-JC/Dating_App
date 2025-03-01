@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert, ActivityIndicator } from 'react-native';
 import LogoutIcon from '../../../assets/icons/logout.svg';
 import CloseIcon from '../../../assets/icons/close.svg';
 import Button from '../../components/button';
@@ -28,6 +28,8 @@ export default function ProfileFragment() {
   const [modalVisible, setModalVisible] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profileName, setProfileName] = useState(null);
+  const [loadingPhoto, setLoadingPhoto] = useState(true);
+  const [loadingName, setLoadingName] = useState(true);
   const uid = getCurrentUserUID();
   const navigation = useNavigation();
 
@@ -47,6 +49,7 @@ export default function ProfileFragment() {
       if (photo.success && photo.images.length > 0) {
         setProfilePhoto(photo.images[0]);
       }
+      setLoadingPhoto(false);
 
       const responseName = await fetch(`${API_BASE_URL}/profile/get-name`, {
         method: 'POST',
@@ -57,6 +60,7 @@ export default function ProfileFragment() {
       if (dataName.success) {
         setProfileName(dataName.name);
       }
+      setLoadingName(false);
     } catch (error) {
       console.error('Error fetching profile data:', error);
     }
@@ -65,7 +69,7 @@ export default function ProfileFragment() {
   useFocusEffect(
     useCallback(() => {
       fetchProfilePhotoAndName();
-    }, [fetchProfilePhotoAndName])
+    }, [fetchProfilePhotoAndName]),
   );
 
   const handleLogout = async () => {
@@ -88,16 +92,22 @@ export default function ProfileFragment() {
       <Text style={styles.header}>My Account</Text>
       <View style={styles.profileContainer}>
         <View style={styles.photoWrapper}>
-          <Image
-            source={{ uri: profilePhoto }}
-            style={styles.profileImage}
-          />
+        {loadingPhoto ? (
+            <ActivityIndicator size="large" color="#FFFFFF" style={styles.loader} />
+          ) : (
+            <Image source={{ uri: profilePhoto }} style={styles.profileImage} />
+          )}
           <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('UploadProfilePictureScreen', {uid: uid})}>
             <EditImgIcon />
           </TouchableOpacity>
         </View>
         <Text style={styles.greeting}>
-          Hi, <Text style={styles.boldText}>{`${profileName}`}</Text>
+          Hi,{' '}
+          {loadingName ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Text style={styles.boldText}>{profileName}</Text>
+          )}
         </Text>
       </View>
 
@@ -159,6 +169,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0F0D',
+  },
+  loader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   header: {
     fontFamily: 'GreatMangoDemo',

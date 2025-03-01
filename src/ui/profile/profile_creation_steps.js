@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, StatusBar, Alert  } from 'react-native';
+import { View, StyleSheet, StatusBar, Alert, Dimensions  } from 'react-native';
 import IconButton from '../components/icon_button';
 import ArrowIcon from '../../assets/icons/arrow-left.svg';
+import Background from '../../assets/backgrounds/verifi_code_background.svg';
 import { useNavigation } from '@react-navigation/native';
 import * as Progress from 'react-native-progress';
 import { validateAndSendAccount } from '../../infrastructure/auth/validation/account_validation';
@@ -79,6 +80,8 @@ const ProfileCreationSteps = () => {
 
   const StepComponent = steps[currentStep].component;
 
+  const { width, height } = Dimensions.get('window');
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#17261F" />
@@ -87,7 +90,7 @@ const ProfileCreationSteps = () => {
           <IconButton icon={<ArrowIcon />} onPress={goBack} />
         )}
       </View>
-
+<Background style={styles.background} width={width} height={height}/>
       <Progress.Bar
         progress={(currentStep + 1) / steps.length}
         width={null}
@@ -114,6 +117,17 @@ const styles = StyleSheet.create({
     height: 60,
     justifyContent: 'center',
     backgroundColor: '#17261F',
+    zIndex: 1,
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
   },
   title: {
     color: 'white',

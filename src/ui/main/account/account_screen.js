@@ -32,7 +32,7 @@ const AccountScreen = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: uid }),
-        }
+        },
       );
       const data = await userResponse.json();
       setUserData(data);
@@ -43,7 +43,7 @@ const AccountScreen = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: uid }),
-        }
+        },
       );
       const imagesData = await imagesResponse.json();
       if (imagesData.success) {
@@ -59,7 +59,7 @@ const AccountScreen = () => {
   useFocusEffect(
     useCallback(() => {
       fetchUserData();
-    }, [fetchUserData])
+    }, [fetchUserData]),
   );
 
   const calculateAge = birthday => {
@@ -86,7 +86,8 @@ const AccountScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#D9D2B0" />
+        <StatusBar backgroundColor="#0A0F0D" />
+        <ActivityIndicator size="large" color="#FFFFFF" />
       </View>
     );
   }

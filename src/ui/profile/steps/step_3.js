@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Button from '../../components/button';
-import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
 const Step3 = ({ onNext, onChangeData }) => {
   const [selectedGender, setSelectedGender] = useState(null);
@@ -59,15 +56,6 @@ const Step3 = ({ onNext, onChangeData }) => {
           disabled={!selectedGender}
         />
       </View>
-      <View style={styles.petalsContainer}>
-        <View style={styles.singlePetal}>
-          <Petal1 style={styles.petal1} />
-        </View>
-        <View style={styles.doublePetals}>
-          <Petal2 style={styles.petal2} />
-            <Petal3 style={styles.petal3} />
-        </View>
-      </View>
     </View>
   );
 };
@@ -120,32 +108,6 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     color: '#FFFFFF',
-  },
-  petalsContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  singlePetal: {
-    flex: 1,
-  },
-  doublePetals: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  petal1: {
-    marginStart: 10,
-    marginBottom: 60,
-  },
-  petal2: {
-    marginTop: 60,
-  },
-  petal3: {
-    marginLeft: 60,
-    marginTop: 20,
   },
 });
 

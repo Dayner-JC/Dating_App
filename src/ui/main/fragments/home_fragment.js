@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Animated,
   PanResponder,
+  ToastAndroid,
 } from 'react-native';
 import VerifiedIcon from '../../../assets/icons/verify.svg';
 import LocationIcon from '../../../assets/icons/location.svg';
@@ -71,9 +72,9 @@ export default function HomeFragment() {
         body: JSON.stringify({ userId: uid, targetUserId }),
       });
       if (response.ok) {
-        console.log('Like successfully registered');
+        ToastAndroid.show('Like send', ToastAndroid.SHORT);
       } else {
-        console.log('like fail registered');
+        ToastAndroid.show('You can\'t react twice \n to the same user', ToastAndroid.SHORT);
       }
     } catch (error) {
       console.error('Error registering like:', error);
@@ -88,9 +89,9 @@ export default function HomeFragment() {
         body: JSON.stringify({ userId: uid, targetUserId }),
       });
       if (response.ok) {
-        console.log('Dislike successfully registered');
+        ToastAndroid.show('Dislike send', ToastAndroid.SHORT);
       } else {
-        console.log('Dislike fail registered');
+        ToastAndroid.show('You can\'t react twice \n to the same user', ToastAndroid.SHORT);
       }
     } catch (error) {
       console.error('Error registering dislike:', error);
@@ -188,7 +189,7 @@ export default function HomeFragment() {
             }).start();
           }
         },
-      })
+      }),
     ).current;
 
     const rotate = position.x.interpolate({
@@ -217,8 +218,8 @@ export default function HomeFragment() {
           <View style={styles.locationContainer}>
             <LocationIcon style={styles.locationIcon} width={16} height={16} />
             <Text style={styles.location}>
-              {userData.location?.country || 'Unknown'},{' '}
-              {userData.location?.state || 'Unknown'}
+              {userData.location?.address.country || 'Unknown'},{' '}
+              {userData.location?.address.state || 'Unknown'}
             </Text>
           </View>
         </View>

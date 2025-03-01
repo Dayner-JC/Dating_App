@@ -3,9 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'reac
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
-import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
+import Background from '../../../assets/backgrounds/edits.svg';
 import { useNavigation } from '@react-navigation/native';
 import API_BASE_URL from '../../../config/config';
 
@@ -82,6 +80,7 @@ const EditPreferences = ({route}) => {
       <View style={styles.appBar}>
          <IconButton icon={<ArrowIcon />} onPress={()=>navigation.navigate(from)} />
       </View>
+      <Background style={styles.background} />
       <View style={styles.content}>
         <Text style={styles.title}>Edit Preference</Text>
         <Text style={styles.subtitle}>Who would you like to date?</Text>
@@ -134,15 +133,6 @@ const EditPreferences = ({route}) => {
           onPress={() => navigation.goBack()}
         />
       </View>
-      <View style={styles.petalsContainer}>
-        <View style={styles.singlePetal}>
-          <Petal1 style={styles.petal1} />
-        </View>
-        <View style={styles.doublePetals}>
-          <Petal2 style={styles.petal2} />
-            <Petal3 style={styles.petal3} />
-        </View>
-      </View>
     </View>
   );
 };
@@ -160,6 +150,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#17261F',
     width: '100%',
     paddingStart: 10,
+    zIndex: 1,
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
   },
   content: {
     flex: 1,
@@ -218,32 +219,6 @@ const styles = StyleSheet.create({
     borderWidth: 3.5,
     backgroundColor: '#FFFFFF',
     borderColor: '#D97904',
-  },
-  petalsContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  singlePetal: {
-    flex: 1,
-  },
-  doublePetals: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  petal1: {
-    marginStart: 10,
-    marginBottom: 60,
-  },
-  petal2: {
-    marginTop: 60,
-  },
-  petal3: {
-    marginLeft: 60,
-    marginTop: 20,
   },
 });
 

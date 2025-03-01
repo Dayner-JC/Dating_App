@@ -98,6 +98,7 @@ const ProfileVisibilityScreen = ({ route }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
+        <StatusBar backgroundColor="#17261F" />
         <ActivityIndicator size="large" color="#D97904" />
       </View>
     );

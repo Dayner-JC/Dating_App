@@ -5,14 +5,12 @@ import { View, Text, ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Sta
 import MapView, { Marker } from 'react-native-maps';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
-import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import { useNavigation } from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
 import LocationIcon from '../../../assets/icons/gps.svg';
 import Button from '../../components/button';
 import API_BASE_URL from '../../../config/config';
+import Background from '../../../assets/backgrounds/edits.svg';
 
 const EditLocation = ({ route }) => {
   const navigation = useNavigation();
@@ -27,7 +25,7 @@ const EditLocation = ({ route }) => {
     try {
       const query = `${address.city}, ${address.state}, ${address.country}`;
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`,
       );
       const data = await response.json();
       if (data.length > 0) {
@@ -70,7 +68,7 @@ const EditLocation = ({ route }) => {
                   latitudeDelta: 0.0922,
                   longitudeDelta: 0.0421,
                 },
-                1000
+                1000,
               );
             }
           }
@@ -90,7 +88,7 @@ const EditLocation = ({ route }) => {
   const reverseGeocode = useCallback(async (latitude, longitude) => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
       );
       const data = await response.json();
       setAddress(data.address);
@@ -114,7 +112,7 @@ const EditLocation = ({ route }) => {
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             },
-            1000
+            1000,
           );
         }
         setLoading(false);
@@ -124,7 +122,7 @@ const EditLocation = ({ route }) => {
         Alert.alert('Error', error);
         setLoading(false);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
   }, [reverseGeocode]);
 
@@ -141,7 +139,7 @@ const EditLocation = ({ route }) => {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         },
-        1000
+        1000,
       );
     }
   };
@@ -174,10 +172,11 @@ const EditLocation = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#0A0F0D" />
+      <StatusBar backgroundColor="#17261F" />
       <View style={styles.appBar}>
         <IconButton icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
       </View>
+      <Background style={styles.background} />
       <View style={styles.content}>
         <Text style={styles.title}>Location</Text>
         <Text style={styles.subtitle}>Select your location on the map!</Text>
@@ -227,15 +226,6 @@ const EditLocation = ({ route }) => {
           onPress={() => navigation.goBack()}
         />
       </View>
-      <View style={styles.petalsContainer}>
-        <View style={styles.singlePetal}>
-          <Petal1 style={styles.petal1} />
-        </View>
-        <View style={styles.doublePetals}>
-          <Petal2 style={styles.petal2} />
-          <Petal3 style={styles.petal3} />
-        </View>
-      </View>
     </View>
   );
 };
@@ -245,14 +235,25 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: '100%',
-    backgroundColor: '#0A0F0D',
+    backgroundColor: '#17261F',
   },
   appBar: {
     height: 60,
     justifyContent: 'center',
-    backgroundColor: '#0A0F0D',
+    backgroundColor: '#17261F',
     width: '100%',
     paddingStart: 10,
+    zIndex: 1,
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
   },
   content: {
     flex: 1,
@@ -298,32 +299,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 10,
-  },
-  petalsContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  singlePetal: {
-    flex: 1,
-  },
-  doublePetals: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  petal1: {
-    marginStart: 10,
-    marginBottom: 60,
-  },
-  petal2: {
-    marginTop: 60,
-  },
-  petal3: {
-    marginLeft: 60,
-    marginTop: 20,
   },
 });
 

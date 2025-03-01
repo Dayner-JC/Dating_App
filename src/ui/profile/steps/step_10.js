@@ -4,9 +4,6 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { readFile } from 'react-native-fs';
 import InputIcon from '../../../assets/icons/input.svg';
 import DeleteIcon from '../../../assets/icons/delete.svg';
-import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 import Button from '../../components/button';
 import API_BASE_URL from '../../../config/config';
 import auth from '@react-native-firebase/auth';
@@ -139,15 +136,6 @@ const Step10 = ({ onNext, onChangeData }) => {
           />
         )}
       </View>
-      <View style={styles.petalsContainer}>
-        <View style={styles.singlePetal}>
-          <Petal1 style={styles.petal1} />
-        </View>
-        <View style={styles.doublePetals}>
-          <Petal2 style={styles.petal2} />
-          <Petal3 style={styles.petal3} />
-        </View>
-      </View>
     </View>
   );
 };
@@ -158,7 +146,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: '100%',
-    backgroundColor: '#17261F',
   },
   content: {
     width: '85%',
@@ -235,32 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
     fontWeight: 900,
-  },
-  petalsContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  singlePetal: {
-    flex: 1,
-  },
-  doublePetals: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  petal1: {
-    marginStart: 10,
-    marginBottom: 60,
-  },
-  petal2: {
-    marginTop: 60,
-  },
-  petal3: {
-    marginLeft: 60,
-    marginTop: 20,
   },
 });
 

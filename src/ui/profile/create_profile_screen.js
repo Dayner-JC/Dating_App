@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import Button from '../components/button';
 import { useNavigation } from '@react-navigation/native';
 import Img from '../../assets/create_profile.svg';
@@ -12,6 +12,7 @@ const CreateProfileScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#17261F" />
         <View style={styles.petal_1}>
             <Petal1/>
         </View>

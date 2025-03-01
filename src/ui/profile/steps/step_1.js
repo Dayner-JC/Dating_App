@@ -1,9 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import Button from '../../components/button';
-import Petal1 from '../../../assets/splash_screen_flower/petals/petal_7.svg';
-import Petal2 from '../../../assets/splash_screen_flower/petals/petal_8.svg';
-import Petal3 from '../../../assets/splash_screen_flower/petals/petal_10.svg';
 
 const Step1 = ({ onNext, onChangeData }) => {
   const [name, setName] = useState('');
@@ -51,15 +48,6 @@ const Step1 = ({ onNext, onChangeData }) => {
           disabled={!validateName(name)}
         />
         </View>
-        <View style={styles.petalsContainer}>
-                <View style={styles.singlePetal}>
-                  <Petal1 style={styles.petal1} />
-                </View>
-                <View style={styles.doublePetals}>
-                  <Petal2 style={styles.petal2} />
-                  <Petal3 style={styles.petal3} />
-      </View>
-      </View>
     </View>
   );
 };
@@ -69,20 +57,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     width: '100%',
-    backgroundColor: '#17261F',
   },
   content: {
     width: '85%',
-  },
-  background: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    zIndex: 0,
   },
   title: {
     fontFamily: 'GreatMangoDemo',
