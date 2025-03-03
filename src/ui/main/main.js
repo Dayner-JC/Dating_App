@@ -2,7 +2,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeFragment from '../main/fragments/home_fragment';
-import FavoritesFragment from '../main/fragments/favorites_fragment';
+import MatchesFragment from './fragments/matches_fragment';
 import MessagesFragment from '../main/fragments/messages_fragment';
 import ProfileFragment from '../main/fragments/profile_fragment';
 import { StyleSheet, StatusBar } from 'react-native';
@@ -10,7 +10,7 @@ import HomeIcon from '../../assets/icons/home.svg';
 import FavoritesIcon from '../../assets/icons/matches.svg';
 import MessagesIcon from '../../assets/icons/chat.svg';
 import HomeAppBar from './appBars/home_appBar';
-import FavoritesAppBar from './appBars/favorites_appBar';
+import MatchesAppBar from './appBars/matches_appBar';
 import MessagesAppBar from './appBars/messages_appBar';
 import ProfileAppBar from './appBars/profile_appBar';
 import ProfileIcon from '../../assets/icons/profile_icon';
@@ -44,8 +44,8 @@ function Main() {
         }}
       />
       <Tab.Screen
-        name="Favorites"
-        component={FavoritesFragment}
+        name="Matches"
+        component={MatchesFragment}
         options={{
           tabBarIcon: ({ focused }) => (
             <FavoritesIcon
@@ -53,7 +53,7 @@ function Main() {
               stroke={focused ? '#0A0F0D' : 'white'}
             />
           ),
-          header: () => <FavoritesAppBar />,
+          header: () => <MatchesAppBar />,
         }}
       />
       <Tab.Screen

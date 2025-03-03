@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-const FavoritesAppBar = () => {
+const MatchesAppBar = () => {
   return (
     <View style={styles.appBar} />
   );
@@ -18,4 +18,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FavoritesAppBar;
+export default MatchesAppBar;

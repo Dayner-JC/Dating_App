@@ -1,5 +1,6 @@
+/* eslint-disable no-catch-shadow */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,63 +11,98 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StatusBar,
+  Alert,
 } from 'react-native';
 import InfoIcon from '../../../assets/icons/info.svg';
 import VerifiedIcon from '../../../assets/icons/verify.svg';
 import LocationIcon from '../../../assets/icons/location.svg';
-import { useNavigation } from '@react-navigation/native';
-import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
+import {useNavigation} from '@react-navigation/native';
+import {getCurrentUserUID} from '../../../infrastructure/uid/uid';
 import API_BASE_URL from '../../../config/config';
 
-const dataLists = {
-  suggestions: [
-    { id: '1', name: 'Jenny', age: 24, location: 'Orlando', image: 'https://th.bing.com/th/id/OIP.GBooRNWo9Dv24_Q0hG3l4QHaKh?w=744&h=1057&rs=1&pid=ImgDetMain' },
-    { id: '2', name: 'Wendy', age: 30, location: 'Austin', image: 'https://i.pinimg.com/originals/a1/2c/f8/a12cf89e0fb01fcc800c75f6c48741c9.jpg' },
-  ],
-};
-
-export default function FavoritesFragment() {
+export default function MatchesFragment() {
   const navigation = useNavigation();
   const [peopleWhoLikeYou, setPeopleWhoLikeYou] = useState([]);
   const [peopleYouLike, setPeopleYouLike] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // useEffect(() => {
+  //   const createMockUsers = async () => {
+  //     try {
+  //       const response = await fetch(`${API_BASE_URL}/profile/create-mock-users`, {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({}),
+  //       });
+  //       const data = await response.json();
+  //       if (data.success) {
+  //         Alert.alert('Success', data.message);
+  //       }
+  //     } catch (Error) {
+  //       Alert.alert('Error', Error);
+  //     }
+  //   };
+
+  //   createMockUsers();
+  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userId = getCurrentUserUID();
 
-        const peopleWhoLikeYouResponse = await fetch(`${API_BASE_URL}/profile/reactions/people-who-like-you`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-        });
-        const peopleYouLikeResponse = await fetch(`${API_BASE_URL}/profile/reactions/people-you-like`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-        });
-        const matchesResponse = await fetch(`${API_BASE_URL}/profile/reactions/matches`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId }),
-        });
+        const peopleWhoLikeYouResponse = await fetch(
+          `${API_BASE_URL}/profile/reactions/people-who-like-you`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userId}),
+          },
+        );
+        const peopleYouLikeResponse = await fetch(
+          `${API_BASE_URL}/profile/reactions/people-you-like`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userId}),
+          },
+        );
+        const matchesResponse = await fetch(
+          `${API_BASE_URL}/profile/reactions/matches`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userId}),
+          },
+        );
+        const suggestionsResponse = await fetch(
+          `${API_BASE_URL}/get_users/get-suggestions`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({userId}),
+          },
+        );
 
         const peopleWhoLikeYouData = await peopleWhoLikeYouResponse.json();
         const peopleYouLikeData = await peopleYouLikeResponse.json();
         const matchesData = await matchesResponse.json();
+        const suggestionsData = await suggestionsResponse.json();
 
         if (peopleWhoLikeYouData.success) {
           setPeopleWhoLikeYou(peopleWhoLikeYouData.data);
         }
         if (peopleYouLikeData.success) {
-          console.log(peopleYouLikeData.data);
           setPeopleYouLike(peopleYouLikeData.data);
         }
         if (matchesData.success) {
           setMatches(matchesData.data);
+        }
+        if (suggestionsData.success) {
+          setSuggestions(suggestionsData.data);
         }
 
         setLoading(false);
@@ -108,7 +144,7 @@ export default function FavoritesFragment() {
       <FlatList
         data={peopleWhoLikeYou}
         renderItem={renderPeopleWhoLikeYouCard}
-        keyExtractor={(item) => item.uid}
+        keyExtractor={item => item.uid}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
@@ -120,7 +156,8 @@ export default function FavoritesFragment() {
       <View style={styles.headerContainer}>
         <Text style={styles.card_section_title}>Matches</Text>
         {matches.length > 0 && (
-          <TouchableOpacity onPress={() => navigation.navigate('ListMatchesScreen')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ListMatchesScreen')}>
             <Text style={styles.seeAllText}>See all</Text>
           </TouchableOpacity>
         )}
@@ -128,7 +165,7 @@ export default function FavoritesFragment() {
       <FlatList
         data={matches}
         renderItem={renderMatchCard}
-        keyExtractor={(item) => item.uid}
+        keyExtractor={item => item.uid}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
@@ -150,7 +187,7 @@ export default function FavoritesFragment() {
       <FlatList
         data={peopleYouLike}
         renderItem={renderPeopleYouLikeCard}
-        keyExtractor={(item) => item.uid}
+        keyExtractor={item => item.uid}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
@@ -159,13 +196,17 @@ export default function FavoritesFragment() {
         }
       />
 
-      <Text style={[styles.card_section_title, { marginTop: 16, paddingHorizontal: 16 }]}>
+      <Text
+        style={[
+          styles.card_section_title,
+          {marginTop: 16, paddingHorizontal: 16},
+        ]}>
         Suggestions
       </Text>
       <FlatList
-        data={dataLists.suggestions}
+        data={suggestions}
         renderItem={renderSuggestionsCard}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
@@ -183,26 +224,29 @@ export default function FavoritesFragment() {
   );
 }
 
-const renderPeopleWhoLikeYouCard = ({ item }) => (
+const renderPeopleWhoLikeYouCard = ({item}) => (
   <View style={styles.photoContainer}>
-    <Image source={{ uri: item.photos[0] }} style={styles.photoImage} />
+    <Image source={{uri: item.photos[0]}} style={styles.photoImage} />
     {item.name && <Text style={styles.photoName}>{item.name}</Text>}
   </View>
 );
 
-const renderMatchCard = ({ item }) => (
+const renderMatchCard = ({item}) => (
   <View style={styles.cardContainer}>
-    <Image source={{ uri: item.photos[0] }} style={styles.cardImage} />
+    <Image source={{uri: item.photos[0]}} style={styles.cardImage} />
     <View style={styles.overlayContainer}>
       <View style={styles.name_container}>
         <Text style={styles.cardName}>
-          {item.name}{item.age ? `, ${item.age}` : ''}
+          {item.name}
+          {item.age ? `, ${item.age}` : ''}
         </Text>
         <VerifiedIcon width={16} height={16} />
       </View>
       <View style={styles.location_container}>
         <LocationIcon width={10} height={10} />
-        {item.location && <Text style={styles.cardLocation}>{item.location}</Text>}
+        {item.location && (
+          <Text style={styles.cardLocation}>{item.location}</Text>
+        )}
       </View>
       <TouchableOpacity style={styles.buttonContainer}>
         <Text style={styles.buttonText}>Chat Now</Text>
@@ -211,26 +255,30 @@ const renderMatchCard = ({ item }) => (
   </View>
 );
 
-const renderPeopleYouLikeCard = ({ item }) => (
+const renderPeopleYouLikeCard = ({item}) => (
   <View style={styles.photoContainer}>
-    <Image source={{ uri: item.photos[0] }} style={styles.photoImage} />
+    <Image source={{uri: item.photos[0]}} style={styles.photoImage} />
     {item.name && <Text style={styles.photoName}>{item.name}</Text>}
   </View>
 );
 
-const renderSuggestionsCard = ({ item }) => (
+const renderSuggestionsCard = ({item}) => (
   <View style={styles.cardContainer}>
-    <Image source={{ uri: item.image }} style={styles.cardImage} />
+    <Image source={{uri: item.photos[0]}} style={styles.cardImage} />
     <View style={styles.overlayContainer}>
       <View style={styles.name_container}>
         <Text style={styles.cardName}>
-          {item.name}{item.age ? `, ${item.age}` : ''}
+          {item.name}
+          {item.age ? `, ${item.age}` : ''}
         </Text>
         <VerifiedIcon width={16} height={16} />
       </View>
       <View style={styles.location_container}>
         <LocationIcon width={10} height={10} />
-        {item.location && <Text style={styles.cardLocation}>{item.location}</Text>}
+        <Text style={styles.cardLocation}>
+          {item.location?.address.country || 'Unknown'},{' '}
+          {item.location?.address.state || 'Unknown'}
+        </Text>
       </View>
     </View>
   </View>
