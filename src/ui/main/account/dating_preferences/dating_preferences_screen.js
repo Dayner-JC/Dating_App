@@ -20,7 +20,7 @@ const DatingPreferencesScreen = () => {
   const [ageRange, setAgeRange] = useState([18, 30]);
   const [preference, setPreference] = useState('Women');
   const [loading, setLoading] = useState(true);
-  const [photoRangeIndex, setPhotoRangeIndex] = useState([2, 6]);
+  const [photoRangeIndex, setPhotoRangeIndex] = useState([1, 6]);
 
   const uid = getCurrentUserUID();
 
@@ -119,7 +119,7 @@ const DatingPreferencesScreen = () => {
           minimumValue={5}
           maximumValue={100}
           step={1}
-          onValueChange={(value) => setMaxDistance(value)}
+          onValueChange={(value) => setMaxDistance(Number(value))}
           minimumTrackTintColor="#ff9800"
           maximumTrackTintColor="#222322"
           thumbTintColor="#ff9800"
@@ -164,7 +164,7 @@ const DatingPreferencesScreen = () => {
         </View>
         <Slider
           value={photoRangeIndex}
-          minimumValue={2}
+          minimumValue={1}
           maximumValue={6}
           step={1}
           onValueChange={(value) => setPhotoRangeIndex(value)}

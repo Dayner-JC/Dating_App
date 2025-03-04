@@ -86,6 +86,7 @@ const Step7 = ({onNext, onChangeData}) => {
   const handleContinue = () => {
     const locationData = {
       address,
+      coordinates: selectedLocation,
     };
 
     onChangeData('location', locationData);

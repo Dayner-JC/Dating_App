@@ -18,28 +18,8 @@ const EditLocation = ({ route }) => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState(null);
-  const [locationAcquired, setLocationAcquired] = useState(false);
+  const [hasUserUpdated, setHasUserUpdated] = useState(false);
   const mapRef = useRef(null);
-
-  const forwardGeocode = useCallback(async (address) => {
-    try {
-      const query = `${address.city}, ${address.state}, ${address.country}`;
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`,
-      );
-      const data = await response.json();
-      if (data.length > 0) {
-        const { lat, lon } = data[0];
-        const latitude = parseFloat(lat);
-        const longitude = parseFloat(lon);
-        return { latitude, longitude };
-      } else {
-        return null;
-      }
-    } catch (error) {
-      return null;
-    }
-  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -50,21 +30,18 @@ const EditLocation = ({ route }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            userId: uid,
-          }),
+          body: JSON.stringify({ userId: uid }),
         });
         const data = await response.json();
         if (data.success) {
-          const locationData = data.location;
-          setAddress(locationData);
-          const coordinates = await forwardGeocode(locationData);
-          if (coordinates) {
-            setSelectedLocation(coordinates);
+          setAddress(data.location);
+          if (data.coordinates) {
+            setSelectedLocation(data.coordinates);
             if (mapRef.current) {
               mapRef.current.animateToRegion(
                 {
-                  ...coordinates,
+                  latitude: data.coordinates.latitude,
+                  longitude: data.coordinates.longitude,
                   latitudeDelta: 0.0922,
                   longitudeDelta: 0.0421,
                 },
@@ -83,7 +60,7 @@ const EditLocation = ({ route }) => {
     };
 
     fetchUserData();
-  }, [uid, forwardGeocode]);
+  }, [uid]);
 
   const reverseGeocode = useCallback(async (latitude, longitude) => {
     try {
@@ -93,6 +70,7 @@ const EditLocation = ({ route }) => {
       const data = await response.json();
       setAddress(data.address);
     } catch (error) {
+      console.error('Error in reverse geocoding:', error);
     }
   }, []);
 
@@ -116,10 +94,10 @@ const EditLocation = ({ route }) => {
           );
         }
         setLoading(false);
-        setLocationAcquired(true);
+        setHasUserUpdated(true);
       },
       (error) => {
-        Alert.alert('Error', error);
+        Alert.alert('Error', error.message || 'Location could not be obtained');
         setLoading(false);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
@@ -142,11 +120,13 @@ const EditLocation = ({ route }) => {
         1000,
       );
     }
+    setHasUserUpdated(true);
   };
 
   const handleContinue = async () => {
     const locationData = {
       address,
+      coordinates: selectedLocation,
     };
     try {
       const response = await fetch(`${API_BASE_URL}/profile/edit/edit-location`, {
@@ -190,25 +170,22 @@ const EditLocation = ({ route }) => {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
-            onPress={handleMapPress}
-          >
+            onPress={handleMapPress}>
             {selectedLocation && (
               <Marker coordinate={selectedLocation} title="Selected location" />
             )}
           </MapView>
         </View>
-        {loading && <ActivityIndicator style={{ marginBottom: 20 }} size="large" color="#D97904" />}
-        {!locationAcquired ? (
+        {loading && (
+          <ActivityIndicator style={{ marginBottom: 20 }} size="large" color="#D97904" />
+        )}
+        {!hasUserUpdated ? (
           <TouchableOpacity style={styles.button} onPress={getCurrentLocation} disabled={loading}>
             <LocationIcon style={styles.icon} />
             <Text style={styles.buttonText}>Use my current location</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleContinue}
-            disabled={!selectedLocation}
-          >
+          <TouchableOpacity style={styles.button} onPress={handleContinue} disabled={!selectedLocation}>
             <Text style={styles.buttonText}>Save changes</Text>
           </TouchableOpacity>
         )}
