@@ -1,5 +1,3 @@
-/* eslint-disable no-shadow */
-/* eslint-disable react-native/no-inline-styles */
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Alert, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
@@ -27,9 +25,7 @@ const EditLocation = ({ route }) => {
         setLoading(true);
         const response = await fetch(`${API_BASE_URL}/profile/request-data`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: uid }),
         });
         const data = await response.json();
@@ -67,9 +63,13 @@ const EditLocation = ({ route }) => {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
       );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
       const data = await response.json();
       setAddress(data.address);
     } catch (error) {
+      Alert.alert('Error', 'Internet access failed');
       console.error('Error in reverse geocoding:', error);
     }
   }, []);
@@ -97,7 +97,14 @@ const EditLocation = ({ route }) => {
         setHasUserUpdated(true);
       },
       (error) => {
-        Alert.alert('Error', error.message || 'Location could not be obtained');
+        if (error.code === 1) {
+          Alert.alert('Error', 'Location permission denied');
+        } else if (error.code === 2) {
+          Alert.alert('Error', 'Location services disabled please enable GPS and retry');
+        } else {
+          Alert.alert('Sorry', 'Your region is not allowed');
+        }
+        console.error('Geolocation error:', error);
         setLoading(false);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
@@ -124,29 +131,21 @@ const EditLocation = ({ route }) => {
   };
 
   const handleContinue = async () => {
-    const locationData = {
-      address,
-      coordinates: selectedLocation,
-    };
+    const locationData = { address, coordinates: selectedLocation };
     try {
       const response = await fetch(`${API_BASE_URL}/profile/edit/edit-location`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: uid,
-          location: locationData,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid, location: locationData }),
       });
       const data = await response.json();
       if (data.success) {
         navigation.goBack();
       } else {
-        Alert.alert(data.error || 'Error updating location.');
+        Alert.alert('Error', data.error || 'Error updating location.');
       }
     } catch (error) {
-      Alert.alert('Failed to update location.');
+      Alert.alert('Error', 'Failed to update location.');
     }
   };
 
@@ -175,10 +174,12 @@ const EditLocation = ({ route }) => {
               <Marker coordinate={selectedLocation} title="Selected location" />
             )}
           </MapView>
+          {loading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#D97904" />
+            </View>
+          )}
         </View>
-        {loading && (
-          <ActivityIndicator style={{ marginBottom: 20 }} size="large" color="#D97904" />
-        )}
         {!hasUserUpdated ? (
           <TouchableOpacity style={styles.button} onPress={getCurrentLocation} disabled={loading}>
             <LocationIcon style={styles.icon} />
@@ -240,6 +241,16 @@ const styles = StyleSheet.create({
     marginVertical: 35,
     height: 276,
     width: '100%',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#0A0F0DCC',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontFamily: 'GreatMangoDemo',

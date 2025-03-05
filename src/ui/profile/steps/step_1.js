@@ -5,11 +5,22 @@ import Button from '../../components/button';
 const Step1 = ({ onNext, onChangeData }) => {
   const [name, setName] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [error, setError] = useState('');
 
   const validateName = useCallback((input) => {
-    const regex = /^[A-Z][a-zA-Z]{2,}$/;
+    const regex = /^[A-Za-z]*$/;
     return regex.test(input.trim());
   }, []);
+
+  const handleTextChange = (text) => {
+    setName(text);
+
+    if (!validateName(text)) {
+      setError('Please enter a valid name.');
+    } else {
+      setError('');
+    }
+  };
 
   const handleContinue = () => {
     if (validateName(name)) {
@@ -21,33 +32,42 @@ const Step1 = ({ onNext, onChangeData }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-      <Text style={styles.title}>Your Name</Text>
-      <Text style={styles.subtitle}>What's your name? We'd love to know you better!</Text>
+        <Text style={styles.title}>Your Name</Text>
+        <Text style={styles.subtitle}>
+          What's your name? We'd love to know you better!
+        </Text>
 
-      <TextInput
-        style={[styles.input, isFocused && styles.inputFocused]}
-        placeholder="Introduce your name"
-        value={name}
-        onChangeText={setName}
-        placeholderTextColor={'#D9D2B080'}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-      />
+        <TextInput
+          style={[
+            styles.input,
+            isFocused && styles.inputFocused,
+            error && styles.inputError,
+          ]}
+          placeholder="Introduce your name"
+          value={name}
+          onChangeText={handleTextChange}
+          placeholderTextColor={'#D9D2B080'}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+        />
+
+        {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
 
         <Button
           title="Continue"
-          fontSize = {16}
+          fontSize={16}
           fontFamily="Roboto_500"
           backgroundColor="#D97904"
-          disabledBackgroundColor = "#8b580f"
-          disabledTextColor = "#a2a8a5"
+          disabledBackgroundColor="#8b580f"
+          disabledTextColor="#a2a8a5"
           borderRadius={100}
           width={'100%'}
           height={55}
+          marginTop={35}
           onPress={handleContinue}
           disabled={!validateName(name)}
         />
-        </View>
+      </View>
     </View>
   );
 };
@@ -80,41 +100,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#525853',
     color: '#FFFFFF',
-    height: '56',
+    height: 56,
     padding: 10,
     borderRadius: 8,
     backgroundColor: '#17261F',
     fontSize: 16,
-    marginVertical: 35,
+    marginTop: 35,
   },
   inputFocused: {
     borderColor: '#D97904',
   },
-  petalsContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
+  inputError: {
+    borderColor: '#FF626E',
   },
-  singlePetal: {
-    flex: 1,
-  },
-  doublePetals: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  petal1: {
-    marginStart: 10,
-    marginBottom: 60,
-  },
-  petal2: {
-    marginTop: 60,
-  },
-  petal3: {
-    marginLeft: 60,
-    marginTop: 20,
+  errorMessage: {
+    fontFamily: 'Roboto_400',
+    color: '#FF626E',
+    fontSize: 12,
+    marginTop: 5,
   },
 });
 

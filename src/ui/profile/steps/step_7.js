@@ -23,10 +23,14 @@ const Step7 = ({onNext, onChangeData}) => {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
       );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
       const data = await response.json();
       setAddress(data.address);
       console.log('Address:', data.address);
     } catch (error) {
+      Alert.alert('Error', 'Internet access failed');
       console.error('Error geocoding location:', error);
     }
   }, []);
@@ -39,7 +43,6 @@ const Step7 = ({onNext, onChangeData}) => {
         const newLocation = {latitude, longitude};
         setSelectedLocation(newLocation);
         await reverseGeocode(latitude, longitude);
-
         if (mapRef.current) {
           mapRef.current.animateToRegion(
             {
@@ -51,12 +54,17 @@ const Step7 = ({onNext, onChangeData}) => {
             1000,
           );
         }
-
         setLoading(false);
         setLocationAcquired(true);
       },
       error => {
-        Alert.alert('Error', 'Location could not be obtained');
+        if (error.code === 1) {
+          Alert.alert('Error', 'Location permission denied');
+        } else if (error.code === 2) {
+          Alert.alert('Error', 'Location services disabled please enable GPS and retry');
+        } else {
+          Alert.alert('Sorry', 'Your region is not allowed');
+        }
         console.error('Geolocation error:', error);
         setLoading(false);
       },
@@ -69,7 +77,6 @@ const Step7 = ({onNext, onChangeData}) => {
     const newLocation = {latitude, longitude};
     setSelectedLocation(newLocation);
     await reverseGeocode(latitude, longitude);
-
     if (mapRef.current) {
       mapRef.current.animateToRegion(
         {
@@ -88,7 +95,6 @@ const Step7 = ({onNext, onChangeData}) => {
       address,
       coordinates: selectedLocation,
     };
-
     onChangeData('location', locationData);
     onNext();
   };
@@ -104,9 +110,7 @@ const Step7 = ({onNext, onChangeData}) => {
             style={styles.map}
             initialRegion={{
               latitude: selectedLocation ? selectedLocation.latitude : 37.78825,
-              longitude: selectedLocation
-                ? selectedLocation.longitude
-                : -122.4324,
+              longitude: selectedLocation ? selectedLocation.longitude : -122.4324,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             }}
@@ -115,14 +119,12 @@ const Step7 = ({onNext, onChangeData}) => {
               <Marker coordinate={selectedLocation} title="Selected location" />
             )}
           </MapView>
+          {loading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#D97904" />
+            </View>
+          )}
         </View>
-        {loading && (
-          <ActivityIndicator
-            style={{marginBottom: 20}}
-            size="large"
-            color="#D97904"
-          />
-        )}
         {!locationAcquired ? (
           <TouchableOpacity
             style={styles.button}
@@ -134,7 +136,7 @@ const Step7 = ({onNext, onChangeData}) => {
         ) : (
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleContinue()}
+            onPress={handleContinue}
             disabled={!selectedLocation}>
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
@@ -159,6 +161,16 @@ const styles = StyleSheet.create({
     height: 276,
     width: '100%',
   },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#0A0F0DCC',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   title: {
     fontFamily: 'GreatMangoDemo',
     fontSize: 40,
@@ -175,7 +187,6 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-    borderRadius: 20,
     height: 60,
   },
   button: {

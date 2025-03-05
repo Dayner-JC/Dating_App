@@ -1,4 +1,5 @@
-import {React, useState, useRef, useEffect} from 'react';
+/* eslint-disable no-catch-shadow */
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
 import IconButton from '../../components/icon_button';
@@ -14,12 +15,14 @@ const EditBirthday = ({ route }) => {
   const [codeArray, setCodeArray] = useState(Array(codeLength).fill(''));
   const [isFocused, setIsFocused] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [error, setError] = useState('');
   const inputsRef = useRef([]);
 
   const validateDate = (month, day, year) => {
     const monthNumber = parseInt(month, 10);
     const dayNumber = parseInt(day, 10);
     const yearNumber = parseInt(year, 10);
+
     if (
       isNaN(monthNumber) || isNaN(dayNumber) || isNaN(yearNumber) ||
       monthNumber < 1 || monthNumber > 12 ||
@@ -28,11 +31,33 @@ const EditBirthday = ({ route }) => {
     ) {
       return false;
     }
-    const daysInMonth = [31, (yearNumber % 4 === 0 && yearNumber % 100 !== 0 || yearNumber % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    const daysInMonth = [
+      31,
+      (yearNumber % 4 === 0 && yearNumber % 100 !== 0) || yearNumber % 400 === 0 ? 29 : 28,
+      31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
+    ];
     if (dayNumber > daysInMonth[monthNumber - 1]) {
       return false;
     }
+
     return true;
+  };
+
+  const calculateAge = (month, day, year) => {
+    const today = new Date();
+    const birthDate = new Date(year, month - 1, day);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
   };
 
   useEffect(() => {
@@ -62,7 +87,7 @@ const EditBirthday = ({ route }) => {
         } else {
           Alert.alert('Error', data.error || 'Failed to load user data.');
         }
-      } catch (error) {
+      } catch (Error) {
         Alert.alert('Error', 'Failed to load user data.');
       }
     };
@@ -73,12 +98,15 @@ const EditBirthday = ({ route }) => {
   const handleCodeChange = (text, index) => {
     const newCodeArray = [...codeArray];
     newCodeArray[index] = text;
+
     if (text.length > 0 && index < codeLength - 1) {
       inputsRef.current[index + 1]?.focus();
     }
+
     if (text === '' && index > 0) {
       inputsRef.current[index - 1]?.focus();
     }
+
     setCodeArray(newCodeArray);
   };
 
@@ -86,8 +114,29 @@ const EditBirthday = ({ route }) => {
     const month = codeArray.slice(0, 2).join('');
     const day = codeArray.slice(2, 4).join('');
     const year = codeArray.slice(4).join('');
+
+    if (month.length < 2 || day.length < 2 || year.length < 4) {
+      setError('');
+      setIsButtonDisabled(true);
+      return;
+    }
+
     const isValid = validateDate(month, day, year);
-    setIsButtonDisabled(!isValid);
+    if (!isValid) {
+      setError('Invalid date. Please enter a valid date.');
+      setIsButtonDisabled(true);
+      return;
+    }
+
+    const age = calculateAge(parseInt(month, 10), parseInt(day, 10), parseInt(year, 10));
+
+    if (age < 18) {
+      setError('You must be at least 18 years old.');
+      setIsButtonDisabled(true);
+    } else {
+      setError('');
+      setIsButtonDisabled(false);
+    }
   }, [codeArray]);
 
   const handleContinue = async () => {
@@ -96,29 +145,29 @@ const EditBirthday = ({ route }) => {
     const year = codeArray.slice(4).join('');
     const dateOfBirth = `${month}/${day}/${year}`;
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/profile/edit/edit-birthday`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: uid,
-            birthday: dateOfBirth,
-          }),
-        });
+    try {
+      const response = await fetch(`${API_BASE_URL}/profile/edit/edit-birthday`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: uid,
+          birthday: dateOfBirth,
+        }),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.success) {
-          navigation.goBack();
-        } else {
-          Alert.alert(data.error || 'Error updating birthday.');
-        }
-      } catch (error) {
-        console.error('Error updating birthday:', error);
-        Alert.alert('Failed to update birthday.');
+      if (data.success) {
+        navigation.goBack();
+      } else {
+        Alert.alert(data.error || 'Error updating birthday.');
       }
+    } catch (Error) {
+      console.error('Error updating birthday:', error);
+      Alert.alert('Failed to update birthday.');
+    }
   };
 
   return (
@@ -137,7 +186,11 @@ const EditBirthday = ({ route }) => {
               value={codeArray[index]}
               key={index}
               ref={(ref) => (inputsRef.current[index] = ref)}
-              style={[styles.input, isFocused && styles.inputFocused]}
+              style={[
+                styles.input,
+                isFocused && styles.inputFocused,
+                error && styles.inputError,
+              ]}
               placeholder="M"
               placeholderTextColor="#D9D2B080"
               maxLength={1}
@@ -154,7 +207,11 @@ const EditBirthday = ({ route }) => {
               value={codeArray[index + 2]}
               key={index + 2}
               ref={(ref) => (inputsRef.current[index + 2] = ref)}
-              style={[styles.input, isFocused && styles.inputFocused]}
+              style={[
+                styles.input,
+                isFocused && styles.inputFocused,
+                error && styles.inputError,
+              ]}
               placeholder="D"
               placeholderTextColor="#D9D2B080"
               maxLength={1}
@@ -171,7 +228,11 @@ const EditBirthday = ({ route }) => {
               value={codeArray[index + 4]}
               key={index + 4}
               ref={(ref) => (inputsRef.current[index + 4] = ref)}
-              style={[styles.input, isFocused && styles.inputFocused]}
+              style={[
+                styles.input,
+                isFocused && styles.inputFocused,
+                error && styles.inputError,
+              ]}
               placeholder="A"
               placeholderTextColor="#D9D2B080"
               maxLength={1}
@@ -183,6 +244,9 @@ const EditBirthday = ({ route }) => {
             />
           ))}
         </View>
+
+        {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
+
         <Button
           title="Save changes"
           fontSize={16}
@@ -193,6 +257,7 @@ const EditBirthday = ({ route }) => {
           borderRadius={100}
           width={'100%'}
           height={55}
+          marginTop={50}
           onPress={handleContinue}
           disabled={isButtonDisabled}
         />
@@ -258,7 +323,7 @@ const styles = StyleSheet.create({
   },
   codeContainer: {
     flexDirection: 'row',
-    marginVertical: 50,
+    marginTop: 50,
     justifyContent: 'space-between',
   },
   input: {
@@ -274,8 +339,18 @@ const styles = StyleSheet.create({
   inputFocused: {
     borderBottomColor: '#D97904',
   },
+  inputError: {
+    borderBottomColor: '#FF626E',
+  },
   groupSpacing: {
     width: 10,
+  },
+  errorMessage: {
+    fontFamily: 'Roboto_400',
+    color: '#FF626E',
+    fontSize: 12,
+    marginTop: 5,
+    marginBottom: 10,
   },
 });
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-catch-shadow */
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, StatusBar, Alert } from 'react-native';
 import Button from '../../components/button';
@@ -12,11 +13,22 @@ const EditName = ({ route }) => {
   const { uid } = route.params;
   const [name, setName] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [error, setError] = useState('');
 
   const validateName = useCallback((input) => {
-    const regex = /^[A-Z][a-zA-Z]{2,}$/;
+    const regex = /^[A-Za-z\s]*$/;
     return regex.test(input.trim());
   }, []);
+
+  const handleTextChange = (text) => {
+    setName(text);
+
+    if (!validateName(text)) {
+      setError('Please enter a valid name.');
+    } else {
+      setError('');
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,11 +44,11 @@ const EditName = ({ route }) => {
         });
         const data = await response.json();
         if (data.success) {
-          setName(data.name || null);
+          setName(data.name || '');
         } else {
           Alert.alert('Error', data.error || 'Failed to load user data.');
         }
-      } catch (error) {
+      } catch (Error) {
         Alert.alert('Error', 'Failed to load user data.');
       }
     };
@@ -65,7 +77,7 @@ const EditName = ({ route }) => {
         } else {
           Alert.alert(data.error || 'Error updating name.');
         }
-      } catch (error) {
+      } catch (Error) {
         console.error('Error updating name:', error);
         Alert.alert('Failed to update name.');
       }
@@ -86,14 +98,19 @@ const EditName = ({ route }) => {
         <View style={styles.input_container}>
           <Text style={styles.yourName_text}>Your name</Text>
           <TextInput
-            style={[styles.input, isFocused && styles.inputFocused]}
+            style={[
+              styles.input,
+              isFocused && styles.inputFocused,
+              error && styles.inputError,
+            ]}
             placeholder="Max"
             value={name}
-            onChangeText={setName}
+            onChangeText={handleTextChange}
             placeholderTextColor={'#D9D2B080'}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
           />
+          {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
         </View>
 
         <Button
@@ -181,7 +198,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#525853',
     color: '#FFFFFF',
-    height: '56',
+    height: 56,
     padding: 10,
     borderRadius: 8,
     backgroundColor: '#17261F',
@@ -192,6 +209,16 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: '#D97904',
+  },
+  inputError: {
+    borderColor: '#FF626E',
+  },
+  errorMessage: {
+    fontFamily: 'Roboto_400',
+    color: '#FF626E',
+    fontSize: 12,
+    marginTop: 5,
+    marginBottom: 10,
   },
 });
 
