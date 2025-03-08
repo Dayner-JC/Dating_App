@@ -2,12 +2,12 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
   Modal,
+  ToastAndroid,
 } from 'react-native';
 import ChatAppBar from '../appBars/chat_appBar';
 import IconButton from '../../components/icon_button';
@@ -24,7 +24,8 @@ import {
 } from '@simform_solutions/react-native-audio-waveform';
 import RNFS from 'react-native-fs';
 import React, {useEffect, useRef, useState} from 'react';
-import FastImage from 'react-native-fast-image';
+import {getCurrentUserUID} from '../../../infrastructure/uid/uid';
+import API_BASE_URL from '../../../config/config';
 
 const messages = [
   {
@@ -174,7 +175,7 @@ const AudioMessage = ({uri}) => {
 
   return (
     <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-      <PlayIcon/>
+      <PlayIcon />
       <View style={{flex: 1}}>
         <Waveform
           mode="static"
@@ -185,7 +186,7 @@ const AudioMessage = ({uri}) => {
           scrubColor="white"
         />
       </View>
-        <Text style={{color: '#FFFFFF'}}>0:08</Text>
+      <Text style={{color: '#FFFFFF'}}>0:08</Text>
     </View>
   );
 };
@@ -270,13 +271,33 @@ const Message = ({message}) => {
 };
 
 const ChatScreen = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(true);
+  const uid = getCurrentUserUID();
+
+  const handleBlockUser = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/block_unblock/block`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({uid: uid, targetUid: 'mock-3'}),
+      });
+
+      if (response.ok) {
+        setModalVisible(false);
+        ToastAndroid.show('User successfully blocked', ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show('Sorry, some error has occurred', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      ToastAndroid.show('Sorry, some error has occurred', ToastAndroid.SHORT);
+    }
+  };
 
   return (
     <View style={styles.content}>
       <ChatAppBar />
       <View style={styles.body}>
-        {messages.length == 0 ? (
+        {messages.length === 0 ? (
           <Text style={styles.noChatText}>Start a new chat with Max.</Text>
         ) : (
           <FlatList
@@ -299,11 +320,12 @@ const ChatScreen = () => {
             <View style={styles.dialogBar}>
               <CloseIcon onPress={() => setModalVisible(false)} />
             </View>
-            <SlashIcon/>
+            <SlashIcon />
             <Text style={styles.modal_title}>Block User</Text>
             <Text style={styles.message}>
-            Are you sure you want to block this user?{'\n'}
-            This user will no longer be able to message you or view your profile.
+              Are you sure you want to block this user?{'\n'}
+              This user will no longer be able to message you or view your
+              profile.
             </Text>
             <Button
               title={'Confirm Block'}
@@ -313,7 +335,7 @@ const ChatScreen = () => {
               height={48}
               width={302}
               borderRadius={100}
-              onPress={() => {}}
+              onPress={handleBlockUser}
             />
             <Button
               title={'No, cancel'}

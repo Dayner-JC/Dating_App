@@ -1,10 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Switch, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Image, Alert, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  Switch,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+  Image,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import IconButton from '../../components/icon_button';
 import ArrowIcon from '../../../assets/icons/arrow-left.svg';
 import API_BASE_URL from '../../../config/config';
-import { getCurrentUserUID } from '../../../infrastructure/uid/uid';
+import {getCurrentUserUID} from '../../../infrastructure/uid/uid';
 
 const PrivacyManagementScreen = () => {
   const navigation = useNavigation();
@@ -27,26 +38,55 @@ const PrivacyManagementScreen = () => {
   const [profileVisibility, setProfileVisibility] = useState(null);
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
-    if (!uid) {return;}
-
-    const fetchPrivacySettings = async () => {
+    if (!uid) {
+      return;
+    }
+    const fetchBlockedUsers = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/user/privacy-settings/get`, {
+        const response = await fetch(`${API_BASE_URL}/user/block_unblock/get`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: uid }),
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({uid: uid}),
         });
+
         const data = await response.json();
 
         if (data.success) {
-          const { privacySettings } = data;
+          setBlockedUsers(data.blockedUsers || []);
+        } else {
+          console.error('Failed to fetch blocked users');
+        }
+      } catch (error) {
+        console.error('Error fetching blocked users:', error);
+      }
+    };
+
+    fetchBlockedUsers();
+  }, [uid]);
+
+  useEffect(() => {
+    if (!uid) {
+      return;
+    }
+
+    const fetchPrivacySettings = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/user/privacy-settings/get`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({uid: uid}),
+          },
+        );
+        const data = await response.json();
+
+        if (data.success) {
+          const {privacySettings} = data;
           setNotifications(privacySettings.notifications);
           setGeolocation(privacySettings.geolocation);
           setDataUsage(privacySettings.dataUsage);
-          setBlockedUsers(privacySettings.blockedUsers || []);
-          setReportedUsers(privacySettings.reportedUsers || []);
 
           const visibility = privacySettings.profileVisibility;
           if (visibility.Visible_to_all_users) {
@@ -77,13 +117,16 @@ const PrivacyManagementScreen = () => {
     );
   }
 
-  const updatePrivacySettings = async (updatedSettings) => {
+  const updatePrivacySettings = async updatedSettings => {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/privacy-settings/put`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: uid, privacySettings: updatedSettings }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/user/privacy-settings/put`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({uid: uid, privacySettings: updatedSettings}),
+        },
+      );
 
       const data = await response.json();
       if (!data.success) {
@@ -96,7 +139,7 @@ const PrivacyManagementScreen = () => {
   };
 
   const handleNotificationChange = (key, value) => {
-    const updatedNotifications = { ...notifications, [key]: value };
+    const updatedNotifications = {...notifications, [key]: value};
     setNotifications(updatedNotifications);
 
     updatePrivacySettings({
@@ -109,7 +152,7 @@ const PrivacyManagementScreen = () => {
     });
   };
 
-  const handleGeolocationChange = (value) => {
+  const handleGeolocationChange = value => {
     setGeolocation(value);
 
     updatePrivacySettings({
@@ -123,7 +166,7 @@ const PrivacyManagementScreen = () => {
   };
 
   const handleDataUsageChange = (key, value) => {
-    const updatedDataUsage = { ...dataUsage, [key]: value };
+    const updatedDataUsage = {...dataUsage, [key]: value};
     setDataUsage(updatedDataUsage);
 
     updatePrivacySettings({
@@ -177,7 +220,10 @@ const PrivacyManagementScreen = () => {
           <Text style={styles.sectionTitle}>Profile Visibility</Text>
           <View style={styles.row}>
             <Text style={styles.text}>{profileVisibility}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('ProfileVisibilityScreen', { uid: uid })}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('ProfileVisibilityScreen', {uid: uid})
+              }>
               <Text style={styles.editText}>Edit</Text>
             </TouchableOpacity>
           </View>
@@ -186,7 +232,7 @@ const PrivacyManagementScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Allow Notifications</Text>
-          {Object.keys(notifications).map((key) => (
+          {Object.keys(notifications).map(key => (
             <View key={key} style={styles.row}>
               <Text style={styles.text}>
                 {key === 'newMessages'
@@ -199,8 +245,8 @@ const PrivacyManagementScreen = () => {
               </Text>
               <Switch
                 value={notifications[key]}
-                onValueChange={(value) => handleNotificationChange(key, value)}
-                trackColor={{ false: '#525853', true: '#D97904' }}
+                onValueChange={value => handleNotificationChange(key, value)}
+                trackColor={{false: '#525853', true: '#D97904'}}
                 thumbColor={notifications[key] ? '#FFFFFF' : '#FFFFFF'}
               />
             </View>
@@ -214,8 +260,8 @@ const PrivacyManagementScreen = () => {
             <Text style={styles.text}>Allow geolocation</Text>
             <Switch
               value={geolocation}
-              onValueChange={(value) => handleGeolocationChange(value)}
-              trackColor={{ false: '#525853', true: '#D97904' }}
+              onValueChange={value => handleGeolocationChange(value)}
+              trackColor={{false: '#525853', true: '#D97904'}}
               thumbColor={geolocation ? '#FFFFFF' : '#FFFFFF'}
             />
           </View>
@@ -224,7 +270,7 @@ const PrivacyManagementScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Allow Data Usage</Text>
-          {Object.keys(dataUsage).map((key) => (
+          {Object.keys(dataUsage).map(key => (
             <View key={key} style={styles.row}>
               <Text style={styles.text}>
                 {key === 'matchCustomization'
@@ -237,8 +283,8 @@ const PrivacyManagementScreen = () => {
               </Text>
               <Switch
                 value={dataUsage[key]}
-                onValueChange={(value) => handleDataUsageChange(key, value)}
-                trackColor={{ false: '#525853', true: '#D97904' }}
+                onValueChange={value => handleDataUsageChange(key, value)}
+                trackColor={{false: '#525853', true: '#D97904'}}
                 thumbColor={dataUsage[key] ? '#FFFFFF' : '#FFFFFF'}
               />
             </View>
@@ -251,11 +297,16 @@ const PrivacyManagementScreen = () => {
           {blockedUsers.length > 0 ? (
             <View style={styles.userRow}>
               <View style={styles.userList}>
-                {blockedUsers.map((user) => (
-                  <Image key={user.id} source={user.avatar} style={styles.userAvatar} />
+                {blockedUsers.map(user => (
+                  <Image
+                    key={user.uid}
+                    source={{uri: user.photo}}
+                    style={styles.userAvatar}
+                  />
                 ))}
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('BlockedUserScreen')}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('BlockedUserScreen')}>
                 <Text style={styles.manageText}>Manage</Text>
               </TouchableOpacity>
             </View>
@@ -270,8 +321,12 @@ const PrivacyManagementScreen = () => {
           {reportedUsers.length > 0 ? (
             <View style={styles.userRow}>
               <View style={styles.userList}>
-                {reportedUsers.map((user) => (
-                  <Image key={user.id} source={user.avatar} style={styles.userAvatar} />
+                {reportedUsers.map(user => (
+                  <Image
+                    key={user.id}
+                    source={user.avatar}
+                    style={styles.userAvatar}
+                  />
                 ))}
               </View>
             </View>
