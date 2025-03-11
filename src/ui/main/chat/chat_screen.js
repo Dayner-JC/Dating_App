@@ -1,3 +1,4 @@
+import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -8,22 +9,27 @@ import {
   View,
   Modal,
   ToastAndroid,
+  TouchableOpacity,
 } from 'react-native';
-import ChatAppBar from '../appBars/chat_appBar';
+import {useNavigation} from '@react-navigation/native';
 import IconButton from '../../components/icon_button';
-import PlayIcon from '../../../assets/icons/play.svg';
-import CameraIcon from '../../../assets/icons/camera.svg';
-import MicrophoneIcon from '../../../assets/icons/microphone.svg';
 import Button from '../../components/button';
 import CloseIcon from '../../../assets/icons/close.svg';
 import SlashIcon from '../../../assets/icons/slash.svg';
+import InfoIcon from '../../../assets/icons/info-circle.svg';
+import CameraIcon from '../../../assets/icons/camera.svg';
+import MicrophoneIcon from '../../../assets/icons/microphone.svg';
+import PlayIcon from '../../../assets/icons/play.svg';
+import ArrowLeftIcon from '../../../assets/icons/arrow-left.svg';
+import MoreIcon from '../../../assets/icons/more.svg';
+import Phone3Icon from '../../../assets/icons/phone-3.svg';
+import VideoCameraIcon from '../../../assets/icons/video-camera.svg';
 import {
   Waveform,
   IWaveformRef,
   PlayerState,
 } from '@simform_solutions/react-native-audio-waveform';
 import RNFS from 'react-native-fs';
-import React, {useEffect, useRef, useState} from 'react';
 import {getCurrentUserUID} from '../../../infrastructure/uid/uid';
 import API_BASE_URL from '../../../config/config';
 
@@ -77,12 +83,9 @@ const getAudio = async ({uri}) => {
   const filename = arr[arr.length - 1];
   const destinationPath = `${RNFS.DocumentDirectoryPath}/${filename}`;
 
-  // If file already exists, return its path
   if (await RNFS.exists(destinationPath)) {
     return destinationPath;
   }
-
-  console.log(`Downloading ${uri}`);
 
   try {
     const response = RNFS.downloadFile({
@@ -92,10 +95,7 @@ const getAudio = async ({uri}) => {
         console.log('Download progress:', progress);
       },
     });
-
     await response.promise;
-
-    console.log('FILE DOWNLOAD SUCCESS:', destinationPath);
     return destinationPath;
   } catch (error) {
     console.error('FILE DOWNLOAD FAILED:', error);
@@ -105,52 +105,10 @@ const getAudio = async ({uri}) => {
 
 const AudioMessage = ({uri}) => {
   const ref = useRef < IWaveformRef > null;
-
   const [audioPath, setAudioPath] = useState(null);
   const [downloading, setDownloading] = useState(true);
   const [loading, setLoading] = useState(false);
-
   const [playerState, setPlayerState] = useState(PlayerState.stopped);
-
-  // const handlePlayPauseAction = async () => {
-  //   // If we are recording do nothing
-  //   if (
-  //     currentPlayingRef?.current?.currentState === RecorderState.recording
-  //   ) {
-  //     return;
-  //   }
-
-  //   const startNewPlayer = async () => {
-  //     currentPlayingRef = ref;
-  //     if (ref.current?.currentState === PlayerState.paused) {
-  //       await ref.current?.resumePlayer();
-  //     } else {
-  //       await ref.current?.startPlayer({
-  //         finishMode: FinishMode.stop,
-  //       });
-  //     }
-  //   };
-
-  //   // If no player or if current player is stopped just start the new player!
-  //   if (
-  //     currentPlayingRef == null ||
-  //     [PlayerState.stopped, PlayerState.paused].includes(
-  //       currentPlayingRef?.current?.currentState as PlayerState
-  //     )
-  //   ) {
-  //     await startNewPlayer();
-  //   } else {
-  //     // Pause current player if it was playing
-  //     if (currentPlayingRef?.current?.currentState === PlayerState.playing) {
-  //       await currentPlayingRef?.current?.pausePlayer();
-  //     }
-
-  //     // Start player when it is a different one!
-  //     if (currentPlayingRef?.current?.playerKey !== ref?.current?.playerKey) {
-  //       await startNewPlayer();
-  //     }
-  //   }
-  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -165,7 +123,6 @@ const AudioMessage = ({uri}) => {
         setDownloading(false);
       }
     };
-
     fetchData();
   }, [uri]);
 
@@ -174,9 +131,9 @@ const AudioMessage = ({uri}) => {
   }
 
   return (
-    <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+    <View style={styles.audioContainer}>
       <PlayIcon />
-      <View style={{flex: 1}}>
+      <View style={styles.waveformContainer}>
         <Waveform
           mode="static"
           path={audioPath}
@@ -186,45 +143,33 @@ const AudioMessage = ({uri}) => {
           scrubColor="white"
         />
       </View>
-      <Text style={{color: '#FFFFFF'}}>0:08</Text>
+      <Text style={styles.audioDuration}>0:08</Text>
     </View>
   );
 };
 
 const Message = ({message}) => {
-  if (message.from == 'other') {
+  if (message.from === 'other') {
     return (
-      <View style={{flexDirection: 'row', gap: 10}}>
+      <View style={styles.messageRow}>
         <Image
           source={require('../../../assets/image.png')}
           style={styles.avatar}
         />
-        <View style={{flexDirection: 'column', gap: 5}}>
-          {message.type == 'text' && (
-            <View
-              style={{
-                borderRadius: 10,
-                backgroundColor: '#15412D',
-                padding: 10,
-                maxWidth: '80%',
-              }}>
+        <View style={styles.messageColumn}>
+          {message.type === 'text' && (
+            <View style={styles.messageBubbleOther}>
               <Text style={styles.messageText}>{message.data}</Text>
             </View>
           )}
-          {message.type == 'photo' && (
+          {message.type === 'photo' && (
             <Image
               source={require('../../../assets/image-2.jpeg')}
               style={styles.messageImage}
             />
           )}
-          {message.type == 'audio' && (
-            <View
-              style={{
-                borderRadius: 10,
-                backgroundColor: '#15412D',
-                padding: 10,
-                maxWidth: '80%',
-              }}>
+          {message.type === 'audio' && (
+            <View style={styles.messageBubbleOther}>
               <AudioMessage uri={message.data} />
             </View>
           )}
@@ -234,36 +179,23 @@ const Message = ({message}) => {
     );
   } else {
     return (
-      <View style={{flexDirection: 'column', gap: 5, alignItems: 'flex-end'}}>
-        {message.type == 'text' && (
-          <View
-            style={{
-              borderRadius: 10,
-              backgroundColor: '#2B2B2B',
-              padding: 10,
-              maxWidth: '80%',
-            }}>
+      <View style={styles.messageColumnRight}>
+        {message.type === 'text' && (
+          <View style={styles.messageBubbleMe}>
             <Text style={styles.messageText}>{message.data}</Text>
           </View>
         )}
-        {message.type == 'photo' && (
+        {message.type === 'photo' && (
           <Image
             source={require('../../../assets/image-2.jpeg')}
             style={styles.messageImage}
           />
         )}
-        {message.type == 'audio' && (
-          <View
-            style={{
-              borderRadius: 10,
-              backgroundColor: '#2B2B2B',
-              padding: 10,
-              width: 200,
-            }}>
+        {message.type === 'audio' && (
+          <View style={styles.messageBubbleMe}>
             <AudioMessage uri={message.data} />
           </View>
         )}
-
         <Text style={styles.messageTime}>{message.time}</Text>
       </View>
     );
@@ -271,8 +203,31 @@ const Message = ({message}) => {
 };
 
 const ChatScreen = () => {
-  const [modalVisible, setModalVisible] = useState(true);
+  const navigation = useNavigation();
+  const [modalBlockVisible, setModalBlockVisible] = useState(false);
+  const [modalReportVisible, setModalReportVisible] = useState(false);
+  const [selectedReason, setSelectedReason] = useState(null);
+  const [otherReason, setOtherReason] = useState('');
   const uid = getCurrentUserUID();
+
+  const [showMenu, setShowMenu] = useState(false);
+
+  const handleReport = () => {
+    setShowMenu(false);
+    setModalReportVisible(true);
+  };
+
+  const handleBlock = () => {
+    setShowMenu(false);
+    setModalBlockVisible(true);
+  };
+
+  const reasons = [
+    {id: 'inappropriate', label: 'Inappropriate messages'},
+    {id: 'suspicious', label: 'Suspicious behavior'},
+    {id: 'spam', label: 'Spam or unwanted content'},
+    {id: 'other', label: 'Other'},
+  ];
 
   const handleBlockUser = async () => {
     try {
@@ -283,8 +238,9 @@ const ChatScreen = () => {
       });
 
       if (response.ok) {
-        setModalVisible(false);
+        setModalBlockVisible(false);
         ToastAndroid.show('User successfully blocked', ToastAndroid.SHORT);
+        navigation.navigate('BlockSuccessScreen');
       } else {
         ToastAndroid.show('Sorry, some error has occurred', ToastAndroid.SHORT);
       }
@@ -293,9 +249,59 @@ const ChatScreen = () => {
     }
   };
 
+  const handleSubmitReport = () => {
+    ToastAndroid.show('Report submitted successfully', ToastAndroid.SHORT);
+    setModalReportVisible(false);
+    setSelectedReason(null);
+    setOtherReason('');
+    navigation.navigate('ReportSuccessScreen');
+  };
+
+  const handleReasonSelect = reasonId => {
+    setSelectedReason(reasonId);
+  };
+
   return (
     <View style={styles.content}>
-      <ChatAppBar />
+        <View style={styles.appBar}>
+      <View style={styles.container}>
+        <IconButton
+          icon={<ArrowLeftIcon />}
+          onPress={() => navigation.goBack()}
+        />
+        <Image
+          source={require('../../../assets/image.png')}
+          style={styles.avatar}
+        />
+        <Text style={styles.userInfo}>Max, 26</Text>
+      </View>
+
+      <View style={styles.container}>
+        <IconButton icon={<VideoCameraIcon />} style={styles.button} />
+        <IconButton icon={<Phone3Icon />} style={styles.button} />
+
+        <View>
+          <IconButton
+            icon={<MoreIcon />}
+            style={styles.button}
+            onPress={() => setShowMenu(!showMenu)}
+          />
+
+          {showMenu && (
+            <View style={styles.menu}>
+              <TouchableOpacity style={styles.menuItem} onPress={handleReport}>
+              <InfoIcon width={16} height={16} />
+                <Text style={styles.menuItemText}>Report</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem} onPress={handleBlock}>
+                <SlashIcon width={16} height={16} />
+                <Text style={styles.menuItemText}>Block</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </View>
+    </View>
       <View style={styles.body}>
         {messages.length === 0 ? (
           <Text style={styles.noChatText}>Start a new chat with Max.</Text>
@@ -305,30 +311,29 @@ const ChatScreen = () => {
             renderItem={({item}) => <Message message={item} />}
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{gap: 20}}
+            contentContainerStyle={styles.flatListContent}
           />
         )}
       </View>
 
       <Modal
-        transparent={true}
+        transparent
         animationType="fade"
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
+        visible={modalBlockVisible}
+        onRequestClose={() => setModalBlockVisible(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.dialogBox}>
             <View style={styles.dialogBar}>
-              <CloseIcon onPress={() => setModalVisible(false)} />
+              <CloseIcon onPress={() => setModalBlockVisible(false)} />
             </View>
             <SlashIcon />
             <Text style={styles.modal_title}>Block User</Text>
-            <Text style={styles.message}>
-              Are you sure you want to block this user?{'\n'}
-              This user will no longer be able to message you or view your
-              profile.
+            <Text style={styles.messageTextModal}>
+              Are you sure you want to block this user?{'\n'}This user will no
+              longer be able to message you or view your profile.
             </Text>
             <Button
-              title={'Confirm Block'}
+              title="Confirm Block"
               fontFamily="Roboto_500"
               backgroundColor="#C3313C"
               fontSize={14}
@@ -338,7 +343,7 @@ const ChatScreen = () => {
               onPress={handleBlockUser}
             />
             <Button
-              title={'No, cancel'}
+              title="No, cancel"
               fontFamily="Roboto_400"
               backgroundColor="#17261E"
               borderWidth={1}
@@ -348,7 +353,87 @@ const ChatScreen = () => {
               height={48}
               width={302}
               borderRadius={100}
-              onPress={() => setModalVisible(false)}
+              onPress={() => setModalBlockVisible(false)}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        transparent
+        animationType="fade"
+        visible={modalReportVisible}
+        onRequestClose={() => setModalReportVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.dialogReportBox}>
+            <View style={styles.dialogBar}>
+              <CloseIcon onPress={() => setModalReportVisible(false)} />
+            </View>
+            <InfoIcon />
+            <Text style={styles.modal_title}>Report User</Text>
+            <Text style={styles.messageTextModal}>
+              Why do you want to report this user?{'\n'}Please select a reason.
+            </Text>
+            <View style={styles.option_container}>
+              {reasons.map(reason => (
+                <TouchableOpacity
+                  key={reason.id}
+                  style={[
+                    styles.reasonOption,
+                    selectedReason === reason.id && styles.selectedOption,
+                  ]}
+                  onPress={() => handleReasonSelect(reason.id)}>
+                  <Text
+                    style={[
+                      styles.reasonText,
+                      selectedReason === reason.id && styles.selectedText,
+                    ]}>
+                    {reason.label}
+                  </Text>
+                  <View
+                    style={[
+                      styles.circle,
+                      selectedReason === reason.id && styles.selectedCircle,
+                    ]}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+            {selectedReason === 'other' && (
+              <TextInput
+                style={styles.otherInput}
+                placeholder="Describe the reason..."
+                placeholderTextColor="#6F6F6F"
+                multiline
+                value={otherReason}
+                onChangeText={setOtherReason}
+              />
+            )}
+            <Button
+              title="Submit Report"
+              fontFamily="Roboto_500"
+              backgroundColor="#C3313C"
+              disabledBackgroundColor="rgba(195, 49, 60, 1)"
+              disabledTextColor="#a2a8a5"
+              fontSize={14}
+              height={48}
+              width={302}
+              borderRadius={100}
+              onPress={handleSubmitReport}
+              disabled={!selectedReason}
+            />
+            <Button
+              title="No, cancel"
+              fontFamily="Roboto_400"
+              backgroundColor="#17261E"
+              borderWidth={1}
+              borderColor="#747474"
+              marginTop={12}
+              fontSize={14}
+              height={48}
+              width={302}
+              borderRadius={100}
+              onPress={() => setModalReportVisible(false)}
             />
           </View>
         </View>
@@ -370,19 +455,87 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
   content: {
     backgroundColor: '#0A0F0D',
-    flexDirection: 'column',
     flex: 1,
+  },
+  menu: {
+    position: 'absolute',
+    top: 40,
+    right: 0,
+    backgroundColor: '#0A0F0D',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#15412D',
+    zIndex: 1,
+    width: 140,
+    height: 74,
+  },
+  menuItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuItemText: {
+    fontFamily: 'Roboto_400',
+    color: '#FFFFFF',
+    fontSize: 14,
+    marginStart: 8,
+  },
+  appBar: {
+    height: 72,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+  },
+  userInfo: {
+    color: '#FFFFFF',
+    fontFamily: 'Roboto_700',
+    fontSize: 16,
+    padding: 20,
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   body: {
     flex: 1,
-    flexDirection: 'column',
     paddingHorizontal: 20,
+  },
+  flatListContent: {
+    paddingBottom: 20,
   },
   noChatText: {
     color: '#A0A0A0',
     fontFamily: 'Roboto',
     fontSize: 12,
     textAlign: 'center',
+  },
+  messageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginVertical: 8,
+  },
+  messageColumn: {
+    flexDirection: 'column',
+    marginLeft: 10,
+  },
+  messageColumnRight: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    marginVertical: 8,
+  },
+  messageBubbleOther: {
+    borderRadius: 10,
+    backgroundColor: '#15412D',
+    padding: 10,
+    maxWidth: '80%',
+  },
+  messageBubbleMe: {
+    borderRadius: 10,
+    backgroundColor: '#2B2B2B',
+    padding: 10,
+    maxWidth: '80%',
   },
   messageText: {
     color: '#FFFFFF',
@@ -399,22 +552,10 @@ const styles = StyleSheet.create({
     height: 168,
     borderRadius: 20,
   },
-  buttonImage: {
-    height: 22,
-    width: 22,
-    alignSelf: 'flex-end',
-  },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-  },
-  messageFromOther: {
-    flexDirection: 'column',
-    width: '50%',
-  },
-  messageFromMe: {
-    width: '50%',
   },
   footer: {
     flexDirection: 'row',
@@ -427,6 +568,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#6F6F6F',
     borderRadius: 8,
+    color: '#FFFFFF',
   },
   button: {
     height: 40,
@@ -448,6 +590,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#21362C',
   },
+  dialogReportBox: {
+    width: 350,
+    backgroundColor: '#17261E',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#21362C',
+  },
   dialogBar: {
     height: 36,
     alignItems: 'flex-end',
@@ -459,15 +610,78 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto_500',
     fontSize: 22,
     color: '#FFFFFF',
-    marginBottom: 10,
-    marginTop: 5,
+    marginVertical: 5,
+    textAlign: 'center',
   },
-  message: {
+  messageTextModal: {
     fontFamily: 'Roboto_400',
     fontSize: 14,
     color: '#FFFFFF',
     marginBottom: 20,
     textAlign: 'center',
+  },
+  option_container: {
+    marginBottom: 20,
+    width: '100%',
+  },
+  reasonOption: {
+    flexDirection: 'row',
+    backgroundColor: '#5258531A',
+    borderColor: '#525853',
+    borderWidth: 2,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 15,
+    height: 56,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
+  },
+  selectedOption: {
+    backgroundColor: '#3A341B',
+    borderColor: '#D97904',
+  },
+  reasonText: {
+    color: '#D9D2B0',
+    fontSize: 16,
+    fontFamily: 'Roboto_400',
+  },
+  selectedText: {
+    color: '#FFFFFF',
+  },
+  circle: {
+    width: 20,
+    height: 20,
+    borderWidth: 0.5,
+    borderColor: '#DADADA',
+    borderRadius: 4,
+  },
+  selectedCircle: {
+    borderWidth: 3.5,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#D97904',
+  },
+  otherInput: {
+    height: 80,
+    borderWidth: 1,
+    borderColor: '#747474',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    color: '#FFFFFF',
+    textAlignVertical: 'top',
+    marginBottom: 20,
+    width: 302,
+  },
+  audioContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  waveformContainer: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  audioDuration: {
+    color: '#FFFFFF',
   },
 });
 

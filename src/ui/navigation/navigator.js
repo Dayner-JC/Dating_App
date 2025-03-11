@@ -48,6 +48,8 @@ import UploadProfilePictureScreen from '../profile/profile_picture/upload_profil
 import DatingPreferencesScreen from '../main/account/dating_preferences/dating_preferences_screen';
 import ListMatchesScreen from '../main/list_matches_screen';
 import NotificationsScreen from '../notifications/NotificationsScreen';
+import ReportSuccessScreen from '../main/chat/report_success_screen';
+import BlockSuccessScreen from '../main/chat/block_success_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
@@ -101,6 +103,8 @@ const Navigator = () => {
         <Stack.Screen name="UploadProfilePictureScreen" component={UploadProfilePictureScreen} />
         <Stack.Screen name="DatingPreferencesScreen" component={DatingPreferencesScreen} />
         <Stack.Screen name="ListMatchesScreen" component={ListMatchesScreen} />
+        <Stack.Screen name="ReportSuccessScreen" component={ReportSuccessScreen} />
+        <Stack.Screen name="BlockSuccessScreen" component={BlockSuccessScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
