@@ -44,7 +44,7 @@ const PrivacyManagementScreen = () => {
     }
     const fetchBlockedUsers = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/user/block_unblock/get`, {
+        const response = await fetch(`${API_BASE_URL}/user/block_unblock_report/get`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({uid: uid}),

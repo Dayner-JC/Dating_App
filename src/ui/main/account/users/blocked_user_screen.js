@@ -49,8 +49,8 @@ const BlockedUserScreen = () => {
     setUpdating(user.uid);
     try {
       const endpoint = user.blocked
-        ? `${API_BASE_URL}/user/block_unblock/block`
-        : `${API_BASE_URL}/user/block_unblock/unblock`;
+        ? `${API_BASE_URL}/user/block_unblock_report/block`
+        : `${API_BASE_URL}/user/block_unblock_report/unblock`;
 
       const response = await fetch(endpoint, {
         method: 'POST',

@@ -223,15 +223,15 @@ const ChatScreen = () => {
   };
 
   const reasons = [
-    {id: 'inappropriate', label: 'Inappropriate messages'},
-    {id: 'suspicious', label: 'Suspicious behavior'},
-    {id: 'spam', label: 'Spam or unwanted content'},
-    {id: 'other', label: 'Other'},
+    {id: 'Inappropriate messages', label: 'Inappropriate messages'},
+    {id: 'Suspicious behavior', label: 'Suspicious behavior'},
+    {id: 'Spam or unwanted content', label: 'Spam or unwanted content'},
+    {id: 'Other', label: 'Other'},
   ];
 
   const handleBlockUser = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/block_unblock/block`, {
+      const response = await fetch(`${API_BASE_URL}/user/block_unblock_report/block`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({uid: uid, targetUid: 'mock-3'}),
@@ -249,13 +249,37 @@ const ChatScreen = () => {
     }
   };
 
-  const handleSubmitReport = () => {
-    ToastAndroid.show('Report submitted successfully', ToastAndroid.SHORT);
+const handleSubmitReport = async () => {
+
+  const reportData = {
+    reporterUid: uid,
+    reportedUid: 'mock-1',
+    reason: selectedReason,
+    otherText: selectedReason === 'Other' ? otherReason : null,
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/block_unblock_report/report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reportData),
+    });
+
+    if (!response.ok) {
+      const { message } = await response.json();
+      ToastAndroid.show(message || 'Error sending the report.', ToastAndroid.SHORT);
+      return;
+    }
+
     setModalReportVisible(false);
     setSelectedReason(null);
     setOtherReason('');
     navigation.navigate('ReportSuccessScreen');
-  };
+  } catch (error) {
+    ToastAndroid.show('An error occurred while submitting the report.', ToastAndroid.SHORT);
+    console.error('Error:', error);
+  }
+};
 
   const handleReasonSelect = reasonId => {
     setSelectedReason(reasonId);
@@ -399,7 +423,7 @@ const ChatScreen = () => {
                 </TouchableOpacity>
               ))}
             </View>
-            {selectedReason === 'other' && (
+            {selectedReason === 'Other' && (
               <TextInput
                 style={styles.otherInput}
                 placeholder="Describe the reason..."
@@ -420,7 +444,11 @@ const ChatScreen = () => {
               width={302}
               borderRadius={100}
               onPress={handleSubmitReport}
-              disabled={!selectedReason}
+              disabled={
+                selectedReason === 'Other'
+                  ? otherReason.trim().length < 20
+                  : !selectedReason
+              }
             />
             <Button
               title="No, cancel"
