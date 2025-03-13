@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
-import Button from '../../components/button';
-import IconButton from '../../components/icon_button';
-import ArrowIcon from '../../../assets/icons/arrow-left.svg';
-import Background from '../../../assets/backgrounds/2.svg';
-import Frame from '../../../assets/frame.svg';
+import Button from '../../../components/button';
+import IconButton from '../../../components/icon_button';
+import ArrowIcon from '../../../../assets/icons/arrow-left.svg';
+import Background from '../../../../assets/backgrounds/2.svg';
+import Frame from '../../../../assets/frame.svg';
 import { useNavigation } from '@react-navigation/native';
 
 const BlockSuccessScreen = () => {

@@ -41,15 +41,15 @@ import ChangeEmailScreen from '../main/account/email/change_email_screen';
 import ChangePhoneScreen from '../main/account/phone/change_phone_screen';
 import VerifyCodeChangePhoneScreen from '../auth/verify/verify_code_change_phone_screen';
 import ConfirmChangeEmailScreen from '../main/account/email/confirm_change_email_screen';
-import ChatScreen from '../main/chat/chat_screen';
+import ChatScreen from '../main/chat/screens/chat_screen';
 import HelpCenterScreen from '../help_center/help_center_screen';
 import ProfileScreen from '../main/profile_screen';
 import UploadProfilePictureScreen from '../profile/profile_picture/upload_profile_picture_screen';
 import DatingPreferencesScreen from '../main/account/dating_preferences/dating_preferences_screen';
 import ListMatchesScreen from '../main/list_matches_screen';
 import NotificationsScreen from '../notifications/NotificationsScreen';
-import ReportSuccessScreen from '../main/chat/report_success_screen';
-import BlockSuccessScreen from '../main/chat/block_success_screen';
+import ReportSuccessScreen from '../main/chat/screens/report_success_screen';
+import BlockSuccessScreen from '../main/chat/screens/block_success_screen';
 const Stack = createStackNavigator();
 
 const Navigator = () => {
